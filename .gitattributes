@@ -1,0 +1,2 @@
+# TextMesh Pro のファイルは言語統計に含めない
+Assets/TextMesh Pro/** linguist-generated=true
