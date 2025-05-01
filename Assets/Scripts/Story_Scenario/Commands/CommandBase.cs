@@ -24,7 +24,7 @@ public abstract class CommandBase
     /// <summary>
     /// コマンドの実行
     /// </summary>
-    public abstract UniTask ExecuteAsync(ScenarioLineData lineData);
+    public abstract UniTask ExecuteAsync(LineData<ScenarioFields> lineData);
 
     /// <summary>
     /// コマンド実行時に利用するキャンセルトークン

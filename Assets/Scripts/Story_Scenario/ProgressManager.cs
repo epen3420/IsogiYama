@@ -22,7 +22,7 @@ public class ProgressManager : SceneSingleton<ProgressManager>
     private CSVLoader csvLoader;
     private CommandFactory commandFactory;
 
-    private ScenarioData currentScenarioData;
+    private CsvData<ScenarioFields> currentScenarioData;
     private int currentIndex;  //今の読み込み列_index
     private int nextIndex; //次読み込む列
     private int totalLine;
@@ -31,7 +31,7 @@ public class ProgressManager : SceneSingleton<ProgressManager>
     private void Start()
     {
 
-        currentScenarioData = new ScenarioData();
+        currentScenarioData = new CsvData<ScenarioFields>();
         csvLoader = new CSVLoader();
         commandFactory = new CommandFactory();
 
@@ -45,8 +45,8 @@ public class ProgressManager : SceneSingleton<ProgressManager>
     {
         while (currentIndex < totalLine)
         {
-            ScenarioLineData line = currentScenarioData.scenarioDataList[currentIndex];
-            currentCommand = line.GetData<string>(ScenarioFields.Command);
+            LineData<ScenarioFields> line = currentScenarioData.Rows[currentIndex];
+            currentCommand = line.Get<string>(ScenarioFields.Command);
             await commandFactory.CreateCommandInstance(currentCommand).ExecuteAsync(line);
 
             IncrementIndex();
@@ -71,13 +71,13 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         Debug.Log($"current:{currentIndex} / next:{(nextIndex > totalLine ? totalLine : nextIndex)}");
     }
 
-    public ScenarioLineData GetIndexLine(int address)
+    public LineData<ScenarioFields> GetIndexLine(int address)
     {
         if (address > totalLine)
         {
             Debug.LogError("Address Out Of Range");
         }
-        return currentScenarioData.scenarioDataList[address];
+        return currentScenarioData.Rows[address];
     }
 
     public void LoadScenarioData()
@@ -91,6 +91,6 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         currentIndex = 0;
         nextIndex = 1;
         currentScenarioData = csvLoader.ReadScenarioCSV(file, "テストファイル");
-        totalLine = currentScenarioData.scenarioDataList.Count;
+        totalLine = currentScenarioData.Rows.Count;
     }
 }
