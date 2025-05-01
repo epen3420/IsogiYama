@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
 using UnityEngine;
-using System.Reflection;
 
 /// <summary>
 /// CSVをListに格納
@@ -21,46 +20,58 @@ namespace IsogiYama.System
         public CsvData<TEnum> LoadCSV<TEnum>(TextAsset csvFile, string dataName = default)
             where TEnum : struct, Enum
         {
-            // 結果を格納するコンテナ
             var result = new CsvData<TEnum>();
             result.DataName = string.IsNullOrEmpty(dataName) ? csvFile.name : dataName;
 
-            // CSVの行を分割
+            // 全行を取得（空行も含む）
             string[] lines = csvFile.text.Split('\n');
+
             if (lines.Length < 2)
                 throw new Exception("CSVファイルが空か、ヘッダーがありません。");
 
-            // ヘッダー行の解析
-            string[] headers = lines[0].Split(',');
-            var enumMapping = new Dictionary<int, TEnum>();
+            // ヘッダーを取得
+            string headerLine = lines[0];
+            string[] headers = headerLine.Split(',');
 
+            // ヘッダー名→列インデックス辞書を作成
+            var headerToIndex = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             for (int i = 0; i < headers.Length; i++)
             {
-                string trimmed = headers[i].Trim();
-                if (Enum.TryParse(trimmed, out TEnum field))
-                    enumMapping[i] = field;
-                else
-                    throw new Exception($"Unknown header: {trimmed}");
+                var name = headers[i].Trim();
+                if (headerToIndex.ContainsKey(name))
+                    throw new Exception($"ヘッダー名 '{name}' が重複しています。");
+                headerToIndex[name] = i;
+            }
+
+            // Enum の各メンバーに対して必ずヘッダーがあるかチェックしつつ、Enumインデックスマップを作成
+            var enumToIndex = new Dictionary<TEnum, int>();
+            foreach (TEnum enumVal in Enum.GetValues(typeof(TEnum)))
+            {
+                string enumName = enumVal.ToString();
+                if (!headerToIndex.TryGetValue(enumName, out int idx))
+                    throw new Exception($"CSV のヘッダーに Enum '{enumName}' が見つかりません。");
+                enumToIndex[enumVal] = idx;
             }
 
             // データ行を読み込み
-            for (int i = 1; i < lines.Length; i++)
+            for (int lineNo = 1; lineNo < lines.Length; lineNo++)
             {
-                var line = lines[i];
-                if (string.IsNullOrWhiteSpace(line)) continue; // 空行をスキップ
+                var raw = lines[lineNo];
+                if (string.IsNullOrWhiteSpace(raw)) continue;  // 空行はスキップ
 
-                string[] values = line.Split(',');
+                var values = raw.Split(',');
                 if (values.Length != headers.Length)
-                    throw new Exception($"行 {i + 1} の列数がヘッダーと一致しません。");
+                    throw new Exception($"行 {lineNo + 1} の列数 ({values.Length}) がヘッダー数 ({headers.Length}) と一致しません。");
 
                 var row = new LineData<TEnum>();
 
-                // 各ヘッダーに対応する値を設定
-                for (int j = 0; j < values.Length; j++)
+                // Enum列インデックスマップを使って値をセット
+                foreach (var kv in enumToIndex)
                 {
-                    var str = values[j].Trim();
-                    object parsed = ParseValue(str);
-                    row[enumMapping[j]] = parsed;
+                    TEnum field = kv.Key;
+                    int idx = kv.Value;
+                    string str = values[idx].Trim();
+                    row[field] = ParseValue(str);
                 }
 
                 result.Rows.Add(row);
@@ -69,6 +80,7 @@ namespace IsogiYama.System
             Debug.Log($"Loaded CsvData<{typeof(TEnum).Name}> ({result.Rows.Count} 行) for '{result.DataName}'");
             return result;
         }
+
 
         // 煩雑な仕様をまとめてファイルを渡せばよいだけにしたメソッド
         public CsvData<ScenarioFields> ReadScenarioCSV(TextAsset file, string filename = default)
