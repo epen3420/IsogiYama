@@ -1,20 +1,22 @@
+/// <summary>
+/// 文単位でタイピングの正誤判定を行いうクラス
+/// </summary>
 public class TypingJudger
 {
-    private char[] currentChars;
-    private int currentCharIndex;
+    private char[] judeChars;
+    private int judeCharsIndex = 0;
 
     public TypingJudger(string judgeString)
     {
-        currentChars = judgeString.ToCharArray();
-        currentCharIndex = 0;
+        judeChars = judgeString.ToCharArray();
     }
 
-    public TypingState JudgeWord(char inputChar)
+    public TypingState JudgeChar(char typedChar)
     {
-        if (currentChars[currentCharIndex] == inputChar)
+        if (judeChars[judeCharsIndex] == typedChar)
         {
-            currentCharIndex++;
-            if (currentCharIndex >= currentChars.Length)
+            judeCharsIndex++;
+            if (judeCharsIndex >= judeChars.Length)
             {
                 return TypingState.Clear;
             }

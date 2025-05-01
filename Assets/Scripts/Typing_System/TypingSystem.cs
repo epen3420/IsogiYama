@@ -6,8 +6,8 @@ using UnityEngine.InputSystem;
 
 public class TypingSystem : MonoBehaviour
 {
-    private TypingJudger typingJudge;
-    private List<TypingQuest> questList;
+    private TypingJudger typingJudger; // タイピング判定用クラス
+    private List<TypingQuest> questList; // 問題を格納するリスト
     private int questIndex = 0;
 
     [SerializeField]
@@ -33,6 +33,7 @@ public class TypingSystem : MonoBehaviour
     private void Start()
     {
         questList = LoadCSV(csvFile);
+
         Init();
     }
 
@@ -41,36 +42,47 @@ public class TypingSystem : MonoBehaviour
         if (questIndex >= questList.Count)
         {
             DisableKeyboardInput();
+
             japaneseText.text = "Game Clear";
             romaText.text = "Game Clear";
             inputText.text = null;
+
             return;
         }
 
-        TypingQuest currentQuest = questList[questIndex];
+        TypingQuest currentQuest = questList[questIndex++];
+
         japaneseText.text = currentQuest.japanese;
         romaText.text = currentQuest.roma;
         inputText.text = null;
 
-        typingJudge = new TypingJudger(currentQuest.roma);
-        questIndex++;
+        typingJudger = new TypingJudger(currentQuest.roma);
     }
 
-    private void OnKeyboardInput(char ch)
+    /// <summary>
+    /// タイピングの入力を受け取り、判定を行う
+    /// </summary>
+    /// <param name="typedChar"></param>
+    private void OnKeyboardInput(char typedChar)
     {
-        switch (typingJudge.JudgeWord(ch))
+        switch (typingJudger.JudgeChar(typedChar))
         {
             case TypingState.Hit:
-                inputText.text += ch;
-                Debug.Log("Hit");
+                inputText.text += typedChar;
+
+                Debug.Log($"{typedChar}: Hit");
                 break;
+
             case TypingState.Miss:
-                Debug.Log("Miss");
+                Debug.Log($"{typedChar}: Miss");
                 break;
+
             case TypingState.Clear:
-                Debug.Log("Clear");
+                Debug.Log($"{typedChar}: Clear");
+
                 Init();
                 break;
+
             default:
                 Debug.Log("Error");
                 break;
@@ -105,6 +117,9 @@ public class TypingSystem : MonoBehaviour
         return questions;
     }
 
+    /// <summary>
+    /// タイピング時のキーボード入力を有効化
+    /// </summary>
     private void EnableKeyboardInput()
     {
         var keyboard = Keyboard.current;
@@ -114,6 +129,9 @@ public class TypingSystem : MonoBehaviour
         keyboard.onTextInput += OnKeyboardInput;
     }
 
+    /// <summary>
+    /// タイピング時のキーボード入力を無効化
+    /// </summary>
     private void DisableKeyboardInput()
     {
         var keyboard = Keyboard.current;
