@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using IsogiYama.System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -7,7 +8,7 @@ using UnityEngine.InputSystem;
 public class TypingSystem : MonoBehaviour
 {
     private TypingJudger typingJudger; // タイピング判定用クラス
-    private List<TypingQuest> questList; // 問題を格納するリスト
+    private CsvData<TypingQuest> questList; // 問題を格納するリスト
     private int questIndex = 0;
 
     [SerializeField]
@@ -32,14 +33,15 @@ public class TypingSystem : MonoBehaviour
 
     private void Start()
     {
-        questList = LoadCSV(csvFile);
+        var csvLoader = new CSVLoader();
+        questList = csvLoader.LoadCSV<TypingQuest>(csvFile);
 
         Init();
     }
 
     private void Init()
     {
-        if (questIndex >= questList.Count)
+        if (questIndex >= questList.Rows.Count)
         {
             DisableKeyboardInput();
 
@@ -50,13 +52,13 @@ public class TypingSystem : MonoBehaviour
             return;
         }
 
-        TypingQuest currentQuest = questList[questIndex++];
+        var currentQuest = questList.Rows[questIndex++];
 
-        japaneseText.text = currentQuest.japanese;
-        romaText.text = currentQuest.roma;
+        japaneseText.text = currentQuest.Get<string>(TypingQuest.japanese);
+        romaText.text = currentQuest.Get<string>(TypingQuest.roma);
         inputText.text = null;
 
-        typingJudger = new TypingJudger(currentQuest.roma);
+        typingJudger = new TypingJudger(currentQuest.Get<string>(TypingQuest.roma));
     }
 
     /// <summary>
@@ -89,34 +91,6 @@ public class TypingSystem : MonoBehaviour
         }
     }
 
-    private List<TypingQuest> LoadCSV(TextAsset csvFile)
-    {
-        StringReader reader = new StringReader(csvFile.text);
-        var questions = new List<TypingQuest>();
-
-        bool isHeader = true;
-
-        while (reader.Peek() > -1)
-        {
-            var line = reader.ReadLine();
-            if (isHeader)
-            {
-                isHeader = false; // 最初の1行はヘッダーとしてスキップ
-                continue;
-            }
-
-            var values = line.Split(',');
-
-            if (values.Length >= 2)
-            {
-                questions.Add(new TypingQuest(values[0], values[1]));
-            }
-        }
-
-        reader.Close();
-        return questions;
-    }
-
     /// <summary>
     /// タイピング時のキーボード入力を有効化
     /// </summary>
@@ -142,14 +116,8 @@ public class TypingSystem : MonoBehaviour
     }
 }
 
-class TypingQuest
+public enum TypingQuest
 {
-    public string japanese { get; private set; }
-    public string roma { get; private set; }
-
-    public TypingQuest(string japanese, string roma)
-    {
-        this.japanese = japanese;
-        this.roma = roma;
-    }
+    japanese,
+    roma
 }
