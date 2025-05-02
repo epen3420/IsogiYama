@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameFlowManager : SceneSingleton<GameFlowManager>
+public class GameFlowManager : Singleton<GameFlowManager>
 {
-    private GameStep currentGameStep;
+    private GameStepBase currentGameStep;
     private int stepIndex = 0;
     private const float ERROR_CLEAR_TIME = 20.0f;
 
@@ -27,25 +27,33 @@ public class GameFlowManager : SceneSingleton<GameFlowManager>
     /// <returns></returns>
     public TextAsset GetCurrentCSV()
     {
-        return currentGameStep.csvFile;
+        return currentGameStep.CsvFile;
     }
 
-    // 注意: このメソッドは未完成です。
-    // 特に、シーン遷移に関しては仮です。
     public void GoToNextScene()
     {
         currentGameStep = gameFlowData.gameSteps[stepIndex++];
-        switch (currentGameStep.stepType)
+        switch (currentGameStep.StepType)
         {
             case GameStepType.Story:
                 SceneManager.LoadScene("StoryScene");
                 break;
             case GameStepType.Typing:
-                SceneManager.LoadScene("TypingScene");
+                SceneManager.LoadScene("GameFlowDevScene");
                 break;
             case GameStepType.Branch:
-                currentGameStep = currentGameStep.GetNextStepByClearTime(ClearTime);
-                SceneManager.LoadScene("StoryScene");
+                if (currentGameStep is GameBranchStep branchStep)
+                {
+                    currentGameStep = branchStep.GetNextStepByClearTime(ClearTime);
+                    if (currentGameStep != null)
+                    {
+                        SceneManager.LoadScene("GameFlowDevScene");
+                    }
+                    else
+                    {
+                        Debug.LogError("No valid next step found for the current clear time.");
+                    }
+                }
                 break;
             default:
                 Debug.LogError("Not set StepType in next GameStep.");

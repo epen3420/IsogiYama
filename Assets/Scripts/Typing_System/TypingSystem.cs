@@ -32,7 +32,7 @@ public class TypingSystem : MonoBehaviour
 
     private void Start()
     {
-        questList = LoadCSV(InstanceRegister.Get<GameFlowManager>().GetCurrentCSV());
+        questList = LoadCSV(GameFlowManager.instance.GetCurrentCSV());
 
         Init();
     }
@@ -42,6 +42,7 @@ public class TypingSystem : MonoBehaviour
         if (questIndex >= questList.Count)
         {
             DisableKeyboardInput();
+            GameFlowManager.instance.GoToNextScene();
 
             japaneseText.text = "Game Clear";
             romaText.text = "Game Clear";
