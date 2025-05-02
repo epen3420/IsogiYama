@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using IsogiYama.System;
 using TMPro;
 using UnityEngine;
@@ -41,24 +42,27 @@ public class TypingSystem : MonoBehaviour
 
     private void Init()
     {
+        inputText.maxVisibleCharacters = 0;
         if (questIndex >= questList.Rows.Count)
         {
             DisableKeyboardInput();
 
             japaneseText.text = "Game Clear";
-            romaText.text = "Game Clear";
+            romaText.text = null;
             inputText.text = null;
 
             return;
         }
 
         var currentQuest = questList.Rows[questIndex++];
+        var currentJapanese = currentQuest.Get<string>(TypingQuest.japanese);
+        var currentRoma = currentQuest.Get<string>(TypingQuest.roma);
 
-        japaneseText.text = currentQuest.Get<string>(TypingQuest.japanese);
-        romaText.text = currentQuest.Get<string>(TypingQuest.roma);
-        inputText.text = null;
+        japaneseText.text = currentJapanese;
+        romaText.text = currentRoma;
+        inputText.text = currentRoma;
 
-        typingJudger = new TypingJudger(currentQuest.Get<string>(TypingQuest.roma));
+        typingJudger = new TypingJudger(currentRoma);
     }
 
     /// <summary>
@@ -70,7 +74,7 @@ public class TypingSystem : MonoBehaviour
         switch (typingJudger.JudgeChar(typedChar))
         {
             case TypingState.Hit:
-                inputText.text += typedChar;
+                inputText.maxVisibleCharacters++;
 
                 Debug.Log($"{typedChar}: Hit");
                 break;
