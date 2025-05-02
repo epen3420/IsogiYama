@@ -610,7 +610,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae07e20de97341f4197d0a3470b1572a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  csvFile: {fileID: 0}
   japaneseText: {fileID: 1347951034}
   romaText: {fileID: 114032813}
   inputText: {fileID: 1643169702}
@@ -1099,7 +1098,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25929fd3fc9a61b47b170aea231ba72f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameFlowData: {fileID: 11400000, guid: 72750030cc2c6994d8ae464c5ec48eda, type: 2}
+  gameFlowData: {fileID: 11400000, guid: 2f5191d1465695f4d804cbaa22483f18, type: 2}
 --- !u!4 &2027441533
 Transform:
   m_ObjectHideFlags: 0

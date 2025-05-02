@@ -19,6 +19,9 @@ public class GameFlowManager : Singleton<GameFlowManager>
             Debug.LogError("GameFlowDataBase is not assigned in GameFlowManager.");
             return;
         }
+
+        // 以下テスト用、実際は消す
+        currentGameStep = gameFlowData.gameSteps[stepIndex++];
     }
 
     /// <summary>
