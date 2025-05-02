@@ -32,7 +32,7 @@ public class TypingSystem : MonoBehaviour
 
     private void Start()
     {
-        questList = LoadCSV(InstanceRegister.Get<GameFlowManager>().GetCurrentCSVData());
+        questList = LoadCSV(InstanceRegister.Get<GameFlowManager>().GetCurrentCSV());
 
         Init();
     }

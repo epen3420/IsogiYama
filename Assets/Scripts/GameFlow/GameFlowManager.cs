@@ -1,9 +1,11 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameFlowManager : SceneSingleton<GameFlowManager>
 {
+    private GameStep currentGameStep;
     private int stepIndex = 0;
-    private const float ERROR_TIME = 20.0f;
+    private const float ERROR_CLEAR_TIME = 20.0f;
 
     public float ClearTime { private get; set; } = 0.0f;
     [SerializeField]
@@ -19,14 +21,35 @@ public class GameFlowManager : SceneSingleton<GameFlowManager>
         }
     }
 
-    public TextAsset GetCurrentCSVData()
+    /// <summary>
+    /// 現在のシーンで必要なCSVファイルを供給します。
+    /// </summary>
+    /// <returns></returns>
+    public TextAsset GetCurrentCSV()
     {
-        var currentStep = gameFlowData.gameSteps[stepIndex++];
-        if (currentStep.stepType == GameStepType.Branch && ClearTime > ERROR_TIME)
+        return currentGameStep.csvFile;
+    }
+
+    // 注意: このメソッドは未完成です。
+    // 特に、シーン遷移に関しては仮です。
+    public void GoToNextScene()
+    {
+        currentGameStep = gameFlowData.gameSteps[stepIndex++];
+        switch (currentGameStep.stepType)
         {
-            var branchStep = currentStep.GetNextStepByClearTime(ClearTime);
-            return branchStep.csvFile;
+            case GameStepType.Story:
+                SceneManager.LoadScene("StoryScene");
+                break;
+            case GameStepType.Typing:
+                SceneManager.LoadScene("TypingScene");
+                break;
+            case GameStepType.Branch:
+                currentGameStep = currentGameStep.GetNextStepByClearTime(ClearTime);
+                SceneManager.LoadScene("StoryScene");
+                break;
+            default:
+                Debug.LogError("Not set StepType in next GameStep.");
+                break;
         }
-        return currentStep.csvFile;
     }
 }
