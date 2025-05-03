@@ -19,7 +19,7 @@ public class VFXSample : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Return))
         {
-            vfx.ChangeBackground(bg, duration).Forget();
+            vfx.ChangeBackgroundAsync(bg, duration).Forget();
         }
     }
 }

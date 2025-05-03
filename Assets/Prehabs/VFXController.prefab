@@ -47,8 +47,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   backgroundImageMain: {fileID: 6263537813110184674}
-  canvasGroup: {fileID: 1688748811271095418}
   backgroundImageSub: {fileID: 5459387047336711901}
+  backgroundCanvasGroup: {fileID: 1688748811271095418}
   backgroundSprites:
   - {fileID: -1814376510934720881, guid: bf78fc29d9a79b54fa6df08feaa1febd, type: 3}
   - {fileID: -1674285225112526545, guid: 42d7ba6c69c8f7748891fa571fa59d99, type: 3}

@@ -647,6 +647,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bg: 300
+  duration: 0.5
 --- !u!1 &873109447
 GameObject:
   m_ObjectHideFlags: 0
@@ -869,6 +870,10 @@ PrefabInstance:
     - target: {fileID: 8134680860715355257, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8308047500030059576, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
