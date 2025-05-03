@@ -8,11 +8,3 @@ public class GameStep : GameStepBase
     public override GameStepType StepType => stepType;
     public override TextAsset CsvFile => csvFile;
 }
-
-public enum GameStepType
-{
-    None = -1,
-    Story = 0,
-    Typing = 1,
-    Branch = 2
-}
