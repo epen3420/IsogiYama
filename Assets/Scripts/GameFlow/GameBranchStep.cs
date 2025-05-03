@@ -1,23 +1,31 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// 分岐があった場合のステップを管理する
+/// </summary>
 [CreateAssetMenu(fileName = "GameBranchStep", menuName = "GameFlow/GameBranchStep")]
 public class GameBranchStep : GameStepBase
 {
     [System.Serializable]
     private struct BranchCondition
     {
-        public float maxClearTime;
-        public GameStep nextStep;
+        public float maxClearTime; // 条件のクリア時間
+        public GameStep nextStep; // 条件を満たした場合の次のステップ
     }
-    [SerializeField] private List<BranchCondition> branchConditions = new List<BranchCondition>();
+
+    [Header("分岐条件")]
+    [SerializeField]
+    private List<BranchCondition> branchConditions;
 
     public override GameStepType StepType => GameStepType.Branch;
     public override TextAsset CsvFile => null;
 
     public GameStep GetNextStepByClearTime(float clearTime)
     {
+        // クリア時間でソート
         branchConditions.Sort((x, y) => x.maxClearTime.CompareTo(y.maxClearTime));
+
         foreach (var condition in branchConditions)
         {
             if (condition.maxClearTime >= clearTime)

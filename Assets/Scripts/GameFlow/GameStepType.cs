@@ -1,3 +1,6 @@
+/// <summary>
+/// ゲームのステップタイプ
+/// </summary>
 public enum GameStepType
 {
     None = -1,
