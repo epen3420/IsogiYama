@@ -20,6 +20,7 @@ public class VFXController : SceneSingleton<VFXController>
 
     private BackgroundFader bgFader;
     private PostProcessingToggler postToggler;
+    private bool isTransitioning = false;
 
     protected override void Awake()
     {
@@ -38,10 +39,22 @@ public class VFXController : SceneSingleton<VFXController>
 
     /// <summary>
     /// 背景切り替えを外部から呼び出し
+    /// 現在フェード中の場合は無視
     /// </summary>
     public async UniTask ChangeBackgroundAsync(string key, float duration = 0.5f)
     {
-        await bgFader.ChangeBackgroundAsync(key, duration);
+        if (isTransitioning)
+            return;
+
+        isTransitioning = true;
+        try
+        {
+            await bgFader.ChangeBackgroundAsync(key, duration);
+        }
+        finally
+        {
+            isTransitioning = false;
+        }
     }
 
     /// <summary>
