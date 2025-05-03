@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: SPOILER_305_20250501012024_0
+      name: 305_middle
       rect:
         serializedVersion: 2
         x: 0
@@ -108,7 +108,7 @@ TextureImporter:
         width: 2113
         height: 1467
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 7c93fbf867a2e25418941595e6695883
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      SPOILER_305_20250501012024_0: 6311174433647273751
+      305_middle: 6311174433647273751
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

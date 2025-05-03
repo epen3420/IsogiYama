@@ -8,10 +8,12 @@ using UnityEngine.Rendering.Universal;
 public class VFXController : SceneSingleton<VFXController>
 {
     [Header("UI Components (Inspectorでセット)")]
-    [Tooltip("背景表示用のImage")]
-    [SerializeField] private Image backgroundImage;
+    [Tooltip("メイン背景表示用のImage(常に表示)とフェードの対象CanvasGroup)")]
+    [SerializeField] private Image backgroundImageMain;
     [Tooltip("Image を包む CanvasGroup")]
     [SerializeField] private CanvasGroup canvasGroup;
+    [Tooltip("サブ背景表示用のImageコンポーネントのみセット")]
+    [SerializeField] private Image backgroundImageSub;
 
     [Header("Background Sprites")]
     [Tooltip("エディタ上で分かりやすい名前にリネームした Sprite を登録")]
@@ -32,16 +34,19 @@ public class VFXController : SceneSingleton<VFXController>
     {
         base.Awake();
 
-        // CanvasGroup と Image は Inspector からセット済み
-        if (backgroundImage == null || canvasGroup == null)
-            Debug.LogError("[VFXController] CanvasGroup または Image がセットされていません。");
+        if (backgroundImageMain == null || backgroundImageSub == null || canvasGroup == null)
+            Debug.LogError("[VFXController] Main/Sub Image または CanvasGroup がセットされていません。");
+
+        // Mainのみ表示、Subは非表示
+        backgroundImageSub.gameObject.SetActive(false);
+        canvasGroup.alpha = 1f;
 
         InitializeLookup();
         CachePostProcessOverrides();
     }
 
     /// <summary>
-    /// Sprite リストを名前→Sprite 辞書に変換
+    /// Sprite リストを名前からSprite 辞書に変換
     /// </summary>
     private void InitializeLookup()
     {
@@ -68,36 +73,33 @@ public class VFXController : SceneSingleton<VFXController>
         profile.TryGet(out bloom);
         profile.TryGet(out filmGrain);
         profile.TryGet(out chromaticAberration);
-        // Vintage はカスタム VolumeComponent として追加してある前提
         profile.TryGet<VolumeComponent>(out vintage);
     }
 
     /// <summary>
-    /// 背景を切り替える（フェード有り）
+    /// 背景を切り替える
     /// </summary>
-    public void ChangeBackground(string fileName)
+    public async UniTask ChangeBackground(string key, float duration = 0.5f)
     {
-        if (!spriteLookup.TryGetValue(fileName, out var target))
+        if (!spriteLookup.TryGetValue(key, out var target))
         {
-            Debug.LogWarning($"[VFXController] Sprite not found: {fileName}");
+            Debug.LogWarning($"[VFXController] Sprite not found: {key}");
             return;
         }
 
-        if (canvasGroup != null)
-        {
-            FadeSwapAsync(target).Forget();
-        }
-        else
-        {
-            backgroundImage.sprite = target;
-        }
+        // Subに新背景をセットしてアクティブ化
+        backgroundImageSub.sprite = target;
+        backgroundImageSub.gameObject.SetActive(true);
+
+        // Fade out/in with provided duration
+        await FadeSwapAsync(duration);
     }
 
-    private async UniTaskVoid FadeSwapAsync(Sprite newSprite)
+    private async UniTask FadeSwapAsync(float duration = 0.5f)
     {
-        const float duration = 0.5f;
         float t = 0f;
-        // フェードアウト
+
+        // フェードアウト(Mainのみ)
         while (t < duration)
         {
             t += Time.deltaTime;
@@ -106,9 +108,10 @@ public class VFXController : SceneSingleton<VFXController>
         }
         canvasGroup.alpha = 0f;
 
-        backgroundImage.sprite = newSprite;
+        // MainにSubと同じSpriteをセット
+        backgroundImageMain.sprite = backgroundImageSub.sprite;
 
-        // フェードイン
+        // フェードイン(Main)
         t = 0f;
         while (t < duration)
         {
@@ -117,6 +120,9 @@ public class VFXController : SceneSingleton<VFXController>
             await UniTask.Yield(PlayerLoopTiming.Update);
         }
         canvasGroup.alpha = 1f;
+
+        // Subを非表示にして完了
+        backgroundImageSub.gameObject.SetActive(false);
     }
 
     // --- Post Processing Control ---
