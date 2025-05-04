@@ -1,10 +1,10 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// ”wŒi‰æ‘œ‚ÌƒNƒƒXƒtƒF[ƒhØ‚è‘Ö‚¦‚ğ’S‚¤ƒNƒ‰ƒX
+/// èƒŒæ™¯ç”»åƒã®ã‚¯ãƒ­ã‚¹ãƒ•ã‚§ãƒ¼ãƒ‰åˆ‡ã‚Šæ›¿ãˆã‚’æ‹…ã†ã‚¯ãƒ©ã‚¹
 /// </summary>
 public class BackgroundFader
 {
@@ -19,7 +19,7 @@ public class BackgroundFader
         this.subImage = subImage;
         this.canvasGroup = canvasGroup;
 
-        // Sprite lookup ‰Šú‰»
+        // Sprite lookup åˆæœŸåŒ–
         spriteLookup = new Dictionary<string, Sprite>(sprites.Count);
         foreach (var s in sprites)
         {
@@ -27,13 +27,13 @@ public class BackgroundFader
             spriteLookup[s.name] = s;
         }
 
-        // ‰Šúó‘Ô
+        // åˆæœŸçŠ¶æ…‹
         this.subImage.gameObject.SetActive(false);
         this.canvasGroup.alpha = 1f;
     }
 
     /// <summary>
-    /// w’èƒL[‚Å”wŒi‚ğƒNƒƒXƒtƒF[ƒhØ‚è‘Ö‚¦
+    /// æŒ‡å®šã‚­ãƒ¼ã§èƒŒæ™¯ã‚’ã‚¯ãƒ­ã‚¹ãƒ•ã‚§ãƒ¼ãƒ‰åˆ‡ã‚Šæ›¿ãˆ
     /// </summary>
     public async UniTask ChangeBackgroundAsync(string key, float duration = 0.5f)
     {
@@ -43,18 +43,18 @@ public class BackgroundFader
             return;
         }
 
-        // Sub‚ÉƒZƒbƒg‚µ‚Ä—LŒø‰»
+        // Subã«ã‚»ãƒƒãƒˆã—ã¦æœ‰åŠ¹åŒ–
         subImage.sprite = target;
         subImage.gameObject.SetActive(true);
 
-        // ƒtƒF[ƒhƒAƒEƒg¨ƒXƒƒbƒv¨ƒtƒF[ƒhƒCƒ“
+        // ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¢ã‚¦ãƒˆâ†’ã‚¹ãƒ¯ãƒƒãƒ—â†’ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¤ãƒ³
         await FadeSwapAsync(duration);
     }
 
     private async UniTask FadeSwapAsync(float duration)
     {
         float t = 0f;
-        // ƒtƒF[ƒhƒAƒEƒg(Main)
+        // ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¢ã‚¦ãƒˆ(Main)
         while (t < duration)
         {
             t += Time.deltaTime;
@@ -63,10 +63,10 @@ public class BackgroundFader
         }
         canvasGroup.alpha = 0f;
 
-        // Main‚ÉSub‚ÌSprite‚ğ“¯Šú
+        // Mainã«Subã®Spriteã‚’åŒæœŸ
         mainImage.sprite = subImage.sprite;
 
-        // ƒtƒF[ƒhƒCƒ“(Main)
+        // ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¤ãƒ³(Main)
         t = 0f;
         while (t < duration)
         {
@@ -76,7 +76,7 @@ public class BackgroundFader
         }
         canvasGroup.alpha = 1f;
 
-        // Sub‚ğ”ñ•\¦‚É–ß‚·
+        // Subã‚’éè¡¨ç¤ºã«æˆ»ã™
         subImage.gameObject.SetActive(false);
     }
 }

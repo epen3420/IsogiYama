@@ -1,12 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine.Rendering;
-using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
-/// <summary>
-/// VFX全体の窓口: 背景切り替えとポストプロセス制御を統括
-/// </summary>
 public class VFXController : SceneSingleton<VFXController>
 {
     [Header("Background Components (Inspector)")]
@@ -26,7 +23,6 @@ public class VFXController : SceneSingleton<VFXController>
     {
         base.Awake();
 
-        // DIして純粋クラスを初期化
         bgFader = new BackgroundFader(
             backgroundImageMain,
             backgroundImageSub,
@@ -37,36 +33,31 @@ public class VFXController : SceneSingleton<VFXController>
         postToggler = new PostProcessingToggler(globalVolume);
     }
 
-    /// <summary>
-    /// 背景切り替えを外部から呼び出し
-    /// 現在フェード中の場合は無視
-    /// </summary>
     public async UniTask ChangeBackgroundAsync(string key, float duration = 0.5f)
     {
-        if (isTransitioning)
-            return;
-
+        if (isTransitioning) return;
         isTransitioning = true;
-        try
-        {
-            await bgFader.ChangeBackgroundAsync(key, duration);
-        }
-        finally
-        {
-            isTransitioning = false;
-        }
+        try { await bgFader.ChangeBackgroundAsync(key, duration); }
+        finally { isTransitioning = false; }
     }
 
-    /// <summary>
-    /// Bloom ON/OFF
-    /// </summary>
-    public void SetBloom(bool on) => postToggler.SetBloom(on);
-    public void SetFilmGrain(bool on) => postToggler.SetFilmGrain(on);
-    public void SetChromaticAberration(bool on) => postToggler.SetChromaticAberration(on);
-    public void SetVintage(bool on) => postToggler.SetVintage(on);
+    public void SetBloom(bool on) => postToggler.SetBloomEnabled(on);
+    public void SetBloomParameters(float intensity, float threshold, float scatter) => postToggler.SetBloomParameters(intensity, threshold, scatter);
 
-    /// <summary>
-    /// 全エフェクトまとめてON/OFF
-    /// </summary>
-    public void SetAllPostProcessing(bool on) => postToggler.SetAll(on);
+    public void SetFilmGrain(bool on) => postToggler.SetFilmGrainEnabled(on);
+    public void SetFilmGrainParameters(float intensity, float response) => postToggler.SetFilmGrainParameters(intensity, response);
+
+    public void SetChromaticAberration(bool on) => postToggler.SetChromaticAberrationEnabled(on);
+    public void SetChromaticAberrationParameters(float intensity) => postToggler.SetChromaticAberrationParameters(intensity);
+
+    public void SetDepthOfField(bool on) => postToggler.SetDepthOfFieldEnabled(on);
+    public void SetDepthOfFieldParameters(float focusDistance, float aperture, float focalLength) => postToggler.SetDepthOfFieldParameters(focusDistance, aperture, focalLength);
+
+    public void SetLensDistortion(bool on) => postToggler.SetLensDistortionEnabled(on);
+    public void SetLensDistortionParameters(float intensity, float scale) => postToggler.SetLensDistortionParameters(intensity, scale);
+
+    public void SetVintage(bool on) => postToggler.SetVintageEnabled(on);
+    public void SetVintageParameter<T>(string fieldName, float value) where T : VolumeComponent => postToggler.SetVintageParameter<T>(fieldName, value);
+
+    public void SetAllPostProcessing(bool on) => postToggler.SetAllEnabled(on);
 }
