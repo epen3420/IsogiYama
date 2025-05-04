@@ -84,7 +84,7 @@ GameObject:
   - component: {fileID: 8016463017889362075}
   - component: {fileID: 1515624144451721725}
   m_Layer: 5
-  m_Name: VFXCanvas
+  m_Name: VFX Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
