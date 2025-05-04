@@ -1,33 +1,36 @@
-using System;
-using System.Diagnostics;
+using UnityEngine;
 
-public class StopwatchTimer
+public class StopwatchTimer : MonoBehaviour
 {
-    private Stopwatch timer = new Stopwatch();
+    private bool isRunning = false;
+    private float time = 0.0f;
+
+
     public void StartTimer()
     {
-         timer.Start();
+        isRunning = true;
     }
 
     public void StopTimer()
     {
-         timer.Stop();
+        isRunning = false;
     }
+
     public double GetTimer()
     {
-        TimeSpan currentTime = timer.Elapsed;
-
-        return currentTime.TotalSeconds;
+        return time;
     }
 
     public void ResetTimer()
     {
-        timer.Reset();
+        time = 0.0f;
     }
 
-    public void RestartTimer()
+    private void Update()
     {
-        timer.Restart();
+        if (isRunning)
+        {
+            time += Time.deltaTime;
+        }
     }
-
 }
