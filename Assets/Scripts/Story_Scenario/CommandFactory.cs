@@ -68,6 +68,11 @@ public class CommandFactory
                 // tmp = new ButtonCommand();
                 break;
 
+            case "Bg":
+                // 背景の変更
+                tmp = new BgCommand();
+                break;
+
             default:
                 Debug.LogError("Command Was Not Found");
                 break;
