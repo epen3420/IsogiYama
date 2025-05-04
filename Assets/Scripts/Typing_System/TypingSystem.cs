@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 public class TypingSystem : MonoBehaviour
 {
     private TypingJudger typingJudger; // タイピング判定用クラス
-    private CsvData<TypingQuest> questList; // 問題を格納するリスト
+    private CsvData<TypingQuestType> questList; // 問題を格納するリスト
     private int questIndex = 0;
 
     [SerializeField]
@@ -45,8 +45,8 @@ public class TypingSystem : MonoBehaviour
     {
         // 以下の行は実際は消す
         var csvLoader = new CSVLoader();
-        questList = csvLoader.LoadCSV<TypingQuest>(GameFlowManager.instance.GetCurrentCSV());
-        
+        questList = csvLoader.LoadCSV<TypingQuestType>(GameFlowManager.instance.GetCurrentCSV());
+
         inputText.maxVisibleCharacters = 0;
         if (questIndex >= questList.Rows.Count)
         {
@@ -61,8 +61,8 @@ public class TypingSystem : MonoBehaviour
         }
 
         var currentQuest = questList.Rows[questIndex++];
-        var currentJapanese = currentQuest.Get<string>(TypingQuest.japanese);
-        var currentRoma = currentQuest.Get<string>(TypingQuest.roma);
+        var currentJapanese = currentQuest.Get<string>(TypingQuestType.japanese);
+        var currentRoma = currentQuest.Get<string>(TypingQuestType.roma);
 
         japaneseText.text = currentJapanese;
         romaText.text = currentRoma;
@@ -124,10 +124,4 @@ public class TypingSystem : MonoBehaviour
         // キーボード入力の受取り解除
         keyboard.onTextInput -= OnKeyboardInput;
     }
-}
-
-public enum TypingQuest
-{
-    japanese,
-    roma
 }
