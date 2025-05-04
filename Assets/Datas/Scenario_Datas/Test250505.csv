@@ -1,0 +1,8 @@
+﻿Command,Arg1,Arg2,Arg3,Arg4,Arg5,Arg6,WaitType,Text,PageCtrl,Voice,WindowType,English
+Text,,20,100,,,,,Arg2では文字のインターバルをミリ秒間隔で、Arg3ではスキップできる文字のパーセンテージを指定できます。,,,,
+,Commandが空だとその行はスキップされて読まれません。,,,,,,,,,,,
+Bg,307_smile,,,,,,,,,,,
+,Arg1に画像名,,,,,,,,,,,
+Text,,20,100,,,,,通常は背景が移り変わり終わった後に次の行に遷移するのでワンテンポ遅れます。,,,,
+Bg,307_surprise,Forget,,,,,,,,,,
+Text,,20,100,,,,,しかしArg2にForgetを入力すると移り変わると同時に次の行が読まれます。,,,,

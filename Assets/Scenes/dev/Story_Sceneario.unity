@@ -986,7 +986,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57f55d36c028deb47abc25fd330cd7c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  file: {fileID: 0}
+  file: {fileID: 4900000, guid: e722c21f423a15a48b803f24a470724a, type: 3}
 --- !u!4 &1512038054
 Transform:
   m_ObjectHideFlags: 0
@@ -1137,7 +1137,7 @@ PrefabInstance:
     - target: {fileID: 6263537813110184674, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -5292972550793769341, guid: a62cb965d74f54548858e8f6b846f1e7, type: 3}
+      objectReference: {fileID: -4626126360861383430, guid: c981d72415c11c24b82702f4bf7289d0, type: 3}
     - target: {fileID: 8016463017889362075, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_UiScaleMode
       value: 1
