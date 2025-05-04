@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 307_20250501011810_0
+      name: 307_smile
       rect:
         serializedVersion: 2
         x: 0
@@ -108,7 +108,7 @@ TextureImporter:
         width: 2113
         height: 1467
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 58b7362c361ed2743a4d95405deca266
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      307_20250501011810_0: -4605630028550111959
+      307_smile: -4605630028550111959
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
