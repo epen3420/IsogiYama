@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using IsogiYama.System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -7,7 +9,7 @@ using UnityEngine.InputSystem;
 public class TypingSystem : MonoBehaviour
 {
     private TypingJudger typingJudger; // タイピング判定用クラス
-    private List<TypingQuest> questList; // 問題を格納するリスト
+    private CsvData<TypingQuest> questList; // 問題を格納するリスト
     private int questIndex = 0;
 
     [SerializeField]
@@ -31,7 +33,8 @@ public class TypingSystem : MonoBehaviour
     private void Start()
     {
         /*実際のStartメソッドは以下
-            questList = LoadCSV(GameFlowManager.instance.GetCurrentCSV());
+            var csvLoader = new CSVLoader();
+            questList = csvLoader.LoadCSV<TypingQuest>(GameFlowManager.instance.GetCurrentCSV());
 
             Init();
         */
@@ -41,26 +44,31 @@ public class TypingSystem : MonoBehaviour
     private void Init()
     {
         // 以下の行は実際は消す
-        questList = LoadCSV(GameFlowManager.instance.GetCurrentCSV());
-        if (questIndex >= questList.Count)
+        var csvLoader = new CSVLoader();
+        questList = csvLoader.LoadCSV<TypingQuest>(GameFlowManager.instance.GetCurrentCSV());
+        
+        inputText.maxVisibleCharacters = 0;
+        if (questIndex >= questList.Rows.Count)
         {
             DisableKeyboardInput();
             GameFlowManager.instance.GoToNextScene();
 
             japaneseText.text = "Game Clear";
-            romaText.text = "Game Clear";
+            romaText.text = null;
             inputText.text = null;
 
             return;
         }
 
-        TypingQuest currentQuest = questList[questIndex++];
+        var currentQuest = questList.Rows[questIndex++];
+        var currentJapanese = currentQuest.Get<string>(TypingQuest.japanese);
+        var currentRoma = currentQuest.Get<string>(TypingQuest.roma);
 
-        japaneseText.text = currentQuest.japanese;
-        romaText.text = currentQuest.roma;
-        inputText.text = null;
+        japaneseText.text = currentJapanese;
+        romaText.text = currentRoma;
+        inputText.text = currentRoma;
 
-        typingJudger = new TypingJudger(currentQuest.roma);
+        typingJudger = new TypingJudger(currentRoma);
     }
 
     /// <summary>
@@ -72,7 +80,7 @@ public class TypingSystem : MonoBehaviour
         switch (typingJudger.JudgeChar(typedChar))
         {
             case TypingState.Hit:
-                inputText.text += typedChar;
+                inputText.maxVisibleCharacters++;
 
                 Debug.Log($"{typedChar}: Hit");
                 break;
@@ -91,34 +99,6 @@ public class TypingSystem : MonoBehaviour
                 Debug.Log("Error");
                 break;
         }
-    }
-
-    private List<TypingQuest> LoadCSV(TextAsset csvFile)
-    {
-        StringReader reader = new StringReader(csvFile.text);
-        var questions = new List<TypingQuest>();
-
-        bool isHeader = true;
-
-        while (reader.Peek() > -1)
-        {
-            var line = reader.ReadLine();
-            if (isHeader)
-            {
-                isHeader = false; // 最初の1行はヘッダーとしてスキップ
-                continue;
-            }
-
-            var values = line.Split(',');
-
-            if (values.Length >= 2)
-            {
-                questions.Add(new TypingQuest(values[0], values[1]));
-            }
-        }
-
-        reader.Close();
-        return questions;
     }
 
     /// <summary>
@@ -146,14 +126,8 @@ public class TypingSystem : MonoBehaviour
     }
 }
 
-class TypingQuest
+public enum TypingQuest
 {
-    public string japanese { get; private set; }
-    public string roma { get; private set; }
-
-    public TypingQuest(string japanese, string roma)
-    {
-        this.japanese = japanese;
-        this.roma = roma;
-    }
+    japanese,
+    roma
 }
