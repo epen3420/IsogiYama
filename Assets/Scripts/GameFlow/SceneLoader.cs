@@ -1,7 +1,6 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Cysharp.Threading.Tasks;
 
 public class SceneLoader : MonoBehaviour
 {
@@ -13,15 +12,15 @@ public class SceneLoader : MonoBehaviour
     {
         loadPanel.SetActive(true);
 
-        StartCoroutine(LoadScene(nextScene));
+        LoadScene(nextScene).Forget();
     }
 
-    private IEnumerator LoadScene(string scene)
+    private async UniTask LoadScene(string scene)
     {
         AsyncOperation async = SceneManager.LoadSceneAsync(scene);
         while (!async.isDone)
         {
-            yield return null;
+            await UniTask.Yield();
         }
     }
 }
