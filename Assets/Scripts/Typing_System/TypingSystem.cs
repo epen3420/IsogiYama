@@ -13,8 +13,6 @@ public class TypingSystem : MonoBehaviour
     private int questIndex = 0;
 
     [SerializeField]
-    private TextAsset csvFile;
-    [SerializeField]
     private TMP_Text japaneseText;
     [SerializeField]
     private TMP_Text romaText;
@@ -34,18 +32,26 @@ public class TypingSystem : MonoBehaviour
 
     private void Start()
     {
-        var csvLoader = new CSVLoader();
-        questList = csvLoader.LoadCSV<TypingQuest>(csvFile);
+        /*実際のStartメソッドは以下
+            var csvLoader = new CSVLoader();
+            questList = csvLoader.LoadCSV<TypingQuest>(GameFlowManager.instance.GetCurrentCSV());
 
-        Init();
+            Init();
+        */
+        Invoke("Init", 1.0f);
     }
 
     private void Init()
     {
+        // 以下の行は実際は消す
+        var csvLoader = new CSVLoader();
+        questList = csvLoader.LoadCSV<TypingQuest>(GameFlowManager.instance.GetCurrentCSV());
+        
         inputText.maxVisibleCharacters = 0;
         if (questIndex >= questList.Rows.Count)
         {
             DisableKeyboardInput();
+            GameFlowManager.instance.GoToNextScene();
 
             japaneseText.text = "Game Clear";
             romaText.text = null;
