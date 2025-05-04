@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameFlowManager : Singleton<GameFlowManager>
 {
@@ -10,6 +9,8 @@ public class GameFlowManager : Singleton<GameFlowManager>
     public float ClearTime { private get; set; } = 0.0f;
     [SerializeField]
     private GameFlowDataBase gameFlowData;
+    [SerializeField]
+    private SceneLoader sceneLoader;
 
 
     private void Start()
@@ -42,7 +43,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
             currentGameStep = branchStep.GetNextStepByClearTime(ClearTime);
             if (currentGameStep != null)
             {
-                SceneManager.LoadScene("GameFlowDevScene");
+                sceneLoader.LoadNextScene("GameFlowDevScene");
                 return;
             }
             else
@@ -54,10 +55,10 @@ public class GameFlowManager : Singleton<GameFlowManager>
         switch (currentGameStep.StepType)
         {
             case GameStepType.Story:
-                SceneManager.LoadScene("StoryScene");
+                sceneLoader.LoadNextScene("StoryScene");
                 break;
             case GameStepType.Typing:
-                SceneManager.LoadScene("GameFlowDevScene");
+                sceneLoader.LoadNextScene("GameFlowDevScene");
                 break;
             default:
                 Debug.LogError("Not set StepType in next GameStep.");
