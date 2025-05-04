@@ -36,6 +36,21 @@ public class GameFlowManager : Singleton<GameFlowManager>
     public void GoToNextScene()
     {
         currentGameStep = gameFlowData.gameSteps[stepIndex++];
+
+        if (currentGameStep is GameBranchStep branchStep)
+        {
+            currentGameStep = branchStep.GetNextStepByClearTime(ClearTime);
+            if (currentGameStep != null)
+            {
+                SceneManager.LoadScene("GameFlowDevScene");
+                return;
+            }
+            else
+            {
+                Debug.LogError("No valid next step found for the current clear time.");
+            }
+        }
+
         switch (currentGameStep.StepType)
         {
             case GameStepType.Story:
@@ -43,20 +58,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
                 break;
             case GameStepType.Typing:
                 SceneManager.LoadScene("GameFlowDevScene");
-                break;
-            case GameStepType.Branch:
-                if (currentGameStep is GameBranchStep branchStep)
-                {
-                    currentGameStep = branchStep.GetNextStepByClearTime(ClearTime);
-                    if (currentGameStep != null)
-                    {
-                        SceneManager.LoadScene("GameFlowDevScene");
-                    }
-                    else
-                    {
-                        Debug.LogError("No valid next step found for the current clear time.");
-                    }
-                }
                 break;
             default:
                 Debug.LogError("Not set StepType in next GameStep.");

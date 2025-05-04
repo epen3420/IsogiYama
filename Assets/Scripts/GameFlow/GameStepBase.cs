@@ -1,14 +1,13 @@
 using UnityEngine;
 
-/// <summary>
-/// ゲームフローのステップを管理するための抽象クラス
-/// </summary>
 public abstract class GameStepBase : ScriptableObject
 {
     [Header("ステップの種類")]
     [SerializeField]
     protected GameStepType stepType;
 
-    public abstract GameStepType StepType { get; } // ステップの種類
-    public abstract TextAsset CsvFile { get; } // ステップで必要なCSV
+    public abstract GameStepType StepType { get; }
+    public abstract TextAsset CsvFile { get; }
+    // 分岐が必要な場合のみoverrideで使う
+    public virtual bool HasBranch => false;
 }

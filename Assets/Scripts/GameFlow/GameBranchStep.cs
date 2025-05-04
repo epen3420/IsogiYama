@@ -1,9 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>
-/// 分岐があった場合のステップを管理する
-/// </summary>
 [CreateAssetMenu(fileName = "GameBranchStep", menuName = "GameFlow/GameBranchStep")]
 public class GameBranchStep : GameStepBase
 {
@@ -18,8 +15,9 @@ public class GameBranchStep : GameStepBase
     [SerializeField]
     private List<BranchCondition> branchConditions;
 
-    public override GameStepType StepType => GameStepType.Branch;
+    public override GameStepType StepType => stepType;
     public override TextAsset CsvFile => null;
+    public override bool HasBranch => true;
 
     public GameStep GetNextStepByClearTime(float clearTime)
     {

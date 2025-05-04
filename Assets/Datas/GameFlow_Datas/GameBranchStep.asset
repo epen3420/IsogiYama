@@ -12,9 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 806d3195d118ba24c8319f484d1b92de, type: 3}
   m_Name: GameBranchStep
   m_EditorClassIdentifier: 
-  stepType: 2
-  branchConditions:
-  - maxClearTime: 120
-    nextStep: {fileID: 11400000, guid: 37a876e068ad86e48966d52cfd7a0f32, type: 2}
-  - maxClearTime: 60
-    nextStep: {fileID: 11400000, guid: 6b8cc22adc919d04b84676da3cf2ff7f, type: 2}
+  stepType: 0
+  branchConditions: []

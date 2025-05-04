@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 基本的なゲームのステップを管理する
+/// ゲームフローのステップを管理するための抽象クラス
 /// </summary>
 [CreateAssetMenu(fileName = "GameStep", menuName = "GameFlow/GameStep")]
 public class GameStep : GameStepBase
