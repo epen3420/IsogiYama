@@ -17,11 +17,14 @@ public class VFXController : SceneSingleton<VFXController>
 
     private BackgroundFader bgFader;
     private PostProcessingToggler postToggler;
+    // CameraController のインスタンス
+    private CameraController cameraController;
     private bool isTransitioning = false;
 
     protected override void Awake()
     {
         base.Awake();
+        var mainCam = Camera.main;
 
         bgFader = new BackgroundFader(
             backgroundImageMain,
@@ -31,6 +34,8 @@ public class VFXController : SceneSingleton<VFXController>
         );
 
         postToggler = new PostProcessingToggler(globalVolume);
+
+        cameraController = new CameraController(mainCam);
     }
 
     public async UniTask ChangeBackgroundAsync(string key, float duration = 0.5f)
@@ -60,4 +65,21 @@ public class VFXController : SceneSingleton<VFXController>
     public void SetVintageParameter<T>(string fieldName, float value) where T : VolumeComponent => postToggler.SetVintageParameter<T>(fieldName, value);
 
     public void SetAllPostProcessing(bool on) => postToggler.SetAllEnabled(on);
+
+    /// <summary>
+    /// カメラを振動させる
+    /// </summary>
+    /// <param name="duration">振動時間(秒)</param>
+    /// <param name="magnitude">振動強度</param>
+    /// <returns></returns>
+    public async UniTask ShakeCameraAsync(float duration, float magnitude)
+    {
+        if(cameraController == null)
+        {
+            Debug.LogWarning("CameraController is not initialized");
+            return;
+        }
+
+        await cameraController.ShakeAsync(duration, magnitude);
+    }
 }

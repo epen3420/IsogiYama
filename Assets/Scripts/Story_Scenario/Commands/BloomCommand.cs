@@ -19,13 +19,13 @@ namespace IsogiYama.Commands
             {
                 vfxController.SetBloom(false);
             }
-            else
+            else if(isSet == "enable")
             {
-                float intensity = lineData.Get<float>(ScenarioFields.Arg1);
-                float threshold = lineData.Get<float>(ScenarioFields.Arg2);
-                float scatter = lineData.Get<float>(ScenarioFields.Arg3);
+                // float intensity = lineData.Get<float>(ScenarioFields.Arg1);
+                // float threshold = lineData.Get<float>(ScenarioFields.Arg2);
+                // float scatter = lineData.Get<float>(ScenarioFields.Arg3);
 
-                vfxController.SetBloomParameters(intensity, threshold, scatter);
+                // vfxController.SetBloomParameters(intensity, threshold, scatter);
                 vfxController.SetBloom(true);
             }
         }
