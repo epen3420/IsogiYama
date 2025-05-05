@@ -16,7 +16,7 @@ public class StopwatchTimer : MonoBehaviour
         isRunning = false;
     }
 
-    public double GetTimer()
+    public float GetTime()
     {
         return time;
     }
