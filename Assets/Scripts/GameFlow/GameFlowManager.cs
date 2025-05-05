@@ -5,6 +5,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
     private int stepIndex = 0;
     private float clearTime = 0.0f;
     private bool branchFlag = false;
+    
 
     [SerializeField]
     private GameFlowDataBase gameFlowData;
@@ -37,10 +38,9 @@ public class GameFlowManager : Singleton<GameFlowManager>
         }
 
         branchFlag = currentGameStep.HasBranch;
-
-        // 通常のGameStepの場合
+        
         Debug.Log($"Load {currentGameStep.name}'s CSV");
-        stepIndex++; // 次のステップに進む
+        stepIndex++;
         return currentGameStep.CsvFile;
     }
 
