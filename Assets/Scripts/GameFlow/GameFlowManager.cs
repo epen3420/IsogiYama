@@ -5,8 +5,8 @@ public class GameFlowManager : Singleton<GameFlowManager>
     private GameStepBase currentGameStep;
     private int stepIndex = 0;
     private const float ERROR_CLEAR_TIME = 20.0f;
+    private float clearTime = 0.0f;
 
-    public float ClearTime { private get; set; } = 0.0f;
     [SerializeField]
     private GameFlowDataBase gameFlowData;
     [SerializeField]
@@ -34,13 +34,17 @@ public class GameFlowManager : Singleton<GameFlowManager>
         return currentGameStep.CsvFile;
     }
 
-    public void GoToNextScene()
+    public void SetClearTime(float time)
     {
         currentGameStep = gameFlowData.gameSteps[stepIndex++];
+        clearTime = time;
+    }
 
+    public void GoToNextScene()
+    {
         if (currentGameStep is GameBranchStep branchStep)
         {
-            currentGameStep = branchStep.GetNextStepByClearTime(ClearTime);
+            currentGameStep = branchStep.GetNextStepByClearTime(clearTime);
             if (currentGameStep != null)
             {
                 sceneLoader.LoadNextScene("GameFlowDevScene");
