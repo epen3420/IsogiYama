@@ -70,6 +70,9 @@ MonoBehaviour:
   - {fileID: -3804255121565375854, guid: bc1e79bfb289ac744a33371cf21b1d6b, type: 3}
   - {fileID: -4605630028550111959, guid: bc546907b74e2744d82264053d42efd2, type: 3}
   - {fileID: -785517160803830368, guid: 03433c436f49cfb4185eed1f11eaf878, type: 3}
+  - {fileID: -2540474360633307858, guid: 98fbd464ea6eda640ad91d3d1c9201bb, type: 3}
+  - {fileID: 5684327315910396547, guid: 3e5f6dfe837afbf48bb6ac940fbf469e, type: 3}
+  - {fileID: 8943764325678905702, guid: c919657d91ef6b749b8af6d322651fd6, type: 3}
   globalVolume: {fileID: 8308047500030059576}
 --- !u!1 &2598292233281373151
 GameObject:
