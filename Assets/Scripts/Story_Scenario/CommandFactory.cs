@@ -18,16 +18,6 @@ public class CommandFactory
                 tmp = new TextCommand();
                 break;
 
-            case "Character":
-                // 立ち絵表示
-                // tmp = new CharacterCommand();
-                break;
-
-            case "Hidden":
-                // 立ち絵非表示
-                // tmp = new HiddenCommand();
-                break;
-
             case "PlayBGM":
                 // BGM再生
 
@@ -70,6 +60,43 @@ public class CommandFactory
 
             case "Bg":
                 // 背景の変更
+                tmp = new BgCommand();
+                break;
+
+            /// PostProcess
+
+            case "Bloom":
+                // ブルーム
+                tmp = new BloomCommand();
+                break;
+
+            case "FilmGrain":
+                // ノイズ
+                tmp = new BgCommand();
+                break;
+
+            case "Chromatic":
+                // 色収差
+                tmp = new BgCommand();
+                break;
+
+            case "DepthF":
+                // ガウスぼかし
+                tmp = new BgCommand();
+                break;
+
+            case "Distortion":
+                // カメラひずみ
+                tmp = new BgCommand();
+                break;
+
+            case "Vintage":
+                // 周囲を暗く
+                tmp = new BgCommand();
+                break;
+
+            case "AllEffect":
+                // すべてのポストプロセス
                 tmp = new BgCommand();
                 break;
 
