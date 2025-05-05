@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Cysharp.Threading.Tasks;
 
-public class SceneLoader : MonoBehaviour
+public class SceneLoader : SceneSingleton<SceneLoader>
 {
     [SerializeField]
     private GameObject loadPanel;

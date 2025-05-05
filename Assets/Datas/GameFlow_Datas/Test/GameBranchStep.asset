@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GameBranchStep
   m_EditorClassIdentifier: 
   stepType: 1
+  csvFile: {fileID: 4900000, guid: 2364bcbf9ddcce6478fb7e3f4f28a8dd, type: 3}
   branchConditions:
   - maxClearTime: 60
     nextStep: {fileID: 11400000, guid: 7d89562fe9dbeb647afc808be3e2afb0, type: 2}
