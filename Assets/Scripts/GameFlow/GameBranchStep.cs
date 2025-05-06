@@ -24,11 +24,11 @@ public class GameBranchStep : GameStepBase
 
     public GameStep GetNextStepByClearTime(float clearTime)
     {
-        if (clearTime < ERROR_CLEAR_TIME)
+        /* if (clearTime < ERROR_CLEAR_TIME)
         {
             Debug.LogError("Invalid clear time.");
             return null;
-        }
+        } */
 
         // クリア時間でソート
         branchConditions.Sort((x, y) => x.maxClearTime.CompareTo(y.maxClearTime));
