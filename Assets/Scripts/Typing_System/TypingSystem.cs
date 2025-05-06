@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using IsogiYama.System;
 using SoundSystem;
 using TMPro;
@@ -8,9 +10,18 @@ public class TypingSystem : MonoBehaviour
 {
     private GameFlowManager gameFlowManager;
     private SoundPlayer soundPlayer;
+    private VFXController vfxController; // VFX用クラス
     private TypingJudger typingJudger; // タイピング判定用クラス
     private CsvData<TypingQuestType> questList; // 問題を格納するリスト
     private int questIndex = 0;
+    private List<BGInfo> bGInfos = new List<BGInfo>();
+    private int bgIndex = 0;
+
+    private struct BGInfo
+    {
+        public string imagePath;
+        public float time;
+    }
 
     [SerializeField]
     private StopwatchTimer timer;
@@ -36,10 +47,34 @@ public class TypingSystem : MonoBehaviour
     {
         gameFlowManager = GameFlowManager.instance;
         soundPlayer = SoundPlayer.instance;
+        vfxController = InstanceRegister.Get<VFXController>(); // VFX用クラスのインスタンスを取得
 
         var csvLoader = new CSVLoader();
         var csvFile = gameFlowManager.GetCurrentCSV();
         questList = csvLoader.LoadCSV<TypingQuestType>(csvFile);
+
+        var firstImagePath = questList.Rows[0].Get<string>(TypingQuestType.image0);
+        vfxController.ChangeBackgroundAsync(firstImagePath, 0.0f).Forget(); // 最初の背景を設定
+
+        for (int i = 1; (TypingQuestType)i != TypingQuestType.japanese; i += 2)
+        {
+            var bgInfo = new BGInfo();
+            try
+            {
+                bgInfo.imagePath = questList.Rows[0].Get<string>((TypingQuestType)i);
+                bgInfo.time = float.Parse(questList.Rows[0].Get<string>((TypingQuestType)i + 1));
+            }
+            catch
+            {
+                continue;
+            }
+            Debug.Log($"Image Path: {bgInfo.imagePath}, Time: {bgInfo.time}");
+
+            if (bgInfo.imagePath != null)
+            {
+                bGInfos.Add(bgInfo);
+            }
+        }
 
         Init();
     }
@@ -80,6 +115,18 @@ public class TypingSystem : MonoBehaviour
         timer.StartTimer();
         typingJudger = new TypingJudger(currentRoma);
         Debug.Log($"Current Quest: {currentRoma}");
+    }
+
+    private void Update()
+    {
+        if (bgIndex >= bGInfos.Count) return;
+
+        if (bGInfos[bgIndex].time < timer.GetTime())
+        {
+            Debug.Log($"Change Background: {bGInfos[bgIndex].imagePath}");
+            vfxController.ChangeBackgroundAsync(bGInfos[bgIndex].imagePath).Forget();
+            bgIndex++;
+        }
     }
 
     /// <summary>

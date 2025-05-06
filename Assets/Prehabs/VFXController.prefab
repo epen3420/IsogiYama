@@ -75,7 +75,7 @@ MonoBehaviour:
   - {fileID: 5684327315910396547, guid: 3e5f6dfe837afbf48bb6ac940fbf469e, type: 3}
   - {fileID: 8943764325678905702, guid: c919657d91ef6b749b8af6d322651fd6, type: 3}
   globalVolume: {fileID: 8308047500030059576}
-  glitchMaterial: {fileID: 0}
+  glitchMaterial: {fileID: 2100000, guid: 52da6905e25eb8d42bf6150e87698736, type: 2}
 --- !u!1 &2598292233281373151
 GameObject:
   m_ObjectHideFlags: 0
