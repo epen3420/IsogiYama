@@ -12,4 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e9de4fac9e45a64a81628a3ead3859f, type: 3}
   m_Name: MainFlowDB
   m_EditorClassIdentifier: 
-  gameSteps: []
+  gameSteps:
+  - {fileID: 11400000, guid: ca7f09496297d8f40a08e6861fd912e5, type: 2}
+  - {fileID: 11400000, guid: 0294d20a0d64e9541a15756895e717ea, type: 2}
+  - {fileID: 11400000, guid: 9d724a55cfda6a4459d3db7e99448cb3, type: 2}
+  - {fileID: 11400000, guid: d1d3bfc8e0e3031489af8b5b692a1df8, type: 2}
+  - {fileID: 11400000, guid: 11c42f05bf041a543a37b2d8ae7bc054, type: 2}
+  - {fileID: 11400000, guid: 5ef90d8aa86c88a4c90fe1ac5b1d4675, type: 2}
+  - {fileID: 11400000, guid: 27d2cd19858f744498c07fceea18212a, type: 2}
