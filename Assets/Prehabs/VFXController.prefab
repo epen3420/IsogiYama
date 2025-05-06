@@ -74,6 +74,7 @@ MonoBehaviour:
   - {fileID: 5684327315910396547, guid: 3e5f6dfe837afbf48bb6ac940fbf469e, type: 3}
   - {fileID: 8943764325678905702, guid: c919657d91ef6b749b8af6d322651fd6, type: 3}
   globalVolume: {fileID: 8308047500030059576}
+  glitchMaterial: {fileID: 0}
 --- !u!1 &2598292233281373151
 GameObject:
   m_ObjectHideFlags: 0
@@ -86,6 +87,7 @@ GameObject:
   - component: {fileID: 5333073194331924788}
   - component: {fileID: 8016463017889362075}
   - component: {fileID: 1515624144451721725}
+  - component: {fileID: 4481366700216735049}
   m_Layer: 5
   m_Name: VFX Canvas
   m_TagString: Untagged
@@ -177,6 +179,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!225 &4481366700216735049
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2598292233281373151}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2625249267701802314
 GameObject:
   m_ObjectHideFlags: 0
