@@ -5,7 +5,9 @@ public class GameFlowManager : Singleton<GameFlowManager>
     private int stepIndex = 0;
     private float clearTime = 0.0f;
     private bool branchFlag = false;
-    
+    private GameStepBase nextStep;
+    private GameStepBase currentGameStep;
+
 
     [SerializeField]
     private GameFlowDataBase gameFlowData;
@@ -26,19 +28,18 @@ public class GameFlowManager : Singleton<GameFlowManager>
     /// <returns></returns>
     public TextAsset GetCurrentCSV()
     {
-        var currentGameStep = gameFlowData.gameSteps[stepIndex];
 
         if (branchFlag)
         {
             branchFlag = false;
-            var nextStep = ((GameBranchStep)gameFlowData.gameSteps[stepIndex - 1]).GetNextStepByClearTime(clearTime);
-
-            Debug.Log($"Branching to {nextStep.name}'s CSV");
-            return nextStep.CsvFile;
+            currentGameStep = ((GameBranchStep)gameFlowData.gameSteps[stepIndex - 1]).GetNextStepByClearTime(clearTime);
+        }
+        else
+        {
+            currentGameStep = gameFlowData.gameSteps[stepIndex];
         }
 
-        branchFlag = currentGameStep.HasBranch;
-        
+        // 通常のステップ処理
         Debug.Log($"Load {currentGameStep.name}'s CSV");
         stepIndex++;
         return currentGameStep.CsvFile;
@@ -51,17 +52,22 @@ public class GameFlowManager : Singleton<GameFlowManager>
 
     public void GoToNextScene()
     {
-        if (stepIndex >= gameFlowData.gameSteps.Length)
+        if (currentGameStep is GameBranchStep gameBranchStep)
+        {
+            branchFlag = true;
+            nextStep = gameBranchStep.GetNextStepByClearTime(clearTime);
+        }
+        else if (stepIndex < gameFlowData.gameSteps.Length)
+        {
+            nextStep = gameFlowData.gameSteps[stepIndex];
+        }
+        else
         {
             Debug.Log("All steps completed. No more steps to go.");
             return;
         }
 
-        var nextStep = gameFlowData.gameSteps[stepIndex];
-
         var sceneLoader = InstanceRegister.Get<SceneLoader>();
-
-
         Debug.Log($"Next step: {nextStep.StepType}");
         switch (nextStep.StepType)
         {
@@ -69,7 +75,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
                 sceneLoader.LoadNextScene("StoryScene");
                 break;
             case GameStepType.Typing:
-                sceneLoader.LoadNextScene("GameFlowDevScene");
+                sceneLoader.LoadNextScene("TypingScene");
                 break;
             default:
                 Debug.LogError("Not set StepType in next GameStep.");

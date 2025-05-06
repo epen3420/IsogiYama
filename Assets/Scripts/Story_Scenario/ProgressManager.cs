@@ -5,13 +5,14 @@ using TMPro;
 
 public class ProgressManager : SceneSingleton<ProgressManager>
 {
-    [SerializeField] private TextAsset file;
-    public TextAsset fileProperty 
+    private TextAsset file;
+    public TextAsset fileProperty
     {
         get { return file; }
         set { file = value; }
     }
 
+    private GameFlowManager gameFlowManager;
     private CSVLoader csvLoader;
     private CommandFactory commandFactory;
 
@@ -23,11 +24,12 @@ public class ProgressManager : SceneSingleton<ProgressManager>
 
     private void Start()
     {
-
+        gameFlowManager = GameFlowManager.instance;
         currentScenarioData = new CsvData<ScenarioFields>();
         csvLoader = new CSVLoader();
         commandFactory = new CommandFactory();
 
+        file = gameFlowManager.GetCurrentCSV();
         LoadScenarioData();
         Debug.Log($"total:{totalLine} / コマンド開始");
 
@@ -51,20 +53,22 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         }
 
         Debug.Log($"total:{totalLine} / コマンド終了");
+        gameFlowManager.GoToNextScene();
     }
 
     public void IncrementIndex()
     {
         currentIndex = nextIndex;
         nextIndex = ++nextIndex > totalLine ? totalLine : nextIndex;
-    } 
+    }
 
     public void IndexSkip(int address = 0)
     {
         if (currentIndex < totalLine && address >= 0)
         {
             nextIndex = address;
-        }else Debug.LogWarning("Index Out Of Range");
+        }
+        else Debug.LogWarning("Index Out Of Range");
 
         Debug.Log($"current:{currentIndex} / next:{(nextIndex > totalLine ? totalLine : nextIndex)}");
     }
