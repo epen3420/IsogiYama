@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using IsogiYama.System;
 using TMPro;
 using UnityEngine;
@@ -8,10 +5,13 @@ using UnityEngine.InputSystem;
 
 public class TypingSystem : MonoBehaviour
 {
+    private GameFlowManager gameFlowManager;
     private TypingJudger typingJudger; // タイピング判定用クラス
-    private CsvData<TypingQuest> questList; // 問題を格納するリスト
+    private CsvData<TypingQuestType> questList; // 問題を格納するリスト
     private int questIndex = 0;
 
+    [SerializeField]
+    private StopwatchTimer timer;
     [SerializeField]
     private TMP_Text japaneseText;
     [SerializeField]
@@ -32,43 +32,51 @@ public class TypingSystem : MonoBehaviour
 
     private void Start()
     {
-        /*実際のStartメソッドは以下
-            var csvLoader = new CSVLoader();
-            questList = csvLoader.LoadCSV<TypingQuest>(GameFlowManager.instance.GetCurrentCSV());
+        gameFlowManager = GameFlowManager.instance;
 
-            Init();
-        */
-        Invoke("Init", 1.0f);
+        var csvLoader = new CSVLoader();
+        var csvFile = gameFlowManager.GetCurrentCSV();
+        questList = csvLoader.LoadCSV<TypingQuestType>(csvFile);
+
+        Init();
     }
 
     private void Init()
     {
-        // 以下の行は実際は消す
-        var csvLoader = new CSVLoader();
-        questList = csvLoader.LoadCSV<TypingQuest>(GameFlowManager.instance.GetCurrentCSV());
-        
         inputText.maxVisibleCharacters = 0;
+
         if (questIndex >= questList.Rows.Count)
         {
+            timer.StopTimer();
             DisableKeyboardInput();
-            GameFlowManager.instance.GoToNextScene();
+
+            var clearTime = timer.GetTime();
+            Debug.Log($"Clear Time: {clearTime}");
+
+            gameFlowManager.SetClearTime(clearTime);
+
+            timer.ResetTimer();
 
             japaneseText.text = "Game Clear";
             romaText.text = null;
             inputText.text = null;
 
+            gameFlowManager.GoToNextScene();
+
             return;
         }
 
         var currentQuest = questList.Rows[questIndex++];
-        var currentJapanese = currentQuest.Get<string>(TypingQuest.japanese);
-        var currentRoma = currentQuest.Get<string>(TypingQuest.roma);
+        var currentJapanese = currentQuest.Get<string>(TypingQuestType.japanese);
+        var currentRoma = currentQuest.Get<string>(TypingQuestType.roma);
 
         japaneseText.text = currentJapanese;
         romaText.text = currentRoma;
         inputText.text = currentRoma;
 
+        timer.StartTimer();
         typingJudger = new TypingJudger(currentRoma);
+        Debug.Log($"Current Quest: {currentRoma}");
     }
 
     /// <summary>
@@ -90,6 +98,8 @@ public class TypingSystem : MonoBehaviour
                 break;
 
             case TypingState.Clear:
+                inputText.maxVisibleCharacters++;
+
                 Debug.Log($"{typedChar}: Clear");
 
                 Init();
@@ -124,10 +134,4 @@ public class TypingSystem : MonoBehaviour
         // キーボード入力の受取り解除
         keyboard.onTextInput -= OnKeyboardInput;
     }
-}
-
-public enum TypingQuest
-{
-    japanese,
-    roma
 }

@@ -9,14 +9,16 @@ public class StopwatchTimer : MonoBehaviour
     public void StartTimer()
     {
         isRunning = true;
+        Debug.Log($"Timer started at {time}s");
     }
 
     public void StopTimer()
     {
         isRunning = false;
+        Debug.Log($"Timer stopped at {time}s");
     }
 
-    public double GetTimer()
+    public float GetTime()
     {
         return time;
     }
@@ -24,6 +26,7 @@ public class StopwatchTimer : MonoBehaviour
     public void ResetTimer()
     {
         time = 0.0f;
+        Debug.Log("Timer reset to 0s");
     }
 
     private void Update()

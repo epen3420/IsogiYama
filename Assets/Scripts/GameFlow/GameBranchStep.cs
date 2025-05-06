@@ -16,11 +16,20 @@ public class GameBranchStep : GameStepBase
     private List<BranchCondition> branchConditions;
 
     public override GameStepType StepType => stepType;
-    public override TextAsset CsvFile => null;
+    public override TextAsset CsvFile => csvFile;
     public override bool HasBranch => true;
+
+
+    private const float ERROR_CLEAR_TIME = 10.0f;
 
     public GameStep GetNextStepByClearTime(float clearTime)
     {
+        if (clearTime < ERROR_CLEAR_TIME)
+        {
+            Debug.LogError("Invalid clear time.");
+            return null;
+        }
+
         // クリア時間でソート
         branchConditions.Sort((x, y) => x.maxClearTime.CompareTo(y.maxClearTime));
 

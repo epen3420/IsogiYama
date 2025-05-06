@@ -2,15 +2,13 @@ using UnityEngine;
 
 public class GameFlowManager : Singleton<GameFlowManager>
 {
-    private GameStepBase currentGameStep;
     private int stepIndex = 0;
-    private const float ERROR_CLEAR_TIME = 20.0f;
+    private float clearTime = 0.0f;
+    private bool branchFlag = false;
+    
 
-    public float ClearTime { private get; set; } = 0.0f;
     [SerializeField]
     private GameFlowDataBase gameFlowData;
-    [SerializeField]
-    private SceneLoader sceneLoader;
 
 
     private void Start()
@@ -20,9 +18,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
             Debug.LogError("GameFlowDataBase is not assigned in GameFlowManager.");
             return;
         }
-
-        // 以下テスト用、実際は消す
-        currentGameStep = gameFlowData.gameSteps[stepIndex++];
     }
 
     /// <summary>
@@ -31,28 +26,44 @@ public class GameFlowManager : Singleton<GameFlowManager>
     /// <returns></returns>
     public TextAsset GetCurrentCSV()
     {
+        var currentGameStep = gameFlowData.gameSteps[stepIndex];
+
+        if (branchFlag)
+        {
+            branchFlag = false;
+            var nextStep = ((GameBranchStep)gameFlowData.gameSteps[stepIndex - 1]).GetNextStepByClearTime(clearTime);
+
+            Debug.Log($"Branching to {nextStep.name}'s CSV");
+            return nextStep.CsvFile;
+        }
+
+        branchFlag = currentGameStep.HasBranch;
+        
+        Debug.Log($"Load {currentGameStep.name}'s CSV");
+        stepIndex++;
         return currentGameStep.CsvFile;
+    }
+
+    public void SetClearTime(float time)
+    {
+        clearTime = time;
     }
 
     public void GoToNextScene()
     {
-        currentGameStep = gameFlowData.gameSteps[stepIndex++];
-
-        if (currentGameStep is GameBranchStep branchStep)
+        if (stepIndex >= gameFlowData.gameSteps.Length)
         {
-            currentGameStep = branchStep.GetNextStepByClearTime(ClearTime);
-            if (currentGameStep != null)
-            {
-                sceneLoader.LoadNextScene("GameFlowDevScene");
-                return;
-            }
-            else
-            {
-                Debug.LogError("No valid next step found for the current clear time.");
-            }
+            Debug.Log("All steps completed. No more steps to go.");
+            return;
         }
 
-        switch (currentGameStep.StepType)
+        var nextStep = gameFlowData.gameSteps[stepIndex];
+
+        var sceneLoader = InstanceRegister.Get<SceneLoader>();
+
+
+        Debug.Log($"Next step: {nextStep.StepType}");
+        switch (nextStep.StepType)
         {
             case GameStepType.Story:
                 sceneLoader.LoadNextScene("StoryScene");

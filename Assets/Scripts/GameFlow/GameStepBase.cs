@@ -5,6 +5,9 @@ public abstract class GameStepBase : ScriptableObject
     [Header("ステップの種類")]
     [SerializeField]
     protected GameStepType stepType;
+    [Header("CSVファイル")]
+    [SerializeField]
+    protected TextAsset csvFile;
 
     public abstract GameStepType StepType { get; }
     public abstract TextAsset CsvFile { get; }
