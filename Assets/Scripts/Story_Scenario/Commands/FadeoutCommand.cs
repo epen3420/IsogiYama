@@ -13,7 +13,9 @@ namespace IsogiYama.Commands
 
         public override async UniTask ExecuteAsync(LineData<ScenarioFields> lineData)
         {
-            string duration = lineData.Get<string>(ScenarioFields.Arg1);
+            float duration = lineData.Get<float>(ScenarioFields.Arg1);
+
+            await vfxController.FadeOutBackGroundAsync(duration);
         }
     }
 }
