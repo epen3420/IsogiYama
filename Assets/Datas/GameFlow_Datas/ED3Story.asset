@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ef82dbc56d8eaf44aacf5b70cbba93f3, type: 3}
-  m_Name: GameTyping2Step
+  m_Name: ED3Story
   m_EditorClassIdentifier: 
-  stepType: 1
-  csvFile: {fileID: 4900000, guid: 0d4e455b7135dde48ad5545b936d76d5, type: 3}
+  stepType: 0
+  csvFile: {fileID: 4900000, guid: e869801520aee054698824785ab5ef39, type: 3}

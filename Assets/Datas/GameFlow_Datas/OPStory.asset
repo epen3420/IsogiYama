@@ -9,7 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e9de4fac9e45a64a81628a3ead3859f, type: 3}
-  m_Name: MainFlowDB
+  m_Script: {fileID: 11500000, guid: ef82dbc56d8eaf44aacf5b70cbba93f3, type: 3}
+  m_Name: OPStory
   m_EditorClassIdentifier: 
-  gameSteps: []
+  stepType: 0
+  csvFile: {fileID: 4900000, guid: d9b1888479ed9da4782bfb6ae2100964, type: 3}
