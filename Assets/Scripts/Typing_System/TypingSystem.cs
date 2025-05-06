@@ -1,4 +1,5 @@
 using IsogiYama.System;
+using SoundSystem;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,6 +7,7 @@ using UnityEngine.InputSystem;
 public class TypingSystem : MonoBehaviour
 {
     private GameFlowManager gameFlowManager;
+    private SoundPlayer soundPlayer;
     private TypingJudger typingJudger; // タイピング判定用クラス
     private CsvData<TypingQuestType> questList; // 問題を格納するリスト
     private int questIndex = 0;
@@ -33,6 +35,7 @@ public class TypingSystem : MonoBehaviour
     private void Start()
     {
         gameFlowManager = GameFlowManager.instance;
+        soundPlayer = SoundPlayer.instance;
 
         var csvLoader = new CSVLoader();
         var csvFile = gameFlowManager.GetCurrentCSV();
@@ -89,16 +92,19 @@ public class TypingSystem : MonoBehaviour
         {
             case TypingState.Hit:
                 inputText.maxVisibleCharacters++;
+                soundPlayer.PlaySe("TypeHit");
 
                 Debug.Log($"{typedChar}: Hit");
                 break;
 
             case TypingState.Miss:
                 Debug.Log($"{typedChar}: Miss");
+                soundPlayer.PlaySe("TypeMiss");
                 break;
 
             case TypingState.Clear:
                 inputText.maxVisibleCharacters++;
+                soundPlayer.PlaySe("TypeHit");
 
                 Debug.Log($"{typedChar}: Clear");
 
