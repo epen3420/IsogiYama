@@ -105,6 +105,10 @@ public class CommandFactory
                 tmp = new ShakeCommand();
                 break;
 
+            case "#Fade":
+                tmp = new FadeoutCommand();
+                break;
+
             default:
                 Debug.LogError("Command Was Not Found");
                 break;

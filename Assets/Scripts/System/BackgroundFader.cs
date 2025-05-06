@@ -11,13 +11,15 @@ public class BackgroundFader
     private readonly Image mainImage;
     private readonly Image subImage;
     private readonly CanvasGroup canvasGroup;
+    private readonly CanvasGroup vfxCanvasGroup;
     private readonly Dictionary<string, Sprite> spriteLookup;
 
-    public BackgroundFader(Image mainImage, Image subImage, CanvasGroup canvasGroup, List<Sprite> sprites)
+    public BackgroundFader(Image mainImage, Image subImage, CanvasGroup canvasGroup, List<Sprite> sprites, CanvasGroup vfxCanvasGroup)
     {
         this.mainImage = mainImage;
         this.subImage = subImage;
         this.canvasGroup = canvasGroup;
+        this.vfxCanvasGroup = vfxCanvasGroup;
 
         // Sprite lookup 初期化
         spriteLookup = new Dictionary<string, Sprite>(sprites.Count);
@@ -46,6 +48,7 @@ public class BackgroundFader
         // Subにセットして有効化
         subImage.sprite = target;
         subImage.gameObject.SetActive(true);
+        vfxCanvasGroup.alpha = 1;
 
         // フェードアウト→スワップ→フェードイン
         await FadeSwapAsync(duration);
@@ -78,5 +81,18 @@ public class BackgroundFader
 
         // Subを非表示に戻す
         subImage.gameObject.SetActive(false);
+    }
+
+    public async UniTask FadeVFXCanvas(float duration)
+    {
+        float t = 0f;
+        // フェードアウト
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            vfxCanvasGroup.alpha = 1f - (t / duration);
+            await UniTask.Yield(PlayerLoopTiming.Update);
+        }
+        vfxCanvasGroup.alpha = 0f;
     }
 }

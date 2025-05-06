@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.Rendering;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class VFXController : SceneSingleton<VFXController>
 {
@@ -10,6 +11,7 @@ public class VFXController : SceneSingleton<VFXController>
     [SerializeField] private Image backgroundImageMain;
     [SerializeField] private Image backgroundImageSub;
     [SerializeField] private CanvasGroup backgroundCanvasGroup;
+    [SerializeField] private CanvasGroup vfxCanvasCanvasGroup;
     [SerializeField] private List<Sprite> backgroundSprites;
 
     [Header("Post Processing (Inspector)")]
@@ -21,6 +23,7 @@ public class VFXController : SceneSingleton<VFXController>
     // CameraController のインスタンス
     private CameraController cameraController;
     private bool isTransitioning = false;
+    private bool isFading = false;
 
     protected override void Awake()
     {
@@ -31,7 +34,8 @@ public class VFXController : SceneSingleton<VFXController>
             backgroundImageMain,
             backgroundImageSub,
             backgroundCanvasGroup,
-            backgroundSprites
+            backgroundSprites,
+            vfxCanvasCanvasGroup
         );
 
         postToggler = new PostProcessingToggler(globalVolume);
@@ -45,6 +49,14 @@ public class VFXController : SceneSingleton<VFXController>
         isTransitioning = true;
         try { await bgFader.ChangeBackgroundAsync(key, duration); }
         finally { isTransitioning = false; }
+    }
+
+    public async UniTask FadeOutBackGroundAsync(float duration = 0.5f)
+    {
+        if (isFading) return;
+        isFading = true;
+        try { await bgFader.FadeVFXCanvas(duration); }
+        finally { isFading = false; }
     }
 
     public void SetBloom(bool on) => postToggler.SetBloomEnabled(on);
