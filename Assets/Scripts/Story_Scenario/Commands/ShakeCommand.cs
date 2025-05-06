@@ -16,7 +16,15 @@ namespace IsogiYama.Commands
             int duration = lineData.Get<int>(ScenarioFields.Arg1);
             int magnitude = lineData.Get<int>(ScenarioFields.Arg2);
 
-            await vfxController.ShakeCameraAsync(duration, magnitude);
+            string isInstant = lineData.Get<string>(ScenarioFields.PageCtrl);
+
+            if (isInstant == "instant")
+            {
+                vfxController.ShakeBackgroundAsync(duration, magnitude).Forget();
+                return;
+            }
+
+            await vfxController.ShakeBackgroundAsync(duration, magnitude);
         }
     }
 }

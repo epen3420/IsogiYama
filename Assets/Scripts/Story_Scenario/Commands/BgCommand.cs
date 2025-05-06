@@ -14,8 +14,9 @@ namespace IsogiYama.Commands
         public override async UniTask ExecuteAsync(LineData<ScenarioFields> lineData)
         {
             string bgNames = lineData.Get<string>(ScenarioFields.Arg1);
-            string isInstant = lineData.Get<string>(ScenarioFields.Arg2);
-            float duration = lineData.Get<float>(ScenarioFields.Arg3);
+            float duration = lineData.Get<float>(ScenarioFields.Arg2);
+
+            string isInstant = lineData.Get<string>(ScenarioFields.PageCtrl);
 
             if (isInstant == "instant")
             {

@@ -14,6 +14,7 @@ public class VFXController : SceneSingleton<VFXController>
 
     [Header("Post Processing (Inspector)")]
     [SerializeField] private Volume globalVolume;
+    [SerializeField] private Material glitchMaterial;
 
     private BackgroundFader bgFader;
     private PostProcessingToggler postToggler;
@@ -81,5 +82,61 @@ public class VFXController : SceneSingleton<VFXController>
         }
 
         await cameraController.ShakeAsync(duration, magnitude);
+    }
+
+    /// <summary>
+    /// 背景イメージにグリッチマテリアルを適用or解除します
+    /// </summary>
+    /// <param name="on">true: グリッチON / false: グリッチOFF</param>
+    public void SetGlitch(bool on)
+    {
+        if (backgroundImageMain == null)
+            return;
+
+        if (on && glitchMaterial != null)
+        {
+            backgroundImageMain.material = glitchMaterial;
+        }
+        else
+        {
+            // None にしたい場合は null、もしくは元のマテリアルに戻す
+            backgroundImageMain.material = null;
+        }
+    }
+
+    /// <summary>
+    /// 背景画像を振動させる
+    /// </summary>
+    /// <param name="duration">振動時間(秒)</param>
+    /// <param name="magnitude">振動強度</param>
+    public async UniTask ShakeBackgroundAsync(float duration, float magnitude)
+    {
+        if (backgroundImageMain == null)
+        {
+            Debug.LogWarning("backgroundImageMain が設定されていません");
+            return;
+        }
+
+        // RectTransform を取得
+        var rt = backgroundImageMain.rectTransform;
+        // 元の位置をキャッシュ
+        var originalPos = rt.anchoredPosition;
+
+        float elapsed = 0f;
+        // 振動ループ
+        while (elapsed < duration)
+        {
+            // ランダムなオフセット
+            var offset = Random.insideUnitCircle * magnitude;
+            rt.anchoredPosition = originalPos + offset;
+
+            // 次フレームまで待機
+            await UniTask.Yield(PlayerLoopTiming.Update);
+
+            elapsed += Time.deltaTime;
+        }
+
+        // 終了後、元の位置に戻す
+        rt.anchoredPosition = originalPos;
     }
 }

@@ -1,1 +1,13 @@
 ﻿Command,Arg1,Arg2,Arg3,Arg4,Arg5,Arg6,WaitType,Text,PageCtrl,Voice,WindowType,English
+Text,,20,100,,,,,Bg,,,,
+Bg,307_smile,0.5,,,,,,,,,,
+Text,,20,100,,,,,Bg(instant),,,,
+Bg,307_surprise,0.5,,,,,,,instant,,,
+Text,,20,100,,,,,Shake,,,,
+#Shake,1,1,,,,,,,,,,
+Text,,20,100,,,,,Shake(instant),,,,
+#Shake,1,1,,,,,,,instant,,,
+Text,,20,100,,,,,Glitch,,,,
+#Glitch,,,,enable,,,,,,,,
+Delay,2000,,,,,,,,,,,
+#Glitch,,,,disable,,,,,,,,

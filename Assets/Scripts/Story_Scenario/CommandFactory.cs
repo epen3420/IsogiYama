@@ -65,42 +65,42 @@ public class CommandFactory
 
             /// PostProcess
 
-            case "@Bloom":
+            case "#Bloom":
                 // ブルーム
                 tmp = new BloomCommand();
                 break;
 
-            case "@FilmGrain":
+            case "#FilmGrain":
                 // ノイズ
                 tmp = new FilmgrainCommand();
                 break;
 
-            case "@Chromatic":
+            case "#Chromatic":
                 // 色収差
                 tmp = new CACommand();
                 break;
 
-            case "@DepthF":
+            case "#DepthF":
                 // ガウスぼかし
                 tmp = new DepthfieldCommand();
                 break;
 
-            case "@Distortion":
+            case "#Distortion":
                 // カメラひずみ
                 tmp = new DistortionCommand();
                 break;
 
-            case "@Vintage":
+            case "#Vintage":
                 // 周囲を暗く
                 tmp = new VintageCommand();
                 break;
 
-            case "@Glitch":
+            case "#Glitch":
                 // グリッチ
                 tmp = new GlitchCommand();
                 break;
 
-            case "@Shake":
+            case "#Shake":
                 // 画面振動
                 tmp = new ShakeCommand();
                 break;
