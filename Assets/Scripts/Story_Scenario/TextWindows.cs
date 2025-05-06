@@ -47,11 +47,11 @@ public class TextWindows : SceneSingleton<TextWindows>
         int skipThreshold // 表示文字数のスキップ許可閾値（%）
     )
     {
-        nameText.text = name;
+        // nameText.text = name;
         bodyText.text = body;
         bodyText.maxVisibleCharacters = 0;
         bodyText.ForceMeshUpdate();
-        nameText.ForceMeshUpdate();
+        // nameText.ForceMeshUpdate();
 
         int totalLength = bodyText.GetParsedText().Length;
         int skipLimit = Mathf.CeilToInt(totalLength * (skipThreshold / 100f));
@@ -59,7 +59,7 @@ public class TextWindows : SceneSingleton<TextWindows>
         int visibleCount = 0;
 
         SpeechBubble.SetActive(true);
-        SkipIcon.SetActive(false);
+        // SkipIcon.SetActive(false);
 
         while (visibleCount < totalLength)
         {
@@ -102,15 +102,17 @@ public class TextWindows : SceneSingleton<TextWindows>
             }
         }
 
+        /*
         // SkipIconは必ず表示しておく
         if (!SkipIcon.activeSelf)
         {
             SkipIcon.SetActive(true);
         }
+        */
 
         // 最終的なインタラクト待機（UI上の場合は入力無視）
         await UniTask.WaitUntil(() => IsSkipInputValid() && !isPaused);
-        SkipIcon.SetActive(false);
+        // SkipIcon.SetActive(false);
     }
 
     /// <summary>
@@ -119,6 +121,8 @@ public class TextWindows : SceneSingleton<TextWindows>
     /// <returns>入力を処理して良いかどうか</returns>
     private bool ShouldProcessInput()
     {
+        return true;
+
         // EventSystemが存在し、かつポインターがUI上にある場合
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
         {

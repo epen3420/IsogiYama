@@ -3,13 +3,6 @@ using Cysharp.Threading.Tasks;
 using IsogiYama.System;
 using TMPro;
 
-/*
- * CSVローダーからデータ読み込み
- * Text系コマンド、Button生成系以外はAsyncで非同期処理。Text系はSkip関数が来るまで待機
- * Managerからクリックやスキップなどのユーザー操作が来たら、Commandクラス系にSkip系を呼ぶ.これは非同期処理中でも中断して次進む
- * Command系は読み込んだあと各クラスのExecuteを刺激してコマンドを実行する.
- */
-
 public class ProgressManager : SceneSingleton<ProgressManager>
 {
     [SerializeField] private TextAsset file;
@@ -47,7 +40,12 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         {
             LineData<ScenarioFields> line = currentScenarioData.Rows[currentIndex];
             currentCommand = line.Get<string>(ScenarioFields.Command);
-            await commandFactory.CreateCommandInstance(currentCommand).ExecuteAsync(line);
+
+            CommandBase cmd = commandFactory.CreateCommandInstance(currentCommand);
+            if (cmd != null)
+            {
+                await cmd.ExecuteAsync(line);
+            }
 
             IncrementIndex();
         }
