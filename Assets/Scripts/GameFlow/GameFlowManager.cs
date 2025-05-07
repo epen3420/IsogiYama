@@ -11,6 +11,8 @@ public class GameFlowManager : Singleton<GameFlowManager>
 
     [SerializeField]
     private GameFlowDataBase gameFlowData;
+    [SerializeField]
+    private GameStepBase gameOverStep;
 
 
     private void Start()
@@ -47,7 +49,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
 
     public void SetClearTime(float time)
     {
-        clearTime = time;
+        clearTime += time;
     }
 
     public void GoToNextScene()
@@ -56,6 +58,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
         {
             branchFlag = true;
             nextStep = gameBranchStep.GetNextStepByClearTime(clearTime);
+            clearTime=0.0f;
         }
         else if (stepIndex < gameFlowData.gameSteps.Length)
         {
@@ -81,5 +84,11 @@ public class GameFlowManager : Singleton<GameFlowManager>
                 Debug.LogError("Not set StepType in next GameStep.");
                 break;
         }
+    }
+
+    public void GameOver(){
+        currentGameStep=gameOverStep;
+        stepIndex=gameFlowData.gameSteps.Length;
+        GoToNextScene();
     }
 }

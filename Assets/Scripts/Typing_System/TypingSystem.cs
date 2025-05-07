@@ -16,6 +16,7 @@ public class TypingSystem : MonoBehaviour
     private int questIndex = 0;
     private List<BGInfo> bGInfos = new List<BGInfo>();
     private int bgIndex = 0;
+    private float gameOverTime=0.0f;
 
     private struct BGInfo
     {
@@ -56,7 +57,9 @@ public class TypingSystem : MonoBehaviour
         var firstImagePath = questList.Rows[0].Get<string>(TypingQuestType.image0);
         vfxController.ChangeBackgroundAsync(firstImagePath, 0.0f).Forget(); // 最初の背景を設定
 
-        for (int i = 1; (TypingQuestType)i != TypingQuestType.japanese; i += 2)
+        gameOverTime=float.Parse(questList.Rows[0].Get<string>(TypingQuestType.time0));
+
+        for (int i = 2; (TypingQuestType)i != TypingQuestType.japanese; i += 2)
         {
             var bgInfo = new BGInfo();
             try
@@ -120,8 +123,13 @@ public class TypingSystem : MonoBehaviour
     private void Update()
     {
         if (bgIndex >= bGInfos.Count) return;
+        var timerTime=timer.GetTime();
+        if(gameOverTime<timerTime){
+            gameFlowManager.GameOver();
+            return;
+        }
 
-        if (bGInfos[bgIndex].time < timer.GetTime())
+        if (bGInfos[bgIndex].time < timerTime)
         {
             Debug.Log($"Change Background: {bGInfos[bgIndex].imagePath}");
             vfxController.ChangeBackgroundAsync(bGInfos[bgIndex].imagePath).Forget();

@@ -1,6 +1,7 @@
 public enum TypingQuestType
 {
     image0 = 0,
+    time0,
     image1,
     time1,
     image2,
