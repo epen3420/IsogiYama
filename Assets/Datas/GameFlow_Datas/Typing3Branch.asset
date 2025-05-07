@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Typing3Branch
   m_EditorClassIdentifier: 
   stepType: 1
-  csvFile: {fileID: 4900000, guid: 740bf03ec9ee4ed49a27d8be1ed09b07, type: 3}
+  csvFile: {fileID: 4900000, guid: f32ac26cfe034164fa4f57eda5fcf7bb, type: 3}
   branchConditions:
   - maxClearTime: 180
     nextStep: {fileID: 11400000, guid: 27d2cd19858f744498c07fceea18212a, type: 2}
