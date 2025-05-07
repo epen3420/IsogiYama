@@ -52,7 +52,7 @@ public class VFXController : SceneSingleton<VFXController>
         finally { isTransitioning = false; }
     }
 
-    public async UniTask FadeOutBackGroundAsync(float duration = 0.5f)
+    public async UniTask FadeOutCanvasAsync(float duration = 0.5f)
     {
         if (isFading) return;
         isFading = true;
@@ -60,7 +60,7 @@ public class VFXController : SceneSingleton<VFXController>
         finally { isFading = false; }
     }
 
-    public async UniTask FadeInOverlayAsync(float duration = 0.5f)
+    public async UniTask FadeInCanvasAsync(float duration = 0.5f)
     {
         if (isFading) return;
         isFading = true;

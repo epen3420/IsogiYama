@@ -145,7 +145,7 @@ public class ProgressManager : SceneSingleton<ProgressManager>
 
     private async UniTask FadeOut()
     {
-        await vfxController.FadeOutBackGroundAsync();
+        await vfxController.FadeOutCanvasAsync();
     }
 
     private async UniTask InitializeAsync()
