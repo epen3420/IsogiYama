@@ -16,6 +16,7 @@ public class TypingSystem : MonoBehaviour
     private int questIndex = 0;
     private List<BGInfo> bGInfos = new List<BGInfo>();
     private int bgIndex = 0;
+    private string gameOverImage = "Blood";
     private float gameOverTime=0.0f;
 
     private struct BGInfo
@@ -54,12 +55,14 @@ public class TypingSystem : MonoBehaviour
         var csvFile = gameFlowManager.GetCurrentCSV();
         questList = csvLoader.LoadCSV<TypingQuestType>(csvFile);
 
-        var firstImagePath = questList.Rows[0].Get<string>(TypingQuestType.image0);
+        var firstImagePath = questList.Rows[0].Get<string>(TypingQuestType.initBGImage);
         vfxController.ChangeBackgroundAsync(firstImagePath, 0.0f).Forget(); // 最初の背景を設定
 
-        gameOverTime=float.Parse(questList.Rows[0].Get<string>(TypingQuestType.time0));
+        gameOverImage=questList.Rows[0].Get<string>(TypingQuestType.gameOverImage);
+        gameOverTime=float.Parse(questList.Rows[0].Get<string>(TypingQuestType.gameOverTime));
+        Debug.Log($"GameOverTime: {gameOverTime}, GameOverImage: {gameOverImage}");
 
-        for (int i = 2; (TypingQuestType)i != TypingQuestType.japanese; i += 2)
+        for (int i = 3; (TypingQuestType)i != TypingQuestType.japanese; i += 2)
         {
             var bgInfo = new BGInfo();
             try
@@ -123,9 +126,12 @@ public class TypingSystem : MonoBehaviour
     private void Update()
     {
         if (bgIndex >= bGInfos.Count) return;
+
         var timerTime=timer.GetTime();
-        if(gameOverTime<timerTime){
-            gameFlowManager.GameOver();
+        if(gameOverTime<timerTime)
+        {
+            vfxController.ChangeBackgroundAsync(gameOverImage,0.0f).Forget();
+            gameFlowManager.GameOver().Forget();
             return;
         }
 

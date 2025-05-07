@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,8 +13,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
 
     [SerializeField]
     private GameFlowDataBase gameFlowData;
-    [SerializeField]
-    private GameStepBase gameOverStep;
 
 
     private void Start()
@@ -64,6 +63,8 @@ public class GameFlowManager : Singleton<GameFlowManager>
 
     public void GoToNextScene()
     {
+        var sceneLoader = InstanceRegister.Get<SceneLoader>();
+
         if (currentGameStep is GameBranchStep gameBranchStep)
         {
             branchFlag = true;
@@ -77,10 +78,11 @@ public class GameFlowManager : Singleton<GameFlowManager>
         else
         {
             Debug.Log("All steps completed. No more steps to go.");
+            sceneLoader.LoadNextScene("TitleScene");
+            stepIndex=0;
             return;
         }
 
-        var sceneLoader = InstanceRegister.Get<SceneLoader>();
         sceneLoader.LoadNextScene(GetSceneNameByStepType(nextStep.StepType));
         Debug.Log($"Next step: {nextStep.StepType}");
         
@@ -104,9 +106,11 @@ public class GameFlowManager : Singleton<GameFlowManager>
         return value;
     }
 
-    public void GameOver(){
-        currentGameStep=gameOverStep;
+    public async UniTask GameOver()
+    {
         stepIndex=gameFlowData.gameSteps.Length;
+        await UniTask.Delay(3000);
+        
         GoToNextScene();
     }
 }
