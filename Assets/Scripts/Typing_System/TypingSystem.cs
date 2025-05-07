@@ -16,6 +16,7 @@ public class TypingSystem : MonoBehaviour
     private int questIndex = 0;
     private List<BGInfo> bGInfos = new List<BGInfo>();
     private int bgIndex = 0;
+    private string gameOverImage = "Blood";
     private float gameOverTime=0.0f;
 
     private struct BGInfo
@@ -128,9 +129,12 @@ public class TypingSystem : MonoBehaviour
     private void Update()
     {
         if (bgIndex >= bGInfos.Count) return;
+
         var timerTime=timer.GetTime();
-        if(gameOverTime<timerTime){
-            gameFlowManager.GameOver();
+        if(gameOverTime<timerTime)
+        {
+            vfxController.ChangeBackgroundAsync(gameOverImage,0.0f).Forget();
+            gameFlowManager.GameOver().Forget();
             return;
         }
 
