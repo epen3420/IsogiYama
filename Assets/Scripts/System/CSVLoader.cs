@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 /// <summary>
 /// CSVをListに格納
@@ -81,6 +83,65 @@ namespace IsogiYama.System
             return result;
         }
 
+        public async UniTask<CsvData<TEnum>> LoadCSVAsync<TEnum>(
+        TextAsset csvFile,
+        string dataName = default,
+        CancellationToken cancellationToken = default)
+        where TEnum : struct, Enum
+        {
+            // スレッドプール上で重いパース処理を実行
+            var result = await UniTask.RunOnThreadPool(() =>
+            {
+                var csvData = new CsvData<TEnum>();
+                csvData.DataName = string.IsNullOrEmpty(dataName) ? csvFile.name : dataName;
+
+                string[] lines = csvFile.text.Split('\n');
+                if (lines.Length < 2)
+                    throw new Exception("CSVファイルが空か、ヘッダーがありません。");
+
+                // （以下、同期版と同じ処理…）
+                string[] headers = lines[0].Split(',');
+                var headerToIndex = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    var name = headers[i].Trim();
+                    if (headerToIndex.ContainsKey(name))
+                        throw new Exception($"ヘッダー名 '{name}' が重複しています。");
+                    headerToIndex[name] = i;
+                }
+
+                var enumToIndex = new Dictionary<TEnum, int>();
+                foreach (TEnum enumVal in Enum.GetValues(typeof(TEnum)))
+                {
+                    if (!headerToIndex.TryGetValue(enumVal.ToString(), out int idx))
+                        throw new Exception($"CSV のヘッダーに Enum '{enumVal}' が見つかりません。");
+                    enumToIndex[enumVal] = idx;
+                }
+
+                for (int lineNo = 1; lineNo < lines.Length; lineNo++)
+                {
+                    if (string.IsNullOrWhiteSpace(lines[lineNo])) continue;
+
+                    var values = lines[lineNo].Split(',');
+                    if (values.Length != headers.Length)
+                        throw new Exception($"行 {lineNo + 1} の列数が一致しません。");
+
+                    var row = new LineData<TEnum>();
+                    foreach (var kv in enumToIndex)
+                    {
+                        var str = values[kv.Value].Trim();
+                        row[kv.Key] = ParseValue(str);
+                    }
+                    csvData.Rows.Add(row);
+                }
+
+                Debug.Log($"[Async] Loaded CsvData<{typeof(TEnum).Name}> ({csvData.Rows.Count}行) '{csvData.DataName}'");
+                return csvData;
+
+            }, cancellationToken: cancellationToken);
+
+            return result;
+        }
 
         // 煩雑な仕様をまとめてファイルを渡せばよいだけにしたメソッド
         public CsvData<ScenarioFields> ReadScenarioCSV(TextAsset file, string filename = default)
