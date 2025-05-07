@@ -78,6 +78,8 @@ public class TextWindows : SceneSingleton<TextWindows>
                 await UniTask.Delay(interval);
                 visibleCount++;
                 bodyText.maxVisibleCharacters = visibleCount;
+
+                // SoundPlayer.instance.PlaySe("TypeHit");
             }
             else
             {
@@ -85,15 +87,6 @@ public class TextWindows : SceneSingleton<TextWindows>
                 var delayTask = UniTask.Delay(interval);
                 var inputTask = UniTask.WaitUntil(() => IsSkipInputValid());
                 int winner = await UniTask.WhenAny(delayTask, inputTask);
-
-                try
-                {
-                    SoundPlayer.instance.PlaySe("TypeHit");
-                }
-                catch
-                {
-                    
-                }
 
                 // 入力が先に検出された
                 if (winner == 1)
@@ -122,6 +115,7 @@ public class TextWindows : SceneSingleton<TextWindows>
 
         // 最終的なインタラクト待機（UI上の場合は入力無視）
         await UniTask.WaitUntil(() => IsSkipInputValid() && !isPaused);
+        SoundPlayer.instance.PlaySe("TypeHit");
         // SkipIcon.SetActive(false);
     }
 

@@ -56,7 +56,7 @@ public class VFXController : SceneSingleton<VFXController>
     {
         if (isFading) return;
         isFading = true;
-        try { await bgFader.FadeOutVFXCanvas(backgroundCanvasGroup, duration); }
+        try { await bgFader.FadeOutVFXCanvas(overlayCanvasGroup, duration); }
         finally { isFading = false; }
     }
 
