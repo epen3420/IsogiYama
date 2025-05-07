@@ -115,7 +115,14 @@ public class TextWindows : SceneSingleton<TextWindows>
 
         // 最終的なインタラクト待機（UI上の場合は入力無視）
         await UniTask.WaitUntil(() => IsSkipInputValid() && !isPaused);
-        SoundPlayer.instance.PlaySe("TypeHit");
+        try
+        {
+            SoundPlayer.instance.PlaySe("TypeHit");
+        }
+        catch
+        {
+
+        }
         // SkipIcon.SetActive(false);
     }
 
