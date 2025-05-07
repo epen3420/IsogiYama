@@ -15,9 +15,9 @@ MonoBehaviour:
   stepType: 1
   csvFile: {fileID: 4900000, guid: 740bf03ec9ee4ed49a27d8be1ed09b07, type: 3}
   branchConditions:
-  - maxClearTime: 10
+  - maxClearTime: 180
     nextStep: {fileID: 11400000, guid: 27d2cd19858f744498c07fceea18212a, type: 2}
-  - maxClearTime: 20
+  - maxClearTime: 270
     nextStep: {fileID: 11400000, guid: 5ef90d8aa86c88a4c90fe1ac5b1d4675, type: 2}
-  - maxClearTime: 30
+  - maxClearTime: 600
     nextStep: {fileID: 11400000, guid: 11c42f05bf041a543a37b2d8ae7bc054, type: 2}

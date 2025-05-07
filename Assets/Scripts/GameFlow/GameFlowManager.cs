@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameFlowManager : Singleton<GameFlowManager>
 {
@@ -30,7 +31,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
     /// <returns></returns>
     public TextAsset GetCurrentCSV()
     {
-
         if (branchFlag)
         {
             branchFlag = false;
@@ -43,6 +43,16 @@ public class GameFlowManager : Singleton<GameFlowManager>
 
         // 通常のステップ処理
         Debug.Log($"Load {currentGameStep.name}'s CSV");
+
+        var currentSceneName=SceneManager.GetActiveScene().name;
+        var tryingTransionName=GetSceneNameByStepType(currentGameStep.StepType);
+        if(currentSceneName!= tryingTransionName)
+        {
+            Debug.LogWarning($"The game flow order and scenes are different. So, we will transition to {tryingTransionName}.");
+
+            GoToNextScene();
+            return null;
+        }
         stepIndex++;
         return currentGameStep.CsvFile;
     }
@@ -71,19 +81,27 @@ public class GameFlowManager : Singleton<GameFlowManager>
         }
 
         var sceneLoader = InstanceRegister.Get<SceneLoader>();
+        sceneLoader.LoadNextScene(GetSceneNameByStepType(nextStep.StepType));
         Debug.Log($"Next step: {nextStep.StepType}");
-        switch (nextStep.StepType)
+        
+    }
+
+    private string GetSceneNameByStepType(GameStepType stepType)
+    {
+        string value=null;
+        switch (stepType)
         {
             case GameStepType.Story:
-                sceneLoader.LoadNextScene("StoryScene");
+                value="StoryScene";
                 break;
             case GameStepType.Typing:
-                sceneLoader.LoadNextScene("TypingScene");
-                break;
+               value= "TypingScene";
+               break;
             default:
                 Debug.LogError("Not set StepType in next GameStep.");
                 break;
         }
+        return value;
     }
 
     public void GameOver(){
