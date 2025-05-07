@@ -143,17 +143,12 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         Debug.Log($"[Async] Loaded lines: {totalLine}");
     }
 
-    private async UniTask FadeOut()
-    {
-        await vfxController.FadeOutCanvasAsync();
-    }
-
     private async UniTask InitializeAsync()
     {
         await LoadScenarioDataAsync();
 
         // 並列で実行
-        var fadeTask = FadeOut();
+        var fadeTask = vfxController.FadeOutCanvasAsync();
         var execTask = ExecuteCommand();
 
         // 両方終わるのを待つ
