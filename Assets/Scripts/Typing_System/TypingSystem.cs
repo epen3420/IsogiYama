@@ -47,22 +47,25 @@ public class TypingSystem : MonoBehaviour
 
     private void Start()
     {
+        // インスタンスの取得
         gameFlowManager = GameFlowManager.instance;
         soundPlayer = SoundPlayer.instance;
-        vfxController = InstanceRegister.Get<VFXController>(); // VFX用クラスのインスタンスを取得
+        vfxController = InstanceRegister.Get<VFXController>();
 
+        // CSVのロード
         var csvLoader = new CSVLoader();
         var csvFile = gameFlowManager.GetCurrentCSV();
         questList = csvLoader.LoadCSV<TypingQuestType>(csvFile);
 
-        var firstImagePath = questList.Rows[0].Get<string>(TypingQuestType.initBGImage);
-        vfxController.ChangeBackgroundAsync(firstImagePath, 0.0f).Forget(); // 最初の背景を設定
+        // 背景の初期設定
+        var firstImagePath = questList.Rows[0].Get<string>(TypingQuestType.image0);
+        vfxController.ChangeBackgroundAsync(firstImagePath, 0.0f).Forget(); 
 
-        gameOverImage=questList.Rows[0].Get<string>(TypingQuestType.gameOverImage);
-        gameOverTime=float.Parse(questList.Rows[0].Get<string>(TypingQuestType.gameOverTime));
-        Debug.Log($"GameOverTime: {gameOverTime}, GameOverImage: {gameOverImage}");
+        // ゲームオーバーになる制限時間の設定
+        gameOverTime=float.Parse(questList.Rows[0].Get<string>(TypingQuestType.time0));
 
-        for (int i = 3; (TypingQuestType)i != TypingQuestType.japanese; i += 2)
+        // タイピング中背景を変えるためのListの作成        
+        for (int i = 2; (TypingQuestType)i != TypingQuestType.japanese; i += 2)
         {
             var bgInfo = new BGInfo();
             try
