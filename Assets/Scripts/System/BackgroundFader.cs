@@ -83,16 +83,28 @@ public class BackgroundFader
         subImage.gameObject.SetActive(false);
     }
 
-    public async UniTask FadeVFXCanvas(float duration)
+    public async UniTask FadeOutVFXCanvas(CanvasGroup canvasGroup, float duration)
     {
         float t = 0f;
         // フェードアウト
         while (t < duration)
         {
             t += Time.deltaTime;
-            vfxCanvasGroup.alpha = 1f - (t / duration);
+            canvasGroup.alpha = 1f - (t / duration);
             await UniTask.Yield(PlayerLoopTiming.Update);
         }
-        vfxCanvasGroup.alpha = 0f;
+        canvasGroup.alpha = 0f;
+    }
+
+    public async UniTask FadeInVFXCanvas(CanvasGroup canvasGroup, float duration)
+    {
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            canvasGroup.alpha = t / duration;
+            await UniTask.Yield(PlayerLoopTiming.Update);
+        }
+        canvasGroup.alpha = 1f;
     }
 }

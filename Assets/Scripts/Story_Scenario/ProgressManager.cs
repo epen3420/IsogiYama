@@ -17,6 +17,7 @@ public class ProgressManager : SceneSingleton<ProgressManager>
     private GameFlowManager gameFlowManager;
     private CSVLoader csvLoader;
     private CommandFactory commandFactory;
+    private VFXController vfxController;
 
     private CsvData<ScenarioFields> currentScenarioData;
     private int currentIndex;  //今の読み込み列_index
@@ -32,6 +33,8 @@ public class ProgressManager : SceneSingleton<ProgressManager>
 
         try
         {
+            vfxController = InstanceRegister.Get<VFXController>();
+
             gameFlowManager = GameFlowManager.instance;
             file = gameFlowManager.GetCurrentCSV();
         }catch (Exception e)
@@ -39,8 +42,7 @@ public class ProgressManager : SceneSingleton<ProgressManager>
             Debug.Log($"Error: {e}");
         }
 
-        LoadScenarioDataAsync()
-            .ContinueWith(ExecuteCommand)
+        InitializeAsync()
             .Forget(e => Debug.LogError($"Initialization failed: {e}"));
     }
 
@@ -139,5 +141,22 @@ public class ProgressManager : SceneSingleton<ProgressManager>
 
         totalLine = currentScenarioData.Rows.Count;
         Debug.Log($"[Async] Loaded lines: {totalLine}");
+    }
+
+    private async UniTask FadeOut()
+    {
+        await vfxController.FadeOutBackGroundAsync();
+    }
+
+    private async UniTask InitializeAsync()
+    {
+        await LoadScenarioDataAsync();
+
+        // 並列で実行
+        var fadeTask = FadeOut();
+        var execTask = ExecuteCommand();
+
+        // 両方終わるのを待つ
+        await UniTask.WhenAll(fadeTask, execTask);
     }
 }

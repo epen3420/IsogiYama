@@ -3,6 +3,7 @@ using TMPro;
 using Cysharp.Threading.Tasks;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using SoundSystem;
 
 public class TextWindows : SceneSingleton<TextWindows>
 {
@@ -84,6 +85,15 @@ public class TextWindows : SceneSingleton<TextWindows>
                 var delayTask = UniTask.Delay(interval);
                 var inputTask = UniTask.WaitUntil(() => IsSkipInputValid());
                 int winner = await UniTask.WhenAny(delayTask, inputTask);
+
+                try
+                {
+                    SoundPlayer.instance.PlaySe("TypeHit");
+                }
+                catch
+                {
+                    
+                }
 
                 // 入力が先に検出された
                 if (winner == 1)
