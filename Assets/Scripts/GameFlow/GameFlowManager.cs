@@ -70,6 +70,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
         if (currentGameStep is GameBranchStep gameBranchStep)
         {
             branchFlag = true;
+            Debug.Log(clearTime);
             nextStep = gameBranchStep.GetNextStepByClearTime(clearTime);
             clearTime=0.0f;
         }

@@ -132,8 +132,6 @@ public class TypingSystem : MonoBehaviour
 
     private void Update()
     {
-        if (bgIndex >= bGInfos.Count) return;
-
         var timerTime=timer.GetTime();
         timerText.text=$"{timerTime:F1}s";
         if(gameOverTime<timerTime)
@@ -145,7 +143,8 @@ public class TypingSystem : MonoBehaviour
             return;
         }
 
-        if (bGInfos[bgIndex].time < timerTime)
+        if (bgIndex < bGInfos.Count &&
+            bGInfos[bgIndex].time < timerTime)
         {
             Debug.Log($"Change Background: {bGInfos[bgIndex].imagePath}");
             vfxController.ChangeBackgroundAsync(bGInfos[bgIndex].imagePath).Forget();
