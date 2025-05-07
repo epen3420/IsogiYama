@@ -12,6 +12,7 @@ public class VFXController : SceneSingleton<VFXController>
     [SerializeField] private Image backgroundImageSub;
     [SerializeField] private CanvasGroup backgroundCanvasGroup;
     [SerializeField] private CanvasGroup vfxCanvasCanvasGroup;
+    [SerializeField] private CanvasGroup overlayCanvasGroup;
     [SerializeField] private List<Sprite> backgroundSprites;
 
     [Header("Post Processing (Inspector)")]
@@ -51,11 +52,19 @@ public class VFXController : SceneSingleton<VFXController>
         finally { isTransitioning = false; }
     }
 
-    public async UniTask FadeOutBackGroundAsync(float duration = 0.5f)
+    public async UniTask FadeOutCanvasAsync(float duration = 0.5f)
     {
         if (isFading) return;
         isFading = true;
-        try { await bgFader.FadeVFXCanvas(duration); }
+        try { await bgFader.FadeOutVFXCanvas(overlayCanvasGroup, duration); }
+        finally { isFading = false; }
+    }
+
+    public async UniTask FadeInCanvasAsync(float duration = 0.5f)
+    {
+        if (isFading) return;
+        isFading = true;
+        try { await bgFader.FadeInVFXCanvas(overlayCanvasGroup, duration); }
         finally { isFading = false; }
     }
 

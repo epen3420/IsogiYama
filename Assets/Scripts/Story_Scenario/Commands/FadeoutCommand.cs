@@ -15,7 +15,7 @@ namespace IsogiYama.Commands
         {
             float duration = lineData.Get<float>(ScenarioFields.Arg1);
 
-            await vfxController.FadeOutBackGroundAsync(duration);
+            await vfxController.FadeOutCanvasAsync(duration);
         }
     }
 }

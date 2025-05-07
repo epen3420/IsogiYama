@@ -986,7 +986,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57f55d36c028deb47abc25fd330cd7c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  file: {fileID: 4900000, guid: e869801520aee054698824785ab5ef39, type: 3}
+  file: {fileID: 4900000, guid: 9abbe000ef084a740b6ceb1aabbe4033, type: 3}
 --- !u!4 &1512038054
 Transform:
   m_ObjectHideFlags: 0
@@ -1060,7 +1060,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1688748811271095418, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_Alpha
-      value: 1
+      value: 0.37426525
       objectReference: {fileID: 0}
     - target: {fileID: 2248473050372206340, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_SizeDelta.y
@@ -1145,6 +1145,10 @@ PrefabInstance:
     - target: {fileID: 5333073194331924788, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag
       value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5515943002409863522, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
+      propertyPath: m_Alpha
+      value: 0.3342653
       objectReference: {fileID: 0}
     - target: {fileID: 6263537813110184674, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_Sprite

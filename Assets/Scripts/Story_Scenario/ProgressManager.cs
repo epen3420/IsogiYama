@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using Cysharp.Threading.Tasks;
 using IsogiYama.System;
-using TMPro;
+using System;
+using System.Threading;
 
 public class ProgressManager : SceneSingleton<ProgressManager>
 {
+    [SerializeField]
     private TextAsset file;
     public TextAsset fileProperty
     {
@@ -15,6 +17,7 @@ public class ProgressManager : SceneSingleton<ProgressManager>
     private GameFlowManager gameFlowManager;
     private CSVLoader csvLoader;
     private CommandFactory commandFactory;
+    private VFXController vfxController;
 
     private CsvData<ScenarioFields> currentScenarioData;
     private int currentIndex;  //今の読み込み列_index
@@ -24,16 +27,23 @@ public class ProgressManager : SceneSingleton<ProgressManager>
 
     private void Start()
     {
-        gameFlowManager = GameFlowManager.instance;
         currentScenarioData = new CsvData<ScenarioFields>();
         csvLoader = new CSVLoader();
         commandFactory = new CommandFactory();
 
-        file = gameFlowManager.GetCurrentCSV();
-        LoadScenarioData();
-        Debug.Log($"total:{totalLine} / コマンド開始");
+        try
+        {
+            vfxController = InstanceRegister.Get<VFXController>();
 
-        ExecuteCommand().Forget(e => Debug.LogError($"ExecuteCommand failed: {e}"));
+            gameFlowManager = GameFlowManager.instance;
+            file = gameFlowManager.GetCurrentCSV();
+        }catch (Exception e)
+        {
+            Debug.Log($"Error: {e}");
+        }
+
+        InitializeAsync()
+            .Forget(e => Debug.LogError($"Initialization failed: {e}"));
     }
 
     public async UniTask ExecuteCommand()
@@ -46,14 +56,22 @@ public class ProgressManager : SceneSingleton<ProgressManager>
             CommandBase cmd = commandFactory.CreateCommandInstance(currentCommand);
             if (cmd != null)
             {
+                Debug.Log($"Execute : {currentCommand}");
                 await cmd.ExecuteAsync(line);
             }
 
             IncrementIndex();
         }
 
-        Debug.Log($"total:{totalLine} / コマンド終了");
-        gameFlowManager.GoToNextScene();
+        Debug.Log("コマンド終了");
+
+        try
+        {
+            gameFlowManager.GoToNextScene();
+        }catch(Exception e)
+        {
+            Debug.Log($"Error: {e}");
+        }
     }
 
     public void IncrementIndex()
@@ -94,5 +112,51 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         nextIndex = 1;
         currentScenarioData = csvLoader.ReadScenarioCSV(file, "テストファイル");
         totalLine = currentScenarioData.Rows.Count;
+    }
+
+    public async UniTask LoadScenarioDataAsync(CancellationToken ct = default)
+    {
+        if (file == null)
+        {
+            Debug.LogError("File is Null");
+            return;
+        }
+
+        currentIndex = 0;
+        nextIndex = 1;
+
+        var (isCanceled, data) = await csvLoader
+            .LoadCSVAsync<ScenarioFields>(file, ct)
+            .SuppressCancellationThrow();
+
+        if (!isCanceled)
+        {
+            currentScenarioData = data;
+            totalLine = currentScenarioData.Rows.Count;
+        }
+        else
+        {
+            Debug.LogWarning("シナリオ読み込みがキャンセルされました。");
+        }
+
+        totalLine = currentScenarioData.Rows.Count;
+        Debug.Log($"[Async] Loaded lines: {totalLine}");
+    }
+
+    private async UniTask FadeOut()
+    {
+        await vfxController.FadeOutCanvasAsync();
+    }
+
+    private async UniTask InitializeAsync()
+    {
+        await LoadScenarioDataAsync();
+
+        // 並列で実行
+        var fadeTask = FadeOut();
+        var execTask = ExecuteCommand();
+
+        // 両方終わるのを待つ
+        await UniTask.WhenAll(fadeTask, execTask);
     }
 }

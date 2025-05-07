@@ -3,6 +3,7 @@ using TMPro;
 using Cysharp.Threading.Tasks;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using SoundSystem;
 
 public class TextWindows : SceneSingleton<TextWindows>
 {
@@ -77,6 +78,8 @@ public class TextWindows : SceneSingleton<TextWindows>
                 await UniTask.Delay(interval);
                 visibleCount++;
                 bodyText.maxVisibleCharacters = visibleCount;
+
+                // SoundPlayer.instance.PlaySe("TypeHit");
             }
             else
             {
@@ -112,6 +115,7 @@ public class TextWindows : SceneSingleton<TextWindows>
 
         // 最終的なインタラクト待機（UI上の場合は入力無視）
         await UniTask.WaitUntil(() => IsSkipInputValid() && !isPaused);
+        SoundPlayer.instance.PlaySe("TypeHit");
         // SkipIcon.SetActive(false);
     }
 
