@@ -85,17 +85,18 @@ namespace IsogiYama.System
 
         public async UniTask<CsvData<TEnum>> LoadCSVAsync<TEnum>(
         TextAsset csvFile,
-        string dataName = default,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string dataName = default)
         where TEnum : struct, Enum
         {
+            var csvData = new CsvData<TEnum>();
+            csvData.DataName = string.IsNullOrEmpty(dataName) ? csvFile.name : dataName;
+            string text = csvFile.text;
+
             // スレッドプール上で重いパース処理を実行
             var result = await UniTask.RunOnThreadPool(() =>
             {
-                var csvData = new CsvData<TEnum>();
-                csvData.DataName = string.IsNullOrEmpty(dataName) ? csvFile.name : dataName;
-
-                string[] lines = csvFile.text.Split('\n');
+                string[] lines = text.Split('\n');
                 if (lines.Length < 2)
                     throw new Exception("CSVファイルが空か、ヘッダーがありません。");
 
@@ -135,11 +136,11 @@ namespace IsogiYama.System
                     csvData.Rows.Add(row);
                 }
 
-                Debug.Log($"[Async] Loaded CsvData<{typeof(TEnum).Name}> ({csvData.Rows.Count}行) '{csvData.DataName}'");
                 return csvData;
 
             }, cancellationToken: cancellationToken);
 
+            Debug.Log($"[Async] Loaded CsvData<{typeof(TEnum).Name}> ({result.Rows.Count}行) '{result.DataName}'");
             return result;
         }
 

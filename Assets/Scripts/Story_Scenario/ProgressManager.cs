@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using IsogiYama.System;
 using System;
+using System.Threading;
 
 public class ProgressManager : SceneSingleton<ProgressManager>
 {
@@ -38,10 +39,9 @@ public class ProgressManager : SceneSingleton<ProgressManager>
             Debug.Log($"Error: {e}");
         }
 
-        LoadScenarioData();
-        Debug.Log($"total:{totalLine} / コマンド開始");
-
-        ExecuteCommand().Forget(e => Debug.LogError($"ExecuteCommand failed: {e}"));
+        LoadScenarioDataAsync()
+            .ContinueWith(ExecuteCommand)
+            .Forget(e => Debug.LogError($"Initialization failed: {e}"));
     }
 
     public async UniTask ExecuteCommand()
@@ -110,5 +110,34 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         nextIndex = 1;
         currentScenarioData = csvLoader.ReadScenarioCSV(file, "テストファイル");
         totalLine = currentScenarioData.Rows.Count;
+    }
+
+    public async UniTask LoadScenarioDataAsync(CancellationToken ct = default)
+    {
+        if (file == null)
+        {
+            Debug.LogError("File is Null");
+            return;
+        }
+
+        currentIndex = 0;
+        nextIndex = 1;
+
+        var (isCanceled, data) = await csvLoader
+            .LoadCSVAsync<ScenarioFields>(file, ct)
+            .SuppressCancellationThrow();
+
+        if (!isCanceled)
+        {
+            currentScenarioData = data;
+            totalLine = currentScenarioData.Rows.Count;
+        }
+        else
+        {
+            Debug.LogWarning("シナリオ読み込みがキャンセルされました。");
+        }
+
+        totalLine = currentScenarioData.Rows.Count;
+        Debug.Log($"[Async] Loaded lines: {totalLine}");
     }
 }
