@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using Cysharp.Threading.Tasks;
 using IsogiYama.System;
-using TMPro;
+using System;
 
 public class ProgressManager : SceneSingleton<ProgressManager>
 {
+    [SerializeField]
     private TextAsset file;
     public TextAsset fileProperty
     {
@@ -24,12 +25,19 @@ public class ProgressManager : SceneSingleton<ProgressManager>
 
     private void Start()
     {
-        gameFlowManager = GameFlowManager.instance;
         currentScenarioData = new CsvData<ScenarioFields>();
         csvLoader = new CSVLoader();
         commandFactory = new CommandFactory();
 
-        file = gameFlowManager.GetCurrentCSV();
+        try
+        {
+            gameFlowManager = GameFlowManager.instance;
+            file = gameFlowManager.GetCurrentCSV();
+        }catch (Exception e)
+        {
+            Debug.Log($"Error: {e}");
+        }
+
         LoadScenarioData();
         Debug.Log($"total:{totalLine} / コマンド開始");
 
@@ -46,14 +54,22 @@ public class ProgressManager : SceneSingleton<ProgressManager>
             CommandBase cmd = commandFactory.CreateCommandInstance(currentCommand);
             if (cmd != null)
             {
+                Debug.Log($"Execute : {currentCommand}");
                 await cmd.ExecuteAsync(line);
             }
 
             IncrementIndex();
         }
 
-        Debug.Log($"total:{totalLine} / コマンド終了");
-        gameFlowManager.GoToNextScene();
+        Debug.Log("コマンド終了");
+
+        try
+        {
+            gameFlowManager.GoToNextScene();
+        }catch(Exception e)
+        {
+            Debug.Log($"Error: {e}");
+        }
     }
 
     public void IncrementIndex()
