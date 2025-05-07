@@ -52,6 +52,7 @@ public class TextWindows : SceneSingleton<TextWindows>
         bodyText.text = body;
         bodyText.maxVisibleCharacters = 0;
         bodyText.ForceMeshUpdate();
+        bodyText.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
         // nameText.ForceMeshUpdate();
 
         int totalLength = bodyText.GetParsedText().Length;
@@ -64,6 +65,7 @@ public class TextWindows : SceneSingleton<TextWindows>
 
         while (visibleCount < totalLength)
         {
+            Debug.Log("visibleCount");
             // Pause中は待機
             await UniTask.WaitUntil(() => !isPaused);
             if (skipRequested)
