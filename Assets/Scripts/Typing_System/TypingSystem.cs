@@ -58,14 +58,14 @@ public class TypingSystem : MonoBehaviour
         questList = csvLoader.LoadCSV<TypingQuestType>(csvFile);
 
         // 背景の初期設定
-        var firstImagePath = questList.Rows[0].Get<string>(TypingQuestType.image0);
+        var firstImagePath = questList.Rows[0].Get<string>(TypingQuestType.initBGImage);
         vfxController.ChangeBackgroundAsync(firstImagePath, 0.0f).Forget(); 
 
         // ゲームオーバーになる制限時間の設定
-        gameOverTime=float.Parse(questList.Rows[0].Get<string>(TypingQuestType.time0));
+        gameOverTime=float.Parse(questList.Rows[0].Get<string>(TypingQuestType.gameOverTime));
 
         // タイピング中背景を変えるためのListの作成        
-        for (int i = 2; (TypingQuestType)i != TypingQuestType.japanese; i += 2)
+        for (int i = 3; (TypingQuestType)i != TypingQuestType.japanese; i += 2)
         {
             var bgInfo = new BGInfo();
             try
@@ -133,8 +133,10 @@ public class TypingSystem : MonoBehaviour
         var timerTime=timer.GetTime();
         if(gameOverTime<timerTime)
         {
+            Debug.Log($"Change Background: {gameOverImage}");
             vfxController.ChangeBackgroundAsync(gameOverImage,0.0f).Forget();
             gameFlowManager.GameOver().Forget();
+            enabled =false;
             return;
         }
 
