@@ -1,23 +1,41 @@
 using System.Collections.Generic;
-using System.IO;
+using Cysharp.Threading.Tasks;
+using IsogiYama.System;
+using SoundSystem;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class TypingSystem : MonoBehaviour
 {
+    private GameFlowManager gameFlowManager;
+    private SoundPlayer soundPlayer;
+    private VFXController vfxController; // VFX用クラス
     private TypingJudger typingJudger; // タイピング判定用クラス
-    private List<TypingQuest> questList; // 問題を格納するリスト
+    private CsvData<TypingQuestType> questList; // 問題を格納するリスト
     private int questIndex = 0;
+    private List<BGInfo> bGInfos = new List<BGInfo>();
+    private int bgIndex = 0;
+    private string gameOverImage = "Blood";
+    private float gameOverTime=0.0f;
+    private bool isTimerStarted=false;
+
+    private struct BGInfo
+    {
+        public string imagePath;
+        public float time;
+    }
 
     [SerializeField]
-    private TextAsset csvFile;
+    private StopwatchTimer timer;
     [SerializeField]
     private TMP_Text japaneseText;
     [SerializeField]
     private TMP_Text romaText;
     [SerializeField]
     private TMP_Text inputText;
+    [SerializeField]
+    private TMP_Text timerText;
 
 
     private void OnEnable()
@@ -32,31 +50,107 @@ public class TypingSystem : MonoBehaviour
 
     private void Start()
     {
-        questList = LoadCSV(csvFile);
+        // インスタンスの取得
+        gameFlowManager = GameFlowManager.instance;
+        soundPlayer = SoundPlayer.instance;
+        vfxController = InstanceRegister.Get<VFXController>();
+        vfxController.FadeOutCanvasAsync().Forget();
+
+        // CSVのロード
+        var csvLoader = new CSVLoader();
+        var csvFile = gameFlowManager.GetCurrentCSV();
+        questList = csvLoader.LoadCSV<TypingQuestType>(csvFile);
+
+        // 背景の初期設定
+        var firstImagePath = questList.Rows[0].Get<string>(TypingQuestType.initBGImage);
+        vfxController.ChangeBackgroundAsync(firstImagePath, 0.0f).Forget(); 
+
+        // ゲームオーバーになる制限時間の設定
+        gameOverTime=float.Parse(questList.Rows[0].Get<string>(TypingQuestType.gameOverTime));
+
+        // タイピング中背景を変えるためのListの作成        
+        for (int i = 3; (TypingQuestType)i != TypingQuestType.japanese; i += 2)
+        {
+            var bgInfo = new BGInfo();
+            try
+            {
+                bgInfo.imagePath = questList.Rows[0].Get<string>((TypingQuestType)i);
+                bgInfo.time = float.Parse(questList.Rows[0].Get<string>((TypingQuestType)i + 1));
+            }
+            catch
+            {
+                continue;
+            }
+            Debug.Log($"Image Path: {bgInfo.imagePath}, Time: {bgInfo.time}");
+
+            if (bgInfo.imagePath != null)
+            {
+                bGInfos.Add(bgInfo);
+            }
+        }
 
         Init();
     }
 
     private void Init()
     {
-        if (questIndex >= questList.Count)
+        inputText.maxVisibleCharacters = 0;
+
+        if (questIndex >= questList.Rows.Count)
         {
+            vfxController.FadeInCanvasAsync().Forget();
+            timer.StopTimer();
             DisableKeyboardInput();
 
+            var clearTime = timer.GetTime();
+            Debug.Log($"Clear Time: {clearTime}");
+
+            gameFlowManager.SetClearTime(clearTime);
+
+            timer.ResetTimer();
+
             japaneseText.text = "Game Clear";
-            romaText.text = "Game Clear";
+            romaText.text = null;
             inputText.text = null;
+
+            gameFlowManager.GoToNextScene();
 
             return;
         }
 
-        TypingQuest currentQuest = questList[questIndex++];
+        var currentQuest = questList.Rows[questIndex++];
+        var currentJapanese = currentQuest.Get<string>(TypingQuestType.japanese);
+        var currentRoma = currentQuest.Get<string>(TypingQuestType.roma);
 
-        japaneseText.text = currentQuest.japanese;
-        romaText.text = currentQuest.roma;
-        inputText.text = null;
+        japaneseText.text = currentJapanese;
+        romaText.text = currentRoma;
+        inputText.text = currentRoma;
 
-        typingJudger = new TypingJudger(currentQuest.roma);
+        typingJudger = new TypingJudger(currentRoma);
+        Debug.Log($"Current Quest: {currentRoma}");
+    }
+
+    private void Update()
+    {
+        if (bgIndex >= bGInfos.Count) return;
+
+        var timerTime=timer.GetTime();
+        timerText.text=$"{timerTime:F1}s";
+        if(gameOverTime<timerTime)
+        {
+            Debug.Log($"Change Background: {gameOverImage}");
+            vfxController.ChangeBackgroundAsync(gameOverImage,0.0f).Forget();
+            gameFlowManager.GameOver().Forget();
+            enabled =false;
+            return;
+        }
+
+        if (bGInfos[bgIndex].time < timerTime)
+        {
+            Debug.Log($"Change Background: {bGInfos[bgIndex].imagePath}");
+            vfxController.ChangeBackgroundAsync(bGInfos[bgIndex].imagePath).Forget();
+            bgIndex++;
+        }
     }
 
     /// <summary>
@@ -68,16 +162,26 @@ public class TypingSystem : MonoBehaviour
         switch (typingJudger.JudgeChar(typedChar))
         {
             case TypingState.Hit:
-                inputText.text += typedChar;
+                if(!isTimerStarted)
+                {
+                    isTimerStarted=true;
+                    timer.StartTimer();
+                }
+                inputText.maxVisibleCharacters++;
+                soundPlayer.PlaySe("TypeHit");
 
                 Debug.Log($"{typedChar}: Hit");
                 break;
 
             case TypingState.Miss:
                 Debug.Log($"{typedChar}: Miss");
+                soundPlayer.PlaySe("TypeMiss");
                 break;
 
             case TypingState.Clear:
+                inputText.maxVisibleCharacters++;
+                soundPlayer.PlaySe("TypeHit");
+
                 Debug.Log($"{typedChar}: Clear");
 
                 Init();
@@ -87,34 +191,6 @@ public class TypingSystem : MonoBehaviour
                 Debug.Log("Error");
                 break;
         }
-    }
-
-    private List<TypingQuest> LoadCSV(TextAsset csvFile)
-    {
-        StringReader reader = new StringReader(csvFile.text);
-        var questions = new List<TypingQuest>();
-
-        bool isHeader = true;
-
-        while (reader.Peek() > -1)
-        {
-            var line = reader.ReadLine();
-            if (isHeader)
-            {
-                isHeader = false; // 最初の1行はヘッダーとしてスキップ
-                continue;
-            }
-
-            var values = line.Split(',');
-
-            if (values.Length >= 2)
-            {
-                questions.Add(new TypingQuest(values[0], values[1]));
-            }
-        }
-
-        reader.Close();
-        return questions;
     }
 
     /// <summary>
@@ -139,17 +215,5 @@ public class TypingSystem : MonoBehaviour
 
         // キーボード入力の受取り解除
         keyboard.onTextInput -= OnKeyboardInput;
-    }
-}
-
-class TypingQuest
-{
-    public string japanese { get; private set; }
-    public string roma { get; private set; }
-
-    public TypingQuest(string japanese, string roma)
-    {
-        this.japanese = japanese;
-        this.roma = roma;
     }
 }

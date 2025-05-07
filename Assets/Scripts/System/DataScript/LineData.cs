@@ -20,8 +20,19 @@ public class LineData<TEnum> where TEnum : struct, Enum
     // 型安全に取得するためのジェネリックメソッド
     public TValue Get<TValue>(TEnum field)
     {
-        if (data.TryGetValue(field, out var val) && val is TValue t)
+        if (!data.TryGetValue(field, out var val))
+            throw new KeyNotFoundException($"Field '{field}' does not exist.");
+
+        if (val is TValue t)
             return t;
-        throw new InvalidCastException($"Field {field} cannot be cast to {typeof(TValue).Name}");
+
+        try
+        {
+            return (TValue)Convert.ChangeType(val, typeof(TValue));
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidCastException($"Cannot convert field '{field}' value to {typeof(TValue).Name}.", ex);
+        }
     }
 }

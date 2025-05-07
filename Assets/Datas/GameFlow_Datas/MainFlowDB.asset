@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e9de4fac9e45a64a81628a3ead3859f, type: 3}
+  m_Name: MainFlowDB
+  m_EditorClassIdentifier: 
+  gameSteps:
+  - {fileID: 11400000, guid: ca7f09496297d8f40a08e6861fd912e5, type: 2}
+  - {fileID: 11400000, guid: 0294d20a0d64e9541a15756895e717ea, type: 2}
+  - {fileID: 11400000, guid: 9d724a55cfda6a4459d3db7e99448cb3, type: 2}
+  - {fileID: 11400000, guid: d1d3bfc8e0e3031489af8b5b692a1df8, type: 2}
+  - {fileID: 11400000, guid: d2b5055d7357b7f43bf93a1d920d2880, type: 2}

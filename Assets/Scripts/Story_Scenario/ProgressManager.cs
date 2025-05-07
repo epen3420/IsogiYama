@@ -1,26 +1,23 @@
 ﻿using UnityEngine;
 using Cysharp.Threading.Tasks;
 using IsogiYama.System;
-using TMPro;
-
-/*
- * CSVローダーからデータ読み込み
- * Text系コマンド、Button生成系以外はAsyncで非同期処理。Text系はSkip関数が来るまで待機
- * Managerからクリックやスキップなどのユーザー操作が来たら、Commandクラス系にSkip系を呼ぶ.これは非同期処理中でも中断して次進む
- * Command系は読み込んだあと各クラスのExecuteを刺激してコマンドを実行する.
- */
+using System;
+using System.Threading;
 
 public class ProgressManager : SceneSingleton<ProgressManager>
 {
-    [SerializeField] private TextAsset file;
-    public TextAsset fileProperty 
+    [SerializeField]
+    private TextAsset file;
+    public TextAsset fileProperty
     {
         get { return file; }
         set { file = value; }
     }
 
+    private GameFlowManager gameFlowManager;
     private CSVLoader csvLoader;
     private CommandFactory commandFactory;
+    private VFXController vfxController;
 
     private CsvData<ScenarioFields> currentScenarioData;
     private int currentIndex;  //今の読み込み列_index
@@ -30,15 +27,23 @@ public class ProgressManager : SceneSingleton<ProgressManager>
 
     private void Start()
     {
-
         currentScenarioData = new CsvData<ScenarioFields>();
         csvLoader = new CSVLoader();
         commandFactory = new CommandFactory();
 
-        LoadScenarioData();
-        Debug.Log($"total:{totalLine} / コマンド開始");
+        try
+        {
+            vfxController = InstanceRegister.Get<VFXController>();
 
-        ExecuteCommand().Forget(e => Debug.LogError($"ExecuteCommand failed: {e}"));
+            gameFlowManager = GameFlowManager.instance;
+            file = gameFlowManager.GetCurrentCSV();
+        }catch (Exception e)
+        {
+            Debug.Log($"Error: {e}");
+        }
+
+        InitializeAsync()
+            .Forget(e => Debug.LogError($"Initialization failed: {e}"));
     }
 
     public async UniTask ExecuteCommand()
@@ -47,26 +52,41 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         {
             LineData<ScenarioFields> line = currentScenarioData.Rows[currentIndex];
             currentCommand = line.Get<string>(ScenarioFields.Command);
-            await commandFactory.CreateCommandInstance(currentCommand).ExecuteAsync(line);
+
+            CommandBase cmd = commandFactory.CreateCommandInstance(currentCommand);
+            if (cmd != null)
+            {
+                Debug.Log($"Execute : {currentCommand}");
+                await cmd.ExecuteAsync(line);
+            }
 
             IncrementIndex();
         }
 
-        Debug.Log($"total:{totalLine} / コマンド終了");
+        Debug.Log("コマンド終了");
+
+        try
+        {
+            gameFlowManager.GoToNextScene();
+        }catch(Exception e)
+        {
+            Debug.Log($"Error: {e}");
+        }
     }
 
     public void IncrementIndex()
     {
         currentIndex = nextIndex;
         nextIndex = ++nextIndex > totalLine ? totalLine : nextIndex;
-    } 
+    }
 
     public void IndexSkip(int address = 0)
     {
         if (currentIndex < totalLine && address >= 0)
         {
             nextIndex = address;
-        }else Debug.LogWarning("Index Out Of Range");
+        }
+        else Debug.LogWarning("Index Out Of Range");
 
         Debug.Log($"current:{currentIndex} / next:{(nextIndex > totalLine ? totalLine : nextIndex)}");
     }
@@ -92,5 +112,46 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         nextIndex = 1;
         currentScenarioData = csvLoader.ReadScenarioCSV(file, "テストファイル");
         totalLine = currentScenarioData.Rows.Count;
+    }
+
+    public async UniTask LoadScenarioDataAsync(CancellationToken ct = default)
+    {
+        if (file == null)
+        {
+            Debug.LogError("File is Null");
+            return;
+        }
+
+        currentIndex = 0;
+        nextIndex = 1;
+
+        var (isCanceled, data) = await csvLoader
+            .LoadCSVAsync<ScenarioFields>(file, ct)
+            .SuppressCancellationThrow();
+
+        if (!isCanceled)
+        {
+            currentScenarioData = data;
+            totalLine = currentScenarioData.Rows.Count;
+        }
+        else
+        {
+            Debug.LogWarning("シナリオ読み込みがキャンセルされました。");
+        }
+
+        totalLine = currentScenarioData.Rows.Count;
+        Debug.Log($"[Async] Loaded lines: {totalLine}");
+    }
+
+    private async UniTask InitializeAsync()
+    {
+        await LoadScenarioDataAsync();
+
+        // 並列で実行
+        var fadeTask = vfxController.FadeOutCanvasAsync();
+        var execTask = ExecuteCommand();
+
+        // 両方終わるのを待つ
+        await UniTask.WhenAll(fadeTask, execTask);
     }
 }
