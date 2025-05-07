@@ -18,6 +18,7 @@ public class TypingSystem : MonoBehaviour
     private int bgIndex = 0;
     private string gameOverImage = "Blood";
     private float gameOverTime=0.0f;
+    private bool isTimerStarted=false;
 
     private struct BGInfo
     {
@@ -33,6 +34,8 @@ public class TypingSystem : MonoBehaviour
     private TMP_Text romaText;
     [SerializeField]
     private TMP_Text inputText;
+    [SerializeField]
+    private TMP_Text timerText;
 
 
     private void OnEnable()
@@ -51,6 +54,7 @@ public class TypingSystem : MonoBehaviour
         gameFlowManager = GameFlowManager.instance;
         soundPlayer = SoundPlayer.instance;
         vfxController = InstanceRegister.Get<VFXController>();
+        vfxController.FadeOutCanvasAsync().Forget();
 
         // CSVのロード
         var csvLoader = new CSVLoader();
@@ -94,6 +98,7 @@ public class TypingSystem : MonoBehaviour
 
         if (questIndex >= questList.Rows.Count)
         {
+            vfxController.FadeInCanvasAsync().Forget();
             timer.StopTimer();
             DisableKeyboardInput();
 
@@ -121,7 +126,6 @@ public class TypingSystem : MonoBehaviour
         romaText.text = currentRoma;
         inputText.text = currentRoma;
 
-        timer.StartTimer();
         typingJudger = new TypingJudger(currentRoma);
         Debug.Log($"Current Quest: {currentRoma}");
     }
@@ -131,6 +135,7 @@ public class TypingSystem : MonoBehaviour
         if (bgIndex >= bGInfos.Count) return;
 
         var timerTime=timer.GetTime();
+        timerText.text=$"{timerTime:F1}s";
         if(gameOverTime<timerTime)
         {
             Debug.Log($"Change Background: {gameOverImage}");
@@ -157,6 +162,11 @@ public class TypingSystem : MonoBehaviour
         switch (typingJudger.JudgeChar(typedChar))
         {
             case TypingState.Hit:
+                if(!isTimerStarted)
+                {
+                    isTimerStarted=true;
+                    timer.StartTimer();
+                }
                 inputText.maxVisibleCharacters++;
                 soundPlayer.PlaySe("TypeHit");
 

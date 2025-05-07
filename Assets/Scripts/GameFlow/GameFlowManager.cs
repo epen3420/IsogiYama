@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using SoundSystem;
 
 public class GameFlowManager : Singleton<GameFlowManager>
 {
@@ -22,6 +23,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
             Debug.LogError("GameFlowDataBase is not assigned in GameFlowManager.");
             return;
         }
+        SoundPlayer.instance.PlayBgm("BGM");
     }
 
     /// <summary>
