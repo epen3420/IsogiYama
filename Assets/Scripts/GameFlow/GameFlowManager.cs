@@ -72,7 +72,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
             branchFlag = true;
             Debug.Log(clearTime);
             nextStep = gameBranchStep.GetNextStepByClearTime(clearTime);
-            clearTime=0.0f;
         }
         else if (stepIndex < gameFlowData.gameSteps.Length)
         {
@@ -82,6 +81,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
         {
             Debug.Log("All steps completed. No more steps to go.");
             sceneLoader.LoadNextScene("TitleScene");
+            clearTime=0.0f;
             stepIndex=0;
             return;
         }
@@ -114,6 +114,8 @@ public class GameFlowManager : Singleton<GameFlowManager>
         stepIndex=gameFlowData.gameSteps.Length;
         await UniTask.Delay(3000);
         
-        GoToNextScene();
+        InstanceRegister.Get<SceneLoader>().LoadNextScene("TitleScene");
+        clearTime=0.0f;
+        stepIndex=0;
     }
 }

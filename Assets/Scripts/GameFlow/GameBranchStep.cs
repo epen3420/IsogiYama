@@ -35,11 +35,18 @@ public class GameBranchStep : GameStepBase
 
         foreach (var condition in branchConditions)
         {
-            if (condition.maxClearTime >= clearTime)
+            if (condition.maxClearTime > clearTime)
             {
                 return condition.nextStep;
             }
         }
+
+        var bestBadEndCondition=branchConditions[branchConditions.Count-1];
+        if(bestBadEndCondition.maxClearTime<=clearTime)
+        {
+            return bestBadEndCondition.nextStep;
+        }
+        
         return null;
     }
 }
