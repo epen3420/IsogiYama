@@ -22,11 +22,6 @@ public class TextWindows : SceneSingleton<TextWindows>
         SkipIcon.SetActive(false);
     }
 
-    private void Update()
-    {
-        ShouldProcessInput();
-    }
-
     public void Pause()
     {
         isPaused = !isPaused;
@@ -48,20 +43,23 @@ public class TextWindows : SceneSingleton<TextWindows>
         int skipThreshold // 表示文字数のスキップ許可閾値（%）
     )
     {
-        // nameText.text = name;
-        bodyText.text = body;
+        SpeechBubble.SetActive(true);
+        // SkipIcon.SetActive(false);
+
+
+        // nameText.SetText(name);
+        bodyText.SetText(body);
         bodyText.maxVisibleCharacters = 0;
         bodyText.ForceMeshUpdate();
         bodyText.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
         // nameText.ForceMeshUpdate();
 
-        int totalLength = bodyText.GetParsedText().Length;
+        // int totalLength = bodyText.GetParsedText().Length;
+        int totalLength = bodyText.textInfo.characterCount;
+
         int skipLimit = Mathf.CeilToInt(totalLength * (skipThreshold / 100f));
         skipRequested = false;
         int visibleCount = 0;
-
-        SpeechBubble.SetActive(true);
-        // SkipIcon.SetActive(false);
 
         while (visibleCount < totalLength)
         {

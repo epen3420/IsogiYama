@@ -15,7 +15,7 @@ MonoBehaviour:
   seDatas:
   - seTitle: TypeHit
     audioClip: {fileID: 8300000, guid: 9886f19d69bad5341aafa569cd39ff9c, type: 3}
-    volume: 0.433
+    volume: 1
   - seTitle: TypeMiss
     audioClip: {fileID: 8300000, guid: 0bb46b7fbc85f3744824255041d419d3, type: 3}
-    volume: 0.433
+    volume: 1

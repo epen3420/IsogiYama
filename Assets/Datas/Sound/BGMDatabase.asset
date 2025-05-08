@@ -15,4 +15,4 @@ MonoBehaviour:
   bgmSoundDatas:
   - bgmTitle: BGM
     audioClip: {fileID: 8300000, guid: 16af771ec0f1274459ae86b4ee02e6f9, type: 3}
-    volume: 0.42
+    volume: 1

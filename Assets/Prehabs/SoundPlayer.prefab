@@ -48,7 +48,7 @@ MonoBehaviour:
   seDatas: {fileID: 11400000, guid: a4ec8e744f6ae3d47b6e36b3106575e3, type: 2}
   voiceSoundDatas: {fileID: 0}
   soundSetting:
-    masterVolume: 0.552
-    bgmVolume: 0.46
-    seVolume: 0.405
-    voiceVolume: 0.454
+    masterVolume: 1
+    bgmVolume: 1
+    seVolume: 0.75
+    voiceVolume: 1

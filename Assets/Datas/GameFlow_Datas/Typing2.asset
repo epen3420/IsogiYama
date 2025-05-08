@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Typing2
   m_EditorClassIdentifier: 
   stepType: 1
-  csvFile: {fileID: 4900000, guid: 4d43d02f33a205e448e7d35356fa47b6, type: 3}
+  csvFile: {fileID: 4900000, guid: 0d4e455b7135dde48ad5545b936d76d5, type: 3}
