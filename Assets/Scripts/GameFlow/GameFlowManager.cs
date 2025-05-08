@@ -114,6 +114,8 @@ public class GameFlowManager : Singleton<GameFlowManager>
         stepIndex=gameFlowData.gameSteps.Length;
         await UniTask.Delay(3000);
         
-        GoToNextScene();
+        InstanceRegister.Get<SceneLoader>().LoadNextScene("TitleScene");
+        clearTime=0.0f;
+        stepIndex=0;
     }
 }
