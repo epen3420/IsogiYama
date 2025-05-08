@@ -17,8 +17,8 @@ public class TypingSystem : MonoBehaviour
     private List<BGInfo> bGInfos = new List<BGInfo>();
     private int bgIndex = 0;
     private string gameOverImage = "Blood";
-    private float gameOverTime=0.0f;
-    private bool isTimerStarted=false;
+    private float gameOverTime = 0.0f;
+    private bool isTimerStarted = false;
 
     private struct BGInfo
     {
@@ -63,19 +63,19 @@ public class TypingSystem : MonoBehaviour
 
         // 背景の初期設定
         var firstImagePath = questList.Rows[0].Get<string>(TypingQuestType.initBGImage);
-        vfxController.ChangeBackgroundAsync(firstImagePath, 0.0f).Forget(); 
+        vfxController.ChangeBackgroundAsync(firstImagePath, 0.0f).Forget();
 
         // ゲームオーバーになる制限時間の設定
-        gameOverTime=float.Parse(questList.Rows[0].Get<string>(TypingQuestType.gameOverTime));
+        gameOverTime = questList.Rows[0].Get<float>(TypingQuestType.gameOverTime);
 
-        // タイピング中背景を変えるためのListの作成        
+        // タイピング中背景を変えるためのListの作成
         for (int i = 3; (TypingQuestType)i != TypingQuestType.japanese; i += 2)
         {
             var bgInfo = new BGInfo();
             try
             {
                 bgInfo.imagePath = questList.Rows[0].Get<string>((TypingQuestType)i);
-                bgInfo.time = float.Parse(questList.Rows[0].Get<string>((TypingQuestType)i + 1));
+                bgInfo.time = questList.Rows[0].Get<float>((TypingQuestType)i + 1);
             }
             catch
             {
@@ -132,14 +132,14 @@ public class TypingSystem : MonoBehaviour
 
     private void Update()
     {
-        var timerTime=timer.GetTime();
-        timerText.text=$"{timerTime:F1}s";
-        if(gameOverTime<timerTime)
+        var timerTime = timer.GetTime();
+        timerText.text = $"{timerTime:F1}s";
+        if (gameOverTime < timerTime)
         {
             Debug.Log($"Change Background: {gameOverImage}");
-            vfxController.ChangeBackgroundAsync(gameOverImage,0.0f).Forget();
+            vfxController.ChangeBackgroundAsync(gameOverImage, 0.0f).Forget();
             gameFlowManager.GameOver().Forget();
-            enabled =false;
+            enabled = false;
             return;
         }
 
@@ -161,9 +161,9 @@ public class TypingSystem : MonoBehaviour
         switch (typingJudger.JudgeChar(typedChar))
         {
             case TypingState.Hit:
-                if(!isTimerStarted)
+                if (!isTimerStarted)
                 {
-                    isTimerStarted=true;
+                    isTimerStarted = true;
                     timer.StartTimer();
                 }
                 inputText.maxVisibleCharacters++;
