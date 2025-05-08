@@ -1,12 +1,12 @@
 /// <summary>
 /// 文単位でタイピングの正誤判定を行いうクラス
 /// </summary>
-public class TypingJudger
+public class TypingJudder
 {
     private char[] judeChars;
     private int judeCharsIndex = 0;
 
-    public TypingJudger(string judgeString)
+    public TypingJudder(string judgeString)
     {
         judeChars = judgeString.ToCharArray();
     }
