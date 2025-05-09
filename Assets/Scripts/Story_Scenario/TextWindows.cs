@@ -12,12 +12,21 @@ public class TextWindows : SceneSingleton<TextWindows>
     [SerializeField] private TMP_Text bodyText;
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private GameObject SkipIcon;
+    [SerializeField] private CanvasGroup logoCanvasG;
+
+    [Header("パラメータ")]
+    [SerializeField] private float blankPeriod = 1.5f;
+    [SerializeField, Range(0f, 1f)] private float minAlpha = 0.2f;
+    [SerializeField] private int waitmsec = 3000;
+
+    private IdleLogoBlink idleLogoBlink;
 
     private bool isPaused = false;         // Pause状態を管理するフラグ
     private bool skipRequested = false;    // スキップがリクエストされたかを管理
 
     private void Start()
     {
+        idleLogoBlink = new IdleLogoBlink(logoCanvasG, blankPeriod, minAlpha);
         SpeechBubble.SetActive(false);
         SkipIcon.SetActive(false);
     }
@@ -113,8 +122,21 @@ public class TextWindows : SceneSingleton<TextWindows>
         }
         */
 
+        // 文字表示完了後、3秒後に点滅開始（操作があればスキップ）
+        UniTask.Void(async () =>
+        {
+            await UniTask.Delay(waitmsec);
+            // 既に操作があった場合はStartBlinkしない
+            if (!IsSkipInputValid())
+            {
+                idleLogoBlink.StartBlink();
+            }
+        });
+
         // 最終的なインタラクト待機（UI上の場合は入力無視）
         await UniTask.WaitUntil(() => IsSkipInputValid() && !isPaused);
+
+        idleLogoBlink.StopBlink();
         try
         {
             SoundPlayer.instance.PlaySe("TypeHit");

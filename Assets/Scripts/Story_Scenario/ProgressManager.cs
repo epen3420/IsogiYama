@@ -14,10 +14,13 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         set { file = value; }
     }
 
+    // Monobehaviour
     private GameFlowManager gameFlowManager;
+    private VFXController vfxController;
+
+    // utility
     private CSVLoader csvLoader;
     private CommandFactory commandFactory;
-    private VFXController vfxController;
 
     private CsvData<ScenarioFields> currentScenarioData;
     private int currentIndex;  //今の読み込み列_index
