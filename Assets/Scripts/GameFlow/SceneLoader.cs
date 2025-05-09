@@ -4,14 +4,8 @@ using Cysharp.Threading.Tasks;
 
 public class SceneLoader : SceneSingleton<SceneLoader>
 {
-    [SerializeField]
-    private GameObject loadPanel;
-
-
     public void LoadNextScene(string nextScene)
     {
-        loadPanel.SetActive(true);
-
         LoadScene(nextScene).Forget();
     }
 
