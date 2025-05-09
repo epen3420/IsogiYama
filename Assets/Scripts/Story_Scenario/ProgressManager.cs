@@ -14,10 +14,13 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         set { file = value; }
     }
 
+    // Monobehaviour
     private GameFlowManager gameFlowManager;
+    private VFXController vfxController;
+
+    // utility
     private CSVLoader csvLoader;
     private CommandFactory commandFactory;
-    private VFXController vfxController;
 
     private CsvData<ScenarioFields> currentScenarioData;
     private int currentIndex;  //今の読み込み列_index
@@ -53,10 +56,12 @@ public class ProgressManager : SceneSingleton<ProgressManager>
             LineData<ScenarioFields> line = currentScenarioData.Rows[currentIndex];
             currentCommand = line.Get<string>(ScenarioFields.Command);
 
+            Debug.Log($"Read : {currentCommand} / Line : {currentIndex}");
+
             CommandBase cmd = commandFactory.CreateCommandInstance(currentCommand);
             if (cmd != null)
             {
-                Debug.Log($"Execute : {currentCommand}");
+                Debug.Log($"Execute : {currentCommand} / Line : {currentIndex}");
                 await cmd.ExecuteAsync(line);
             }
 
