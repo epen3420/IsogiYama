@@ -4,6 +4,8 @@ using Cysharp.Threading.Tasks;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using SoundSystem;
+using System.Threading;
+using System;
 
 public class TextWindows : SceneSingleton<TextWindows>
 {
@@ -20,6 +22,7 @@ public class TextWindows : SceneSingleton<TextWindows>
     [SerializeField] private int waitmsec = 3000;
 
     private IdleLogoBlink idleLogoBlink;
+    private CancellationTokenSource _idleBlinkCts;
 
     private bool isPaused = false;         // Pause状態を管理するフラグ
     private bool skipRequested = false;    // スキップがリクエストされたかを管理
@@ -52,6 +55,12 @@ public class TextWindows : SceneSingleton<TextWindows>
         int skipThreshold // 表示文字数のスキップ許可閾値（%）
     )
     {
+        // 既存のアイドルブリンク処理をキャンセル
+        _idleBlinkCts?.Cancel();
+        _idleBlinkCts?.Dispose();
+        _idleBlinkCts = new CancellationTokenSource();
+        var idleToken = _idleBlinkCts.Token;
+
         SpeechBubble.SetActive(true);
         // SkipIcon.SetActive(false);
 
@@ -72,11 +81,11 @@ public class TextWindows : SceneSingleton<TextWindows>
 
         while (visibleCount < totalLength)
         {
-            Debug.Log("visibleCount");
             // Pause中は待機
             await UniTask.WaitUntil(() => !isPaused);
             if (skipRequested)
             {
+                _idleBlinkCts.Cancel();
                 bodyText.maxVisibleCharacters = totalLength;
                 break;
             }
@@ -93,7 +102,7 @@ public class TextWindows : SceneSingleton<TextWindows>
             else
             {
                 // スキップ可能になったら、Delayと入力待機を同時実行
-                var delayTask = UniTask.Delay(interval);
+                var delayTask = UniTask.Delay(interval, cancellationToken: idleToken);
                 var inputTask = UniTask.WaitUntil(() => IsSkipInputValid());
                 int winner = await UniTask.WhenAny(delayTask, inputTask);
 
@@ -101,6 +110,7 @@ public class TextWindows : SceneSingleton<TextWindows>
                 if (winner == 1)
                 {
                     Debug.Log($"Skipped Text at {visibleCount} / {skipLimit}");
+                    _idleBlinkCts.Cancel();
                     bodyText.maxVisibleCharacters = totalLength;
                     break;
                 }
@@ -122,21 +132,27 @@ public class TextWindows : SceneSingleton<TextWindows>
         }
         */
 
-        // 文字表示完了後、3秒後に点滅開始（操作があればスキップ）
+        // 表示完了後のアイドルブリンク開始タスク
         UniTask.Void(async () =>
         {
-            await UniTask.Delay(waitmsec);
-            // 既に操作があった場合はStartBlinkしない
-            if (!IsSkipInputValid())
+            try
             {
-                idleLogoBlink.StartBlink();
+                await UniTask.Delay(waitmsec, cancellationToken: idleToken);
+                if (!idleToken.IsCancellationRequested && !IsSkipInputValid())
+                {
+                    idleLogoBlink.StartBlink();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // キャンセルされても何もしない
             }
         });
 
-        // 最終的なインタラクト待機（UI上の場合は入力無視）
+        // 最終インタラクト待ち
         await UniTask.WaitUntil(() => IsSkipInputValid() && !isPaused);
-
         idleLogoBlink.StopBlink();
+
         try
         {
             SoundPlayer.instance.PlaySe("TypeHit");

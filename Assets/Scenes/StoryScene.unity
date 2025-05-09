@@ -829,6 +829,7 @@ MonoBehaviour:
   logoCanvasG: {fileID: 143152163}
   blankPeriod: 1.5
   minAlpha: 0.2
+  waitmsec: 5000
 --- !u!4 &869540016
 Transform:
   m_ObjectHideFlags: 0
