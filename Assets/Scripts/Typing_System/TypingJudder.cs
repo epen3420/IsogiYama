@@ -1,5 +1,5 @@
 /// <summary>
-/// 文単位でタイピングの正誤判定を行いうクラス
+/// 文単位でタイピングの正誤判定を行うクラス
 /// </summary>
 public class TypingJudder
 {
