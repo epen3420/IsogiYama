@@ -67,16 +67,20 @@ public class TypingBGScheduler
     {
         // タイピング中の背景データをリストに格納
         var initImagePath = firstRow.Get<string>(TypingQuestType.initBGImage);
-
         bgEvents.Add(new TypingBGEvent(initImagePath, 0.0f));
         for (int i = 1; TypingQuestType.japanese != (TypingQuestType)i; i += 2)
         {
             var currentTypingQuestType = (TypingQuestType)i;
-
-            var imagePath = firstRow.Get<string>(currentTypingQuestType);
-            var executeTime = firstRow.Get<float>(currentTypingQuestType + 1);
-
-            bgEvents.Add(new TypingBGEvent(imagePath, executeTime));
+            try
+            {
+                var imagePath = firstRow.Get<string>(currentTypingQuestType);
+                var executeTime = firstRow.Get<float>(currentTypingQuestType + 1);
+                bgEvents.Add(new TypingBGEvent(imagePath, executeTime));
+            }
+            catch
+            {
+                continue;
+            }
         }
     }
 
