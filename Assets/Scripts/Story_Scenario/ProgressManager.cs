@@ -45,8 +45,10 @@ public class ProgressManager : SceneSingleton<ProgressManager>
             Debug.Log($"Error: {e}");
         }
 
-        InitializeAsync()
-            .Forget(e => Debug.LogError($"Initialization failed: {e}"));
+        LoadScenarioData();
+        Debug.Log($"total:{totalLine} / コマンド開始");
+
+        ExecuteCommand().Forget(e => Debug.LogError($"ExecuteCommand failed: {e}"));
     }
 
     public async UniTask ExecuteCommand()
