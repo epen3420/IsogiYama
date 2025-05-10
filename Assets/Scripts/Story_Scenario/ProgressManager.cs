@@ -46,8 +46,7 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         }
 
         LoadScenarioData();
-        Debug.Log($"total:{totalLine} / コマンド開始");
-
+        vfxController.FadeOutCanvasAsync().Forget();
         ExecuteCommand().Forget(e => Debug.LogError($"ExecuteCommand failed: {e}"));
     }
 
