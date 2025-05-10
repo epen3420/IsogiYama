@@ -45,8 +45,9 @@ public class ProgressManager : SceneSingleton<ProgressManager>
             Debug.Log($"Error: {e}");
         }
 
-        InitializeAsync()
-            .Forget(e => Debug.LogError($"Initialization failed: {e}"));
+        LoadScenarioData();
+        vfxController.FadeOutCanvasAsync().Forget();
+        ExecuteCommand().Forget(e => Debug.LogError($"ExecuteCommand failed: {e}"));
     }
 
     public async UniTask ExecuteCommand()

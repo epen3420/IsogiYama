@@ -71,7 +71,7 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
         gameFlowManager = GameFlowManager.instance;
         soundPlayer = SoundPlayer.instance;
 
-        var isInitComplete = await InitTypingData();
+        var isInitComplete = InitTypingData();
 
         if (!isInitComplete) return;
 
@@ -82,7 +82,7 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
         EnableKeyboardInput();
     }
 
-    private async UniTask<bool> InitTypingData()
+    private bool InitTypingData()
     {
         // CSVファイルの取得
         var csvFile = gameFlowManager.GetCurrentCSV();
@@ -94,7 +94,7 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
 
         // CSVファイルからデータを抽出
         var csvLoader = new CSVLoader();
-        var csvData = await csvLoader.LoadCSVAsync<TypingQuestType>(csvFile);
+        var csvData = csvLoader.LoadCSV<TypingQuestType>(csvFile);
         if (csvData == null)
         {
             Debug.LogError("Failed to load CSV data.");
