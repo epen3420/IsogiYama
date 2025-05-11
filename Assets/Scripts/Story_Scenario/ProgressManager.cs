@@ -49,27 +49,21 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         // MonoBehaviour が破棄されたら自動キャンセルされるトークン
         var lifetimeToken = this.GetCancellationTokenOnDestroy();
 
-#if UNITY_EDITOR
-        // その他プラットフォーム向け
-        Debug.Log("Non-WebGL build: Running in ASYNC mode");
-
-        // シナリオ読み込みとコマンド実行は同期で
-        LoadScenarioData();
-        vfxController.FadeOutCanvasAsync().Forget();
-        ExecuteCommand(lifetimeToken)
-            .Forget(e => Debug.LogWarning($"ExecuteCommand failed: {e}"));
-#elif UNITY_WEBGL
+#if UNITY_WEBGL
     // WebGL 向け
-        Debug.Log("WebGL build: Running in SYNC mode");
+    Debug.Log("WebGL build: Running in SYNC mode");
 
-    // 非同期版の初期化を呼び出す
-    InitializeAsync(lifetimeToken)
-        .Forget(e => Debug.LogError($"InitializeAsync failed: {e}"));
-#else
     LoadScenarioData();
     vfxController.FadeOutCanvasAsync().Forget();
     ExecuteCommand(lifetimeToken)
         .Forget(e => Debug.LogError($"ExecuteCommand failed: {e}"));
+#else
+    // その他プラットフォーム向け
+    Debug.Log("Non-WebGL build: Running in ASYNC mode");
+
+    // 非同期版の初期化を呼び出す
+    InitializeAsync(lifetimeToken)
+        .Forget(e => Debug.LogError($"InitializeAsync failed: {e}"));
 #endif
     }
 
