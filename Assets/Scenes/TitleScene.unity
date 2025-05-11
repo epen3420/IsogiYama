@@ -274,7 +274,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8992101991809943519, guid: c216516ec832e0c43a20b6aa56efc02b, type: 3}
       propertyPath: soundSetting.bgmVolume
-      value: 0.8
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 8992101991809943519, guid: c216516ec832e0c43a20b6aa56efc02b, type: 3}
       propertyPath: soundSetting.masterVolume

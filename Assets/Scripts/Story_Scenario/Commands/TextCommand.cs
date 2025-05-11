@@ -1,14 +1,18 @@
 using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace IsogiYama.Commands
 {
     public class TextCommand : CommandBase
     {
         TextWindows textWindows;
+        private readonly CancellationToken lifetimeToken;
 
         public TextCommand()
         {
             textWindows = InstanceRegister.Get<TextWindows>();
+
+            lifetimeToken = textWindows.GetCancellationTokenOnDestroy();
         }
 
         public override async UniTask ExecuteAsync(LineData<ScenarioFields> lineData)
@@ -22,7 +26,8 @@ namespace IsogiYama.Commands
                     names,
                     body,
                     interval,
-                    threshold
+                    threshold,
+                    lifetimeToken
                 );
         }
     }

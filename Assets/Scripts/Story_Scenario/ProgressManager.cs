@@ -30,6 +30,7 @@ public class ProgressManager : SceneSingleton<ProgressManager>
 
     private void Start()
     {
+        // 初期化
         currentScenarioData = new CsvData<ScenarioFields>();
         csvLoader = new CSVLoader();
         commandFactory = new CommandFactory();
@@ -37,20 +38,42 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         try
         {
             vfxController = InstanceRegister.Get<VFXController>();
-
             gameFlowManager = GameFlowManager.instance;
             file = gameFlowManager.GetCurrentCSV();
-        }catch (Exception e)
+        }
+        catch (Exception e)
         {
-            Debug.Log($"Error: {e}");
+            Debug.LogError($"ProgressManager Start Error: {e}");
         }
 
+        // MonoBehaviour が破棄されたら自動キャンセルされるトークン
+        var lifetimeToken = this.GetCancellationTokenOnDestroy();
+
+#if UNITY_EDITOR
+        // その他プラットフォーム向け
+        Debug.Log("Non-WebGL build: Running in ASYNC mode");
+
+        // シナリオ読み込みとコマンド実行は同期で
         LoadScenarioData();
         vfxController.FadeOutCanvasAsync().Forget();
-        ExecuteCommand().Forget(e => Debug.LogError($"ExecuteCommand failed: {e}"));
+        ExecuteCommand(lifetimeToken)
+            .Forget(e => Debug.LogWarning($"ExecuteCommand failed: {e}"));
+#elif UNITY_WEBGL
+    // WebGL 向け
+        Debug.Log("WebGL build: Running in SYNC mode");
+
+    // 非同期版の初期化を呼び出す
+    InitializeAsync(lifetimeToken)
+        .Forget(e => Debug.LogError($"InitializeAsync failed: {e}"));
+#else
+    LoadScenarioData();
+    vfxController.FadeOutCanvasAsync().Forget();
+    ExecuteCommand(lifetimeToken)
+        .Forget(e => Debug.LogError($"ExecuteCommand failed: {e}"));
+#endif
     }
 
-    public async UniTask ExecuteCommand()
+    public async UniTask ExecuteCommand(CancellationToken ct = default)
     {
         while (currentIndex < totalLine)
         {
@@ -63,7 +86,7 @@ public class ProgressManager : SceneSingleton<ProgressManager>
             if (cmd != null)
             {
                 Debug.Log($"Execute : {currentCommand} / Line : {currentIndex}");
-                await cmd.ExecuteAsync(line);
+                await cmd.ExecuteAsync(line).AttachExternalCancellation(ct); ;
             }
 
             IncrementIndex();
@@ -149,13 +172,13 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         Debug.Log($"[Async] Loaded lines: {totalLine}");
     }
 
-    private async UniTask InitializeAsync()
+    private async UniTask InitializeAsync(CancellationToken ct = default)
     {
-        await LoadScenarioDataAsync();
+        await LoadScenarioDataAsync(ct);
 
         // 並列で実行
-        var fadeTask = vfxController.FadeOutCanvasAsync();
-        var execTask = ExecuteCommand();
+        var fadeTask = vfxController.FadeOutCanvasAsync().AttachExternalCancellation(ct);;
+        var execTask = ExecuteCommand(ct);
 
         // 両方終わるのを待つ
         await UniTask.WhenAll(fadeTask, execTask);
