@@ -33,7 +33,7 @@ public class IdleLogoBlink : IDisposable
     /// 点滅を開始します。
     /// フェードイン後に点滅ループを開始。
     /// </summary>
-    public void StartBlink()
+    public void StartBlink(CancellationToken ct)
     {
         // 既存の停止処理が走っている場合はキャンセル
         _cts?.Cancel();
@@ -42,8 +42,7 @@ public class IdleLogoBlink : IDisposable
         _canvasGroup.gameObject.SetActive(true);
         _canvasGroup.alpha = 0f;
 
-        _cts = new CancellationTokenSource();
-        FadeInAndStartBlink(_cts.Token).Forget();
+        FadeInAndStartBlink(ct).Forget();
     }
 
     /// <summary>

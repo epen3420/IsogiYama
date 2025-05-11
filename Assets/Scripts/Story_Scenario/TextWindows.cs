@@ -23,12 +23,15 @@ public class TextWindows : SceneSingleton<TextWindows>
 
     private IdleLogoBlink idleLogoBlink;
     private CancellationTokenSource _idleBlinkCts;
+    private CancellationToken _lifetimeToken;
 
     private bool isPaused = false;         // Pause状態を管理するフラグ
     private bool skipRequested = false;    // スキップがリクエストされたかを管理
 
     private void Start()
     {
+        _lifetimeToken = this.GetCancellationTokenOnDestroy();
+
         idleLogoBlink = new IdleLogoBlink(logoCanvasG, blankPeriod, minAlpha);
         SpeechBubble.SetActive(false);
         SkipIcon.SetActive(false);
@@ -52,14 +55,20 @@ public class TextWindows : SceneSingleton<TextWindows>
         string name,
         string body,
         int interval,    // ミリ秒単位
-        int skipThreshold // 表示文字数のスキップ許可閾値（%）
+        int skipThreshold, // 表示文字数のスキップ許可閾値（%）
+        CancellationToken ct
     )
     {
         // 既存のアイドルブリンク処理をキャンセル
         _idleBlinkCts?.Cancel();
         _idleBlinkCts?.Dispose();
         _idleBlinkCts = new CancellationTokenSource();
-        var idleToken = _idleBlinkCts.Token;
+
+        var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
+            _idleBlinkCts.Token,
+            _lifetimeToken,
+            ct
+        );
 
         SpeechBubble.SetActive(true);
         // SkipIcon.SetActive(false);
@@ -85,7 +94,7 @@ public class TextWindows : SceneSingleton<TextWindows>
             await UniTask.WaitUntil(() => !isPaused);
             if (skipRequested)
             {
-                _idleBlinkCts.Cancel();
+                linkedCts.Cancel();
                 bodyText.maxVisibleCharacters = totalLength;
                 break;
             }
@@ -102,7 +111,7 @@ public class TextWindows : SceneSingleton<TextWindows>
             else
             {
                 // スキップ可能になったら、Delayと入力待機を同時実行
-                var delayTask = UniTask.Delay(interval, cancellationToken: idleToken);
+                var delayTask = UniTask.Delay(interval, cancellationToken: linkedCts.Token);
                 var inputTask = UniTask.WaitUntil(() => IsSkipInputValid());
                 int winner = await UniTask.WhenAny(delayTask, inputTask);
 
@@ -110,7 +119,7 @@ public class TextWindows : SceneSingleton<TextWindows>
                 if (winner == 1)
                 {
                     Debug.Log($"Skipped Text at {visibleCount} / {skipLimit}");
-                    _idleBlinkCts.Cancel();
+                    linkedCts.Cancel();
                     bodyText.maxVisibleCharacters = totalLength;
                     break;
                 }
@@ -137,10 +146,10 @@ public class TextWindows : SceneSingleton<TextWindows>
         {
             try
             {
-                await UniTask.Delay(waitmsec, cancellationToken: idleToken);
-                if (!idleToken.IsCancellationRequested && !IsSkipInputValid())
+                await UniTask.Delay(waitmsec, cancellationToken: linkedCts.Token);
+                if (!linkedCts.Token.IsCancellationRequested && !IsSkipInputValid())
                 {
-                    idleLogoBlink.StartBlink();
+                    idleLogoBlink.StartBlink(linkedCts.Token);
                 }
             }
             catch (OperationCanceledException)
@@ -150,17 +159,16 @@ public class TextWindows : SceneSingleton<TextWindows>
         });
 
         // 最終インタラクト待ち
-        await UniTask.WaitUntil(() => IsSkipInputValid() && !isPaused);
+        await UniTask.WaitUntil(
+            () => IsSkipInputValid() && !isPaused,
+            cancellationToken: linkedCts.Token
+        );
         idleLogoBlink.StopBlink();
 
         try
-        {
-            SoundPlayer.instance.PlaySe("TypeHit");
-        }
+        {   SoundPlayer.instance.PlaySe("TypeHit"); }
         catch
-        {
-
-        }
+        {   }
         // SkipIcon.SetActive(false);
     }
 
