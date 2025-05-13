@@ -1,9 +1,16 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// 分岐する際に使うGameStep
+/// </summary>
 [CreateAssetMenu(fileName = "GameBranchStep", menuName = "GameFlow/GameBranchStep")]
-public class GameBranchStep : GameStepBase
+public class GameBranchStep : GameStep
 {
+    [Header("分岐条件と次のステップ")]
+    [SerializeField]
+    private List<BranchCondition> branchConditions;
+
     [System.Serializable]
     private struct BranchCondition
     {
@@ -11,42 +18,57 @@ public class GameBranchStep : GameStepBase
         public GameStep nextStep; // 条件を満たした場合の次のステップ
     }
 
-    [Header("分岐条件")]
-    [SerializeField]
-    private List<BranchCondition> branchConditions;
-
-    public override GameStepType StepType => stepType;
-    public override TextAsset CsvFile => csvFile;
-    public override bool HasBranch => true;
-
-
-    private const float ERROR_CLEAR_TIME = 10.0f;
+    private bool isInitialized = false;
 
     public GameStep GetNextStepByClearTime(float clearTime)
     {
-        /* if (clearTime < ERROR_CLEAR_TIME)
-        {
-            Debug.LogError("Invalid clear time.");
-            return null;
-        } */
+        InitBranchSteps();
 
-        // クリア時間でソート
-        branchConditions.Sort((x, y) => x.maxClearTime.CompareTo(y.maxClearTime));
+        Debug.Log($"Game Clear Time: {clearTime}");
+        // 最大クリアタイムが一番遅いものより、クリアタイムが遅い場合それを返す
+        var bestBadEndCondition = branchConditions[branchConditions.Count - 1];
+        if (bestBadEndCondition.maxClearTime <= clearTime)
+        {
+            Debug.Log($"Branching {bestBadEndCondition.nextStep.name}");
+            return bestBadEndCondition.nextStep;
+        }
 
         foreach (var condition in branchConditions)
         {
             if (condition.maxClearTime > clearTime)
             {
+                Debug.Log($"Branching {condition.nextStep.name}");
                 return condition.nextStep;
             }
         }
 
-        var bestBadEndCondition=branchConditions[branchConditions.Count-1];
-        if(bestBadEndCondition.maxClearTime<=clearTime)
-        {
-            return bestBadEndCondition.nextStep;
-        }
-        
         return null;
+    }
+
+    /// <summary>
+    /// クリア時間で昇順にソートとフラグを立てる
+    /// </summary>
+    private void InitBranchSteps()
+    {
+        if (isInitialized) return;
+
+        if (branchConditions == null ||
+            branchConditions.Count == 0)
+        {
+            Debug.LogError("Not set next step in branch step");
+            return;
+        }
+
+        // クリア時間を昇順にソート
+        branchConditions.Sort((x, y) => x.maxClearTime.CompareTo(y.maxClearTime));
+
+        // 分岐内であるというフラグを立てる
+        foreach (var branchCondition in branchConditions)
+        {
+            var step = branchCondition.nextStep;
+            step.SetTrueIsInBranch();
+        }
+
+        isInitialized = true;
     }
 }

@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef82dbc56d8eaf44aacf5b70cbba93f3, type: 3}
   m_Name: GameStep
   m_EditorClassIdentifier: 
-  stepType: 1
-  csvFile: {fileID: 4900000, guid: 2364bcbf9ddcce6478fb7e3f4f28a8dd, type: 3}
+  stepType: 2
+  csvFile: {fileID: 4900000, guid: d20ea414df555db44a476226dd62ec07, type: 3}
