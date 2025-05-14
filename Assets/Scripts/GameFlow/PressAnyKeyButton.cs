@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -6,37 +7,51 @@ using UnityEngine.InputSystem;
 public class PressAnyKeyButton : MonoBehaviour
 {
     private bool isPressed = false;
+    private Keyboard keyboard = null;
 
+    [Header("最小のアルファ値")]
     [SerializeField]
     private float minColorAlpha = 0.5f;
+    [Header("最大のアルファ値")]
     [SerializeField]
     private float maxColorAlpha = 1.0f;
+    [Header("点滅の周期")]
     [SerializeField]
-    private float flashDuration = 0.5f; // 点滅の周期（秒単位）
+    private float flashDuration = 0.5f;
+    [Header("点滅させるテキスト")]
     [SerializeField]
     private TMP_Text text;
 
-    private void Start()
+
+    private async void Start()
     {
         if (text != null)
         {
             FlashObject().Forget();
         }
+
+        keyboard = Keyboard.current;
+        await UniTask.WaitUntil(() => !keyboard.anyKey.wasPressedThisFrame);
     }
 
     private void Update()
     {
-        var keyboard = Keyboard.current;
+        keyboard = Keyboard.current;
         if (keyboard == null) return;
 
         // キーボードの入力を受け取る
-        if (!isPressed && keyboard.anyKey.isPressed)
+        if (!isPressed &&
+            keyboard.anyKey.wasPressedThisFrame)
         {
             isPressed = true;
             GameFlowManager.instance.GoToNextScene();
         }
     }
 
+    /// <summary>
+    /// Colorコンポーネントを持つ、オブジェクトを点滅させる
+    /// </summary>
+    /// <returns></returns>
     private async UniTask FlashObject()
     {
         // キャラのスプライトカラーの取得

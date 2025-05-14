@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef82dbc56d8eaf44aacf5b70cbba93f3, type: 3}
   m_Name: OPStory
   m_EditorClassIdentifier: 
-  stepType: 0
+  stepType: 1
   csvFile: {fileID: 4900000, guid: d9b1888479ed9da4782bfb6ae2100964, type: 3}

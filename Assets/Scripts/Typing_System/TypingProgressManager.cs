@@ -5,7 +5,7 @@ using SoundSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class TypingProgressManager : SceneSingleton<TypingProgressManager>
+public class TypingProgressManager : MonoBehaviour
 {
     // インスタンスの保持
     private GameFlowManager gameFlowManager;
@@ -78,7 +78,6 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
         // 初期化処理をしてからフェードアウトし、タイピングのスタート
         NextQuest();
         await typingBGScheduler.FadeOut();
-        typingBGScheduler.OnGameOver += GameOver;
         EnableKeyboardInput();
     }
 
@@ -103,6 +102,7 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
 
         StoreCSVDataToList(csvData);
         typingBGScheduler = new TypingBGScheduler(csvData.Rows[0], timer);
+        typingBGScheduler.OnGameOver += GameOver;
         return true;
     }
 
@@ -127,9 +127,9 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
         DisableKeyboardInput();
 
         var clearTime = timer.GetTime();
-        Debug.Log($"Clear Time: {clearTime}");
+        Debug.Log($"This scene clear time: {clearTime}");
 
-        gameFlowManager.SetClearTime(clearTime);
+        gameFlowManager.AddClearTime(clearTime);
 
         typingBGScheduler.FadeIn();
 
@@ -137,15 +137,11 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
         typingUIManager.ResetText();
 
         gameFlowManager.GoToNextScene();
-        return;
     }
 
     private void GameOver()
     {
-        typingBGScheduler.FadeIn();
-
-        timer.ResetTimer();
-        typingUIManager.ResetText();
+        End();
 
         gameFlowManager.GameOver().Forget();
     }
@@ -205,5 +201,10 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
                 Debug.Log("Error");
                 break;
         }
+    }
+
+    private void OnDestroy()
+    {
+        DisableKeyboardInput();
     }
 }

@@ -1,11 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// 一番元のゲームフローを管理するDataBase
+/// 一番元のゲームフローのDataBase
 /// このDataBaseを通してゲームフローを管理する
 /// </summary>
 [CreateAssetMenu(fileName = "GameFlowDataBase", menuName = "GameFlow/GameFlowDataBase")]
 public class GameFlowDataBase : ScriptableObject
 {
-    public GameStepBase[] gameSteps;
+    public GameStep[] gameSteps;
 }

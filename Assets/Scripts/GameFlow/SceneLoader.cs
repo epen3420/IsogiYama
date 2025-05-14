@@ -12,6 +12,7 @@ public class SceneLoader : SceneSingleton<SceneLoader>
     private async UniTask LoadScene(string scene)
     {
         AsyncOperation async = SceneManager.LoadSceneAsync(scene);
+        Debug.Log($"Loading scene: {scene}");
         while (!async.isDone)
         {
             await UniTask.Yield();
