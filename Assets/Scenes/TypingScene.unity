@@ -453,6 +453,7 @@ MonoBehaviour:
   inputText: {fileID: 1107024368}
   timer: {fileID: 978425905}
   timerText: {fileID: 282583049}
+  textWindow: {fileID: 123496539}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -732,6 +733,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c05c455526c7d34b8c4f6a214569d90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameOverTime: 180
+  displayTimeOfGameOverScreen: 5000
+  gameOverImageName: Blood
+  maxMissTypeCount: 10
   typingUIManager: {fileID: 483177098}
   timer: {fileID: 978425905}
 --- !u!1 &800137694

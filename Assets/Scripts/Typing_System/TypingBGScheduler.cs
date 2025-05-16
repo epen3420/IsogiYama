@@ -9,8 +9,6 @@ using Cysharp.Threading.Tasks;
 /// </summary>
 public class TypingBGScheduler
 {
-    public event Action OnGameOver;
-
     private VFXController vFXController;
     private StopwatchTimer timer;
     [Serializable]
@@ -29,22 +27,18 @@ public class TypingBGScheduler
     private int bgEventIndex = 0;
 
 
-    public TypingBGScheduler(LineData<TypingQuestType> csvFirstLineData, StopwatchTimer timer)
+    public TypingBGScheduler(LineData<TypingQuestType> csvFirstLineData, StopwatchTimer timer, string gameOverImageName, float gameOverTime)
     {
         vFXController = InstanceRegister.Get<VFXController>();
 
         this.timer = timer;
+        bgEvents.Add(new TypingBGEvent(gameOverImageName, gameOverTime));
 
         StoreCSVData(csvFirstLineData);
         // 背景データを昇順にソート
         bgEvents.Sort((a, b) => a.ExecuteTime.CompareTo(b.ExecuteTime));
 
         StartBGCycle().Forget();
-    }
-
-    public void FadeIn()
-    {
-        vFXController.FadeInCanvasAsync().Forget();
     }
 
     public async UniTask FadeOut()
@@ -58,9 +52,9 @@ public class TypingBGScheduler
         {
             await ChangeBackground();
         }
-        UnityEngine.Debug.Log("Complete to change background images.");
 
-        OnGameOver?.Invoke();
+
+        UnityEngine.Debug.Log("Complete to change background images.");
     }
 
     private void StoreCSVData(LineData<TypingQuestType> firstRow)
