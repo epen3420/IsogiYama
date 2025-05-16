@@ -33,6 +33,7 @@ public class TypingProgressManager : MonoBehaviour
 
     private bool hasStartedTimer = false;
     private bool isGameOver = false;
+    private int missTypeCount = 0;
 
     [Header("ゲームオーバーになる秒数")]
     [SerializeField]
@@ -43,6 +44,9 @@ public class TypingProgressManager : MonoBehaviour
     [Header("ゲームオーバー時に出す画像の名前")]
     [SerializeField]
     private string gameOverImageName = "Blood";
+    [Header("ゲームオーバーになるミスタイプ数")]
+    [SerializeField]
+    private int maxMissTypeCount = 10;
 
     [SerializeField]
     private TypingUIManager typingUIManager;
@@ -209,6 +213,10 @@ public class TypingProgressManager : MonoBehaviour
             case TypingState.Miss:
                 Debug.Log($"{typedChar}: Miss");
                 soundPlayer.PlaySe("TypeMiss");
+                if (hasStartedTimer)
+                {
+                    missTypeCount++;
+                }
                 break;
 
             case TypingState.Clear:
@@ -223,6 +231,12 @@ public class TypingProgressManager : MonoBehaviour
             default:
                 Debug.Log("Error");
                 break;
+        }
+
+        if (maxMissTypeCount <= missTypeCount)
+        {
+            isGameOver = true;
+            End().Forget();
         }
     }
 
