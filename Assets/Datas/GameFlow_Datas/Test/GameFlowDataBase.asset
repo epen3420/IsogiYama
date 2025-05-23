@@ -13,7 +13,5 @@ MonoBehaviour:
   m_Name: GameFlowDataBase
   m_EditorClassIdentifier: 
   gameSteps:
-  - {fileID: 11400000, guid: 19ac97c5d03eca94f86a90d13fdc446e, type: 2}
   - {fileID: 11400000, guid: e309786b37e680544a8313f5fe120394, type: 2}
   - {fileID: 11400000, guid: b41ca73a528b2684780f5066ce673714, type: 2}
-  - {fileID: 11400000, guid: 4c00d9470bcca774f82f0dfd1163d667, type: 2}

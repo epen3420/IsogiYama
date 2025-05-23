@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
@@ -8,6 +9,12 @@ using UnityEngine.InputSystem;
 
 public class TypingProgressManager : MonoBehaviour
 {
+    // Eventの定義
+    public event Action correctTyping;
+    public event Action<int> incorrectTyping;
+    public event Action<string, string> endCurrentQuest;
+    public event Action<bool> endTypingScene;
+
     // インスタンスの保持
     private GameFlowManager gameFlowManager;
     private VFXController vfxController;
@@ -32,7 +39,6 @@ public class TypingProgressManager : MonoBehaviour
     private int questIndex = 0;
 
     private bool hasStartedTimer = false;
-    private bool isGameOver = false;
     private int missTypeCount = 0;
 
     [Header("ゲームオーバーになる秒数")]
@@ -48,8 +54,6 @@ public class TypingProgressManager : MonoBehaviour
     [SerializeField]
     private int maxMissTypeCount = 10;
 
-    [SerializeField]
-    private TypingUIManager typingUIManager;
     [SerializeField]
     private StopwatchTimer timer;
 
@@ -119,7 +123,15 @@ public class TypingProgressManager : MonoBehaviour
         }
 
         StoreCSVDataToList(csvData);
-        typingBGScheduler = new TypingBGScheduler(csvData.Rows[0], timer, gameOverImageName, gameOverTime);
+        typingBGScheduler = new TypingBGScheduler
+        (
+            csvData.Rows[0],
+            timer,
+            endTypingScene,
+            gameOverImageName,
+            gameOverTime,
+            displayTimeOfGameOverScreen
+        );
 
         return true;
     }
@@ -128,18 +140,16 @@ public class TypingProgressManager : MonoBehaviour
     {
         if (questIndex >= questDatas.Count)
         {
-            End().Forget();
+            End();
             return;
         }
-        typingUIManager.ResetText();
-
         var currentQuestData = questDatas[questIndex++];
         typingJudger = new TypingJudder(currentQuestData.Roma);
 
-        typingUIManager.SetUIText(currentQuestData.Japanese, currentQuestData.Roma);
+        endCurrentQuest?.Invoke(currentQuestData.Japanese, currentQuestData.Roma);
     }
 
-    private async UniTask End()
+    private void End(bool isGameOver = false)
     {
         timer.StopTimer();
         DisableKeyboardInput();
@@ -150,27 +160,10 @@ public class TypingProgressManager : MonoBehaviour
         gameFlowManager.AddClearTime(clearTime);
 
         timer.ResetTimer();
-        typingUIManager.ResetText();
 
-        typingUIManager.HideTextWindow();
+        endTypingScene?.Invoke(isGameOver);
 
-        if (isGameOver)
-        {
-            isGameOver = false;
-            InstanceRegister.Get<VFXController>().
-                ChangeBackgroundAsync(gameOverImageName, 0.0f).Forget();
-
-            await UniTask.Delay(displayTimeOfGameOverScreen);
-
-            await vfxController.FadeInCanvasAsync();
-
-            gameFlowManager.GameOver();
-            return;
-        }
-
-        vfxController.FadeInCanvasAsync().Forget();
-
-        gameFlowManager.GoToNextScene();
+        gameFlowManager.GoToNextScene(isGameOver);
     }
 
     /// <summary>
@@ -204,7 +197,7 @@ public class TypingProgressManager : MonoBehaviour
                     hasStartedTimer = true;
                     timer.StartTimer();
                 }
-                typingUIManager.UpdateInputText();
+                correctTyping?.Invoke();
                 soundPlayer.PlaySe("TypeHit");
 
                 Debug.Log($"{typedChar}: Hit");
@@ -220,7 +213,7 @@ public class TypingProgressManager : MonoBehaviour
                 break;
 
             case TypingState.Clear:
-                typingUIManager.UpdateInputText();
+                correctTyping?.Invoke();
                 soundPlayer.PlaySe("TypeHit");
 
                 Debug.Log($"{typedChar}: Clear");
