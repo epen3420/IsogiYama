@@ -3,6 +3,7 @@ using UnityEngine;
 using SoundSystem;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 
 public class GameFlowManager : Singleton<GameFlowManager>
 {
@@ -20,9 +21,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
     [Header("ゲームフローのデータベース")]
     [SerializeField]
     private GameFlowDataBase gameFlowData;
-    [Header("ゲームオーバー画面の表示時間 (ms)")]
-    [SerializeField]
-    private int displayTimeOfGameOverScreen = 3000;
 
 
     private void Start()
@@ -71,12 +69,10 @@ public class GameFlowManager : Singleton<GameFlowManager>
         sceneLoader.LoadNextScene(nextScene);
     }
 
-    public async UniTask GameOver()
+    public void GameOver()
     {
         isGameOver = true;
         Debug.Log("Game Over. Returning to title after delay.");
-
-        await UniTask.Delay(displayTimeOfGameOverScreen);
 
         InitGameFlow();
         GoToNextScene();

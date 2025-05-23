@@ -9,10 +9,14 @@ public class TypingUIManager : MonoBehaviour
     private TMP_Text romaText;
     [SerializeField]
     private TMP_Text inputText;
+
     [SerializeField]
     private StopwatchTimer timer;
     [SerializeField]
     private TMP_Text timerText;
+
+    [SerializeField]
+    private GameObject textWindow;
 
 
     public void SetUIText(string japanese, string roma)
@@ -29,6 +33,11 @@ public class TypingUIManager : MonoBehaviour
         japaneseText.text = "";
         romaText.text = "";
         inputText.text = "";
+    }
+
+    public void HideTextWindow()
+    {
+        textWindow.SetActive(false);
     }
 
     public void UpdateInputText()
