@@ -233,11 +233,11 @@ public class TypingProgressManager : MonoBehaviour
                 break;
         }
 
-        if (maxMissTypeCount <= missTypeCount)
-        {
-            isGameOver = true;
-            End().Forget();
-        }
+        // if (maxMissTypeCount <= missTypeCount)
+        // {
+        //     isGameOver = true;
+        //     End().Forget();
+        // }
     }
 
     private void OnDestroy()
