@@ -1,8 +1,8 @@
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 public class PressAnyKeyButton : MonoBehaviour
 {
@@ -31,21 +31,45 @@ public class PressAnyKeyButton : MonoBehaviour
         }
 
         keyboard = Keyboard.current;
-        await UniTask.WaitUntil(() => !keyboard.anyKey.wasPressedThisFrame);
+        // キーが押されてたりした時用に解除されるまで待つ
+        await UniTask.WaitUntil(() => !keyboard.anyKey.isPressed);
     }
 
     private void Update()
     {
+        if (isPressed) return;
+
         keyboard = Keyboard.current;
         if (keyboard == null) return;
 
-        // キーボードの入力を受け取る
-        if (!isPressed &&
-            keyboard.anyKey.wasPressedThisFrame)
+
+        foreach (KeyControl keyControl in keyboard.allKeys)
         {
-            isPressed = true;
-            GameFlowManager.instance.GoToNextScene();
+            if (keyControl == null) return;
+
+            if (keyControl.wasPressedThisFrame &&
+                IsPassKey(keyControl.keyCode))
+            {
+                isPressed = true;
+                GameFlowManager.instance.GoToNextScene();
+                break;
+            }
         }
+    }
+
+    private bool IsPassKey(Key key)
+    {
+        if (key >= Key.A && key <= Key.Z)
+            return true;
+
+        if (key >= Key.Digit0 && key <= Key.Digit9)
+            return true;
+
+        if (key == Key.Space || key == Key.Enter)
+            return true;
+
+
+        return false;
     }
 
     /// <summary>
