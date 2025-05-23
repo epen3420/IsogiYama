@@ -13,7 +13,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
     private const string DEFAULT_BGM_NAME = "BGM";
 
     private float clearTime = 0.0f;
-    private bool isGameOver = false;
 
     private List<GameStep> gameSteps;
     private int currentStepIndex = 0;
@@ -54,9 +53,20 @@ public class GameFlowManager : Singleton<GameFlowManager>
         clearTime += time;
     }
 
-    public void GoToNextScene()
+    public void GoToNextScene(bool isGameOver = false)
     {
-        var nextStepType = GetNextStepType();
+        GameStepType nextStepType;
+        if (isGameOver)
+        {
+            nextStepType = GameStepType.Title;
+            Debug.Log("Game Over. Returning to title after delay.");
+            InitGameFlow();
+        }
+        else
+        {
+            nextStepType = GetNextStepType();
+        }
+
         var nextScene = GetSceneNameByStepType(nextStepType);
 
         if (string.IsNullOrEmpty(nextScene))
@@ -69,15 +79,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
         sceneLoader.LoadNextScene(nextScene);
     }
 
-    public void GameOver()
-    {
-        isGameOver = true;
-        Debug.Log("Game Over. Returning to title after delay.");
-
-        InitGameFlow();
-        GoToNextScene();
-    }
-
     private void InitGameFlow()
     {
         gameSteps = gameFlowData.gameSteps.ToList();
@@ -87,12 +88,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
 
     private GameStepType GetNextStepType()
     {
-        if (isGameOver)
-        {
-            isGameOver = false;
-            return GameStepType.Title;
-        }
-
         var nextStepIndex = currentStepIndex + 1;
         if (gameSteps[currentStepIndex] is GameBranchStep branchStep)
         {

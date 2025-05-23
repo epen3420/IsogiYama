@@ -25,20 +25,45 @@ public class TypingBGScheduler
     }
     private List<TypingBGEvent> bgEvents = new List<TypingBGEvent>();
     private int bgEventIndex = 0;
+    private int displayTimeOfGameOverScreen;
 
 
-    public TypingBGScheduler(LineData<TypingQuestType> csvFirstLineData, StopwatchTimer timer, string gameOverImageName, float gameOverTime)
+    public TypingBGScheduler(LineData<TypingQuestType> csvFirstLineData,
+                             StopwatchTimer timer,
+                             Action<bool> endTypingScene,
+                             string gameOverImageName,
+                             float gameOverTime,
+                             int displayTimeOfGameOverScreen
+                            )
     {
         vFXController = InstanceRegister.Get<VFXController>();
 
         this.timer = timer;
         bgEvents.Add(new TypingBGEvent(gameOverImageName, gameOverTime));
 
+        endTypingScene += End;
+
+        this.displayTimeOfGameOverScreen = displayTimeOfGameOverScreen;
+
         StoreCSVData(csvFirstLineData);
         // 背景データを昇順にソート
         bgEvents.Sort((a, b) => a.ExecuteTime.CompareTo(b.ExecuteTime));
 
         StartBGCycle().Forget();
+    }
+
+    private async void End(bool isGameOver)
+    {
+        if (isGameOver)
+        {
+
+
+            await vFXController.ChangeBackgroundAsync(bgEvents[bgEvents.Count - 1].ImagePath, 0.0f);
+
+            await UniTask.Delay(displayTimeOfGameOverScreen);
+        }
+
+        await vFXController.FadeInCanvasAsync();
     }
 
     public async UniTask FadeOut()
