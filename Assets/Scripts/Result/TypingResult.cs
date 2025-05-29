@@ -9,13 +9,13 @@ public class TypingResult
     private List<(int correctCount, int missCount, float partTime)> partResults = new();
 
     // ミスタイプしたキーとその回数
-    private Dictionary<KeyCode, int> mistypedKeys = new();
+    private Dictionary<char, int> mistypedKeys = new();
 
     // 総正解タイプ数
     public int TotalCorrectTypes { get; private set; }
 
     // エンディング分岐
-    public int EndingBranch { get; private set; }
+    public int EndingBranch { get; private set; } = -1;
 
     /// <summary>
     /// 総クリアタイム（パートの合計時間）
@@ -30,7 +30,7 @@ public class TypingResult
         TotalCorrectTypes += correctCount;
     }
 
-    public void AddMistypedKey(KeyCode key)
+    public void AddMistypedKey(char key)
     {
         if (mistypedKeys.ContainsKey(key))
             mistypedKeys[key]++;
@@ -48,7 +48,7 @@ public class TypingResult
     /// <summary>
     /// ワーストミスキーTop3(ミス数降)
     /// </summary>
-    public KeyCode[] GetWorstMistypedKeys(int topN = 3)
+    public char[] GetWorstMistypedKeys(int topN = 3)
     {
         return mistypedKeys
             .OrderByDescending(pair => pair.Value)
