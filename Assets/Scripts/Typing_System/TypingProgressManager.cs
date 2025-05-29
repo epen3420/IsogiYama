@@ -17,7 +17,7 @@ public class TypingProgressManager : MonoBehaviour
 
     // インスタンスの保持
     private GameFlowManager gameFlowManager;
-    private VFXController vfxController;
+    private TypingResult typingResult;
     private SoundPlayer soundPlayer;
     private TypingJudder typingJudger;
     private TypingBGScheduler typingBGScheduler;
@@ -39,6 +39,7 @@ public class TypingProgressManager : MonoBehaviour
     private int questIndex = 0;
 
     private bool hasStartedTimer = false;
+    private int correctTypeCount = 0;
     private int missTypeCount = 0;
 
     [Header("ゲームオーバーになる秒数")]
@@ -91,13 +92,13 @@ public class TypingProgressManager : MonoBehaviour
         // インスタンスの生成と参照
         gameFlowManager = GameFlowManager.instance;
         soundPlayer = SoundPlayer.instance;
-        vfxController = InstanceRegister.Get<VFXController>();
+        typingResult = TypingResultManager.instance.GetResult();
 
         var isInitComplete = InitTypingData();
 
         if (!isInitComplete) return;
 
-        // 初期化処理をしてからフェードアウトし、タイピングのスタート
+        // 初期化処理をしてからタイピング画面にフェードインし、タイピングのスタート
         NextQuest();
         await typingBGScheduler.FadeOut();
         EnableKeyboardInput();
@@ -157,12 +158,15 @@ public class TypingProgressManager : MonoBehaviour
         var clearTime = timer.GetTime();
         Debug.Log($"This scene clear time: {clearTime}");
 
+        typingResult.AddPartResult(correctTypeCount, missTypeCount, clearTime);
+
         gameFlowManager.AddClearTime(clearTime);
 
         timer.ResetTimer();
 
         endTypingScene?.Invoke(isGameOver);
 
+        TypingResultManager.instance.SetResult(typingResult);
         gameFlowManager.GoToNextScene(isGameOver);
     }
 
@@ -189,6 +193,8 @@ public class TypingProgressManager : MonoBehaviour
     /// <param name="typedChar"></param>
     private void OnKeyboardInput(char typedChar)
     {
+        if (typedChar == ' ') return;
+
         switch (typingJudger.JudgeChar(typedChar))
         {
             case TypingState.Hit:
@@ -197,6 +203,7 @@ public class TypingProgressManager : MonoBehaviour
                     hasStartedTimer = true;
                     timer.StartTimer();
                 }
+                correctTypeCount++;
                 correctTyping?.Invoke();
                 soundPlayer.PlaySe("TypeHit");
 
@@ -204,15 +211,19 @@ public class TypingProgressManager : MonoBehaviour
                 break;
 
             case TypingState.Miss:
+                if (!hasStartedTimer) break;
+
+                missTypeCount++;
+                // typingResult.AddMistypedKey((KeyCode)typedChar);
+
                 Debug.Log($"{typedChar}: Miss");
                 soundPlayer.PlaySe("TypeMiss");
-                if (hasStartedTimer)
-                {
-                    missTypeCount++;
-                }
+
                 break;
 
             case TypingState.Clear:
+                correctTypeCount++;
+
                 correctTyping?.Invoke();
                 soundPlayer.PlaySe("TypeHit");
 
@@ -225,12 +236,6 @@ public class TypingProgressManager : MonoBehaviour
                 Debug.Log("Error");
                 break;
         }
-
-        // if (maxMissTypeCount <= missTypeCount)
-        // {
-        //     isGameOver = true;
-        //     End().Forget();
-        // }
     }
 
     private void OnDestroy()
