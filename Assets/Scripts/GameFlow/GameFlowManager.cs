@@ -84,6 +84,8 @@ public class GameFlowManager : Singleton<GameFlowManager>
         gameSteps = gameFlowData.gameSteps.ToList();
         clearTime = 0.0f;
         currentStepIndex = 0;
+        var result = ResultHolder.instance.GetResult();
+        result.PrintSummary();
     }
 
     private GameStepType GetNextStepType()
