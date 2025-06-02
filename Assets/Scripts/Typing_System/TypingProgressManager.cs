@@ -214,7 +214,7 @@ public class TypingProgressManager : MonoBehaviour
                 if (!hasStartedTimer) break;
 
                 missTypeCount++;
-                // typingResult.AddMistypedKey((KeyCode)typedChar);
+                typingResult.AddMistypedKey(typedChar);
 
                 Debug.Log($"{typedChar}: Miss");
                 soundPlayer.PlaySe("TypeMiss");
