@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef82dbc56d8eaf44aacf5b70cbba93f3, type: 3}
   m_Name: OnTheWayStory
   m_EditorClassIdentifier: 
-  stepType: 0
+  stepType: 1
   csvFile: {fileID: 4900000, guid: ad26af76621d65a4d994d48130606a6d, type: 3}

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 806d3195d118ba24c8319f484d1b92de, type: 3}
   m_Name: Typing3Branch
   m_EditorClassIdentifier: 
-  stepType: 1
+  stepType: 2
   csvFile: {fileID: 4900000, guid: f32ac26cfe034164fa4f57eda5fcf7bb, type: 3}
   branchConditions:
   - maxClearTime: 180

@@ -1,14 +1,23 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using IsogiYama.System;
 using SoundSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class TypingProgressManager : SceneSingleton<TypingProgressManager>
+public class TypingProgressManager : MonoBehaviour
 {
+    // Eventの定義
+    public event Action correctTyping;
+    public event Action<int> incorrectTyping;
+    public event Action<string, string> endCurrentQuest;
+    public event Action<bool> endTypingScene;
+
     // インスタンスの保持
     private GameFlowManager gameFlowManager;
+    private TypingResult typingResult;
     private SoundPlayer soundPlayer;
     private TypingJudder typingJudger;
     private TypingBGScheduler typingBGScheduler;
@@ -30,9 +39,22 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
     private int questIndex = 0;
 
     private bool hasStartedTimer = false;
+    private int correctTypeCount = 0;
+    private int missTypeCount = 0;
 
+    [Header("ゲームオーバーになる秒数")]
     [SerializeField]
-    private TypingUIManager typingUIManager;
+    private float gameOverTime = 180.0f;
+    [Header("ゲームオーバー画面の表示時間 (ms)")]
+    [SerializeField]
+    private int displayTimeOfGameOverScreen = 5000;
+    [Header("ゲームオーバー時に出す画像の名前")]
+    [SerializeField]
+    private string gameOverImageName = "Blood";
+    [Header("ゲームオーバーになるミスタイプ数")]
+    [SerializeField]
+    private int maxMissTypeCount = 10;
+
     [SerializeField]
     private StopwatchTimer timer;
 
@@ -70,15 +92,15 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
         // インスタンスの生成と参照
         gameFlowManager = GameFlowManager.instance;
         soundPlayer = SoundPlayer.instance;
+        typingResult = ResultHolder.instance.GetResult();
 
         var isInitComplete = InitTypingData();
 
         if (!isInitComplete) return;
 
-        // 初期化処理をしてからフェードアウトし、タイピングのスタート
+        // 初期化処理をしてからタイピング画面にフェードインし、タイピングのスタート
         NextQuest();
         await typingBGScheduler.FadeOut();
-        typingBGScheduler.OnGameOver += GameOver;
         EnableKeyboardInput();
     }
 
@@ -102,7 +124,16 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
         }
 
         StoreCSVDataToList(csvData);
-        typingBGScheduler = new TypingBGScheduler(csvData.Rows[0], timer);
+        typingBGScheduler = new TypingBGScheduler
+        (
+            csvData.Rows[0],
+            timer,
+            endTypingScene,
+            gameOverImageName,
+            gameOverTime,
+            displayTimeOfGameOverScreen
+        );
+
         return true;
     }
 
@@ -113,41 +144,30 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
             End();
             return;
         }
-        typingUIManager.ResetText();
-
         var currentQuestData = questDatas[questIndex++];
         typingJudger = new TypingJudder(currentQuestData.Roma);
 
-        typingUIManager.SetUIText(currentQuestData.Japanese, currentQuestData.Roma);
+        endCurrentQuest?.Invoke(currentQuestData.Japanese, currentQuestData.Roma);
     }
 
-    private void End()
+    private void End(bool isGameOver = false)
     {
         timer.StopTimer();
         DisableKeyboardInput();
 
         var clearTime = timer.GetTime();
-        Debug.Log($"Clear Time: {clearTime}");
+        Debug.Log($"This scene clear time: {clearTime}");
 
-        gameFlowManager.SetClearTime(clearTime);
+        typingResult.AddPartResult(correctTypeCount, missTypeCount, clearTime);
 
-        typingBGScheduler.FadeIn();
-
-        timer.ResetTimer();
-        typingUIManager.ResetText();
-
-        gameFlowManager.GoToNextScene();
-        return;
-    }
-
-    private void GameOver()
-    {
-        typingBGScheduler.FadeIn();
+        gameFlowManager.AddClearTime(clearTime);
 
         timer.ResetTimer();
-        typingUIManager.ResetText();
 
-        gameFlowManager.GameOver().Forget();
+        endTypingScene?.Invoke(isGameOver);
+
+        ResultHolder.instance.SetResult(typingResult);
+        gameFlowManager.GoToNextScene(isGameOver);
     }
 
     /// <summary>
@@ -173,6 +193,8 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
     /// <param name="typedChar"></param>
     private void OnKeyboardInput(char typedChar)
     {
+        if (typedChar == ' ') return;
+
         switch (typingJudger.JudgeChar(typedChar))
         {
             case TypingState.Hit:
@@ -181,19 +203,28 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
                     hasStartedTimer = true;
                     timer.StartTimer();
                 }
-                typingUIManager.UpdateInputText();
+                correctTypeCount++;
+                correctTyping?.Invoke();
                 soundPlayer.PlaySe("TypeHit");
 
                 Debug.Log($"{typedChar}: Hit");
                 break;
 
             case TypingState.Miss:
+                if (!hasStartedTimer) break;
+
+                missTypeCount++;
+                typingResult.AddMistypedKey(typedChar);
+
                 Debug.Log($"{typedChar}: Miss");
                 soundPlayer.PlaySe("TypeMiss");
+
                 break;
 
             case TypingState.Clear:
-                typingUIManager.UpdateInputText();
+                correctTypeCount++;
+
+                correctTyping?.Invoke();
                 soundPlayer.PlaySe("TypeHit");
 
                 Debug.Log($"{typedChar}: Clear");
@@ -205,5 +236,10 @@ public class TypingProgressManager : SceneSingleton<TypingProgressManager>
                 Debug.Log("Error");
                 break;
         }
+    }
+
+    private void OnDestroy()
+    {
+        DisableKeyboardInput();
     }
 }

@@ -1,17 +1,23 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using SoundSystem;
+using System.Linq;
+using System.Collections.Generic;
+using System.Threading;
 
 public class GameFlowManager : Singleton<GameFlowManager>
 {
-    private int stepIndex = 0;
+    private const string TITLE_SCENE_NAME = "TitleScene";
+    private const string TYPING_SCENE_NAME = "TypingScene";
+    private const string STORY_SCENE_NAME = "StoryScene";
+    private const string DEFAULT_BGM_NAME = "BGM";
+
     private float clearTime = 0.0f;
-    private bool branchFlag = false;
-    private GameStepBase nextStep;
-    private GameStepBase currentGameStep;
 
+    private List<GameStep> gameSteps;
+    private int currentStepIndex = 0;
 
+    [Header("ゲームフローのデータベース")]
     [SerializeField]
     private GameFlowDataBase gameFlowData;
 
@@ -20,102 +26,105 @@ public class GameFlowManager : Singleton<GameFlowManager>
     {
         if (gameFlowData == null)
         {
-            Debug.LogError("GameFlowDataBase is not assigned in GameFlowManager.");
+            Debug.LogError("GameFlowDataBase is not assigned.");
             return;
         }
-        SoundPlayer.instance.PlayBgm("BGM");
+        InitGameFlow();
+
+        SoundPlayer.instance.PlayBgm(DEFAULT_BGM_NAME);
     }
 
-    /// <summary>
-    /// 現在のシーンで必要なCSVファイルを供給します。
-    /// </summary>
-    /// <returns></returns>
     public TextAsset GetCurrentCSV()
     {
-        if (branchFlag)
+        var currentGameStep = gameSteps[currentStepIndex];
+        if (currentGameStep == null ||
+            currentGameStep.CsvFile == null)
         {
-            branchFlag = false;
-            currentGameStep = ((GameBranchStep)gameFlowData.gameSteps[stepIndex - 1]).GetNextStepByClearTime(clearTime);
-        }
-        else
-        {
-            currentGameStep = gameFlowData.gameSteps[stepIndex];
-        }
-
-        // 通常のステップ処理
-        Debug.Log($"Load {currentGameStep.name}'s CSV");
-
-        var currentSceneName=SceneManager.GetActiveScene().name;
-        var tryingTransionName=GetSceneNameByStepType(currentGameStep.StepType);
-        if(currentSceneName!= tryingTransionName)
-        {
-            Debug.LogWarning($"The game flow order and scenes are different. So, we will transition to {tryingTransionName}.");
-
-            GoToNextScene();
+            Debug.LogError("Can't get CSV file. Check GameStep or GameFlowDB.\n");
             return null;
         }
-        stepIndex++;
+
+        Debug.Log($"Loaded CSV: {currentGameStep.CsvFile.name}");
         return currentGameStep.CsvFile;
     }
 
-    public void SetClearTime(float time)
+    public void AddClearTime(float time)
     {
         clearTime += time;
     }
 
-    public void GoToNextScene()
+    public void GoToNextScene(bool isGameOver = false)
     {
-        var sceneLoader = InstanceRegister.Get<SceneLoader>();
-
-        if (currentGameStep is GameBranchStep gameBranchStep)
+        GameStepType nextStepType;
+        if (isGameOver)
         {
-            branchFlag = true;
-            Debug.Log(clearTime);
-            nextStep = gameBranchStep.GetNextStepByClearTime(clearTime);
-        }
-        else if (stepIndex < gameFlowData.gameSteps.Length)
-        {
-            nextStep = gameFlowData.gameSteps[stepIndex];
+            nextStepType = GameStepType.Title;
+            Debug.Log("Game Over. Returning to title after delay.");
+            InitGameFlow();
         }
         else
         {
-            Debug.Log("All steps completed. No more steps to go.");
-            sceneLoader.LoadNextScene("TitleScene");
-            clearTime=0.0f;
-            stepIndex=0;
+            nextStepType = GetNextStepType();
+        }
+
+        var nextScene = GetSceneNameByStepType(nextStepType);
+
+        if (string.IsNullOrEmpty(nextScene))
+        {
+            Debug.LogError("Scene name is null or empty.");
             return;
         }
 
-        sceneLoader.LoadNextScene(GetSceneNameByStepType(nextStep.StepType));
-        Debug.Log($"Next step: {nextStep.StepType}");
-        
+        var sceneLoader = InstanceRegister.Get<SceneLoader>();
+        sceneLoader.LoadNextScene(nextScene);
+    }
+
+    private void InitGameFlow()
+    {
+        gameSteps = gameFlowData.gameSteps.ToList();
+        clearTime = 0.0f;
+        currentStepIndex = 0;
+        var result = ResultHolder.instance.GetResult();
+        result.PrintSummary();
+    }
+
+    private GameStepType GetNextStepType()
+    {
+        var nextStepIndex = currentStepIndex + 1;
+        if (gameSteps[currentStepIndex] is GameBranchStep branchStep)
+        {
+            var nextGameStep = branchStep.GetNextStepByClearTime(clearTime);
+            gameSteps.Insert(nextStepIndex, nextGameStep);
+            IncStepIndex();
+
+            return nextGameStep.StepType;
+        }
+
+        if (nextStepIndex < gameSteps.Count)
+        {
+            IncStepIndex();
+            return gameSteps[nextStepIndex].StepType;
+        }
+
+        // ここまで来たらもうすべてのGameStepを通ったことになる
+        Debug.Log("All steps completed. Returning to title.");
+        InitGameFlow();
+        return GameStepType.Title;
+    }
+
+    private void IncStepIndex()
+    {
+        currentStepIndex++;
     }
 
     private string GetSceneNameByStepType(GameStepType stepType)
     {
-        string value=null;
-        switch (stepType)
+        return stepType switch
         {
-            case GameStepType.Story:
-                value="StoryScene";
-                break;
-            case GameStepType.Typing:
-               value= "TypingScene";
-               break;
-            default:
-                Debug.LogError("Not set StepType in next GameStep.");
-                break;
-        }
-        return value;
-    }
-
-    public async UniTask GameOver()
-    {
-        stepIndex=gameFlowData.gameSteps.Length;
-        await UniTask.Delay(3000);
-        
-        InstanceRegister.Get<SceneLoader>().LoadNextScene("TitleScene");
-        clearTime=0.0f;
-        stepIndex=0;
+            GameStepType.Title => TITLE_SCENE_NAME,
+            GameStepType.Story => STORY_SCENE_NAME,
+            GameStepType.Typing => TYPING_SCENE_NAME,
+            _ => throw new System.ArgumentOutOfRangeException(nameof(stepType), $"Unhandled type: {stepType}")
+        };
     }
 }

@@ -1,4 +1,4 @@
-﻿public class TypingResultManager : Singleton<TypingResultManager>
+﻿public class ResultHolder : Singleton<ResultHolder>
 {
     private TypingResult result = new TypingResult();
 

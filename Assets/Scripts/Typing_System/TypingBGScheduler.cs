@@ -9,8 +9,6 @@ using Cysharp.Threading.Tasks;
 /// </summary>
 public class TypingBGScheduler
 {
-    public event Action OnGameOver;
-
     private VFXController vFXController;
     private StopwatchTimer timer;
     [Serializable]
@@ -27,13 +25,25 @@ public class TypingBGScheduler
     }
     private List<TypingBGEvent> bgEvents = new List<TypingBGEvent>();
     private int bgEventIndex = 0;
+    private int displayTimeOfGameOverScreen;
 
 
-    public TypingBGScheduler(LineData<TypingQuestType> csvFirstLineData, StopwatchTimer timer)
+    public TypingBGScheduler(LineData<TypingQuestType> csvFirstLineData,
+                             StopwatchTimer timer,
+                             Action<bool> endTypingScene,
+                             string gameOverImageName,
+                             float gameOverTime,
+                             int displayTimeOfGameOverScreen
+                            )
     {
         vFXController = InstanceRegister.Get<VFXController>();
 
         this.timer = timer;
+        bgEvents.Add(new TypingBGEvent(gameOverImageName, gameOverTime));
+
+        endTypingScene += End;
+
+        this.displayTimeOfGameOverScreen = displayTimeOfGameOverScreen;
 
         StoreCSVData(csvFirstLineData);
         // 背景データを昇順にソート
@@ -42,9 +52,18 @@ public class TypingBGScheduler
         StartBGCycle().Forget();
     }
 
-    public void FadeIn()
+    private async void End(bool isGameOver)
     {
-        vFXController.FadeInCanvasAsync().Forget();
+        if (isGameOver)
+        {
+
+
+            await vFXController.ChangeBackgroundAsync(bgEvents[bgEvents.Count - 1].ImagePath, 0.0f);
+
+            await UniTask.Delay(displayTimeOfGameOverScreen);
+        }
+
+        await vFXController.FadeInCanvasAsync();
     }
 
     public async UniTask FadeOut()
@@ -58,9 +77,9 @@ public class TypingBGScheduler
         {
             await ChangeBackground();
         }
-        UnityEngine.Debug.Log("Complete to change background images.");
 
-        OnGameOver?.Invoke();
+
+        UnityEngine.Debug.Log("Complete to change background images.");
     }
 
     private void StoreCSVData(LineData<TypingQuestType> firstRow)

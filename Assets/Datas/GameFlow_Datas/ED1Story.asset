@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef82dbc56d8eaf44aacf5b70cbba93f3, type: 3}
   m_Name: ED1Story
   m_EditorClassIdentifier: 
-  stepType: 0
+  stepType: 1
   csvFile: {fileID: 4900000, guid: e869801520aee054698824785ab5ef39, type: 3}
+  isInBranch: 0

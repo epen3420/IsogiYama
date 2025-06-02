@@ -2,41 +2,80 @@ using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 public class PressAnyKeyButton : MonoBehaviour
 {
     private bool isPressed = false;
+    private Keyboard keyboard = null;
 
+    [Header("最小のアルファ値")]
     [SerializeField]
     private float minColorAlpha = 0.5f;
+    [Header("最大のアルファ値")]
     [SerializeField]
     private float maxColorAlpha = 1.0f;
+    [Header("点滅の周期")]
     [SerializeField]
-    private float flashDuration = 0.5f; // 点滅の周期（秒単位）
+    private float flashDuration = 0.5f;
+    [Header("点滅させるテキスト")]
     [SerializeField]
     private TMP_Text text;
 
-    private void Start()
+
+    private async void Start()
     {
         if (text != null)
         {
             FlashObject().Forget();
         }
+
+        keyboard = Keyboard.current;
+        // キーが押されてたりした時用に解除されるまで待つ
+        await UniTask.WaitUntil(() => !keyboard.anyKey.isPressed);
     }
 
     private void Update()
     {
-        var keyboard = Keyboard.current;
+        if (isPressed) return;
+
+        keyboard = Keyboard.current;
         if (keyboard == null) return;
 
-        // キーボードの入力を受け取る
-        if (!isPressed && keyboard.anyKey.isPressed)
+
+        foreach (KeyControl keyControl in keyboard.allKeys)
         {
-            isPressed = true;
-            GameFlowManager.instance.GoToNextScene();
+            if (keyControl == null) return;
+
+            if (keyControl.wasPressedThisFrame &&
+                IsPassKey(keyControl.keyCode))
+            {
+                isPressed = true;
+                GameFlowManager.instance.GoToNextScene();
+                break;
+            }
         }
     }
 
+    private bool IsPassKey(Key key)
+    {
+        if (key >= Key.A && key <= Key.Z)
+            return true;
+
+        if (key >= Key.Digit0 && key <= Key.Digit9)
+            return true;
+
+        if (key == Key.Space || key == Key.Enter)
+            return true;
+
+
+        return false;
+    }
+
+    /// <summary>
+    /// Colorコンポーネントを持つ、オブジェクトを点滅させる
+    /// </summary>
+    /// <returns></returns>
     private async UniTask FlashObject()
     {
         // キャラのスプライトカラーの取得

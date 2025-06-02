@@ -1,8 +1,6 @@
 public enum TypingQuestType
 {
     initBGImage = 0,
-    gameOverImage,
-    gameOverTime,
     image1,
     time1,
     image2,
