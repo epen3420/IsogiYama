@@ -109,6 +109,14 @@ public class ResultDisplay : MonoBehaviour
         }
 
         // ResultHolder から TypingResult を取得
-        return ResultHolder.instance.GetResult();
+        var result =  ResultHolder.instance.GetResult();
+
+        if(result == null)
+        {
+            Debug.LogWarning("ResultHolder に TypingResult が設定されていません。");
+            return GetTestData();
+        }
+
+        return result;
     }
 }

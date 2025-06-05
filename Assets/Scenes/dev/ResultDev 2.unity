@@ -467,7 +467,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resultText: {fileID: 2013976035}
-  useTestData: 1
+  useTestData: 0
 --- !u!1 &2013976033
 GameObject:
   m_ObjectHideFlags: 0
