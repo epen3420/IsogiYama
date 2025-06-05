@@ -13,11 +13,10 @@ MonoBehaviour:
   m_Name: Typing3Branch
   m_EditorClassIdentifier: 
   stepType: 2
-  csvFile: {fileID: 4900000, guid: f32ac26cfe034164fa4f57eda5fcf7bb, type: 3}
   branchConditions:
   - maxClearTime: 180
-    nextStep: {fileID: 11400000, guid: 27d2cd19858f744498c07fceea18212a, type: 2}
+    nextStep: {fileID: 11400000, guid: 4b14e5625a54be448995301445ed9435, type: 2}
   - maxClearTime: 270
-    nextStep: {fileID: 11400000, guid: 5ef90d8aa86c88a4c90fe1ac5b1d4675, type: 2}
+    nextStep: {fileID: 11400000, guid: afef2e8facaa86e4baf705111f28487b, type: 2}
   - maxClearTime: 600
-    nextStep: {fileID: 11400000, guid: 11c42f05bf041a543a37b2d8ae7bc054, type: 2}
+    nextStep: {fileID: 11400000, guid: af3dc536988705849b39c0f29e82222c, type: 2}
