@@ -81,6 +81,9 @@ MonoBehaviour:
   - {fileID: -2540474360633307858, guid: 98fbd464ea6eda640ad91d3d1c9201bb, type: 3}
   - {fileID: 5684327315910396547, guid: 3e5f6dfe837afbf48bb6ac940fbf469e, type: 3}
   - {fileID: 8943764325678905702, guid: c919657d91ef6b749b8af6d322651fd6, type: 3}
+  - {fileID: 3292809634507163060, guid: 787423cf6eb5bad4c855c6a0737c6189, type: 3}
+  - {fileID: -20651604690058521, guid: dad7032ef550a4b4b8a1b4440cc29d76, type: 3}
+  - {fileID: -542256085739908257, guid: 6533d123182ec054e8b02e7aae10dc9c, type: 3}
   globalVolume: {fileID: 8308047500030059576}
   glitchMaterial: {fileID: 2100000, guid: 52da6905e25eb8d42bf6150e87698736, type: 2}
 --- !u!222 &4979178500327222025
