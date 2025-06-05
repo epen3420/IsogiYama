@@ -17,6 +17,9 @@ public class TypingResult
     // エンディング分岐
     public int EndingBranch { get; private set; } = -1;
 
+    // パート数を取得するプロパティ
+    public int PartCount => partResults.Count;
+
     /// <summary>
     /// 総クリアタイム（パートの合計時間）
     /// </summary>
