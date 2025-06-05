@@ -8,6 +8,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
     private const string TITLE_SCENE_NAME = "TitleScene";
     private const string TYPING_SCENE_NAME = "TypingScene";
     private const string STORY_SCENE_NAME = "StoryScene";
+    private const string RESULT_SCENE_NAME = "ResultScene";
     private const string DEFAULT_BGM_NAME = "BGM";
 
     private float clearTime = 0.0f;
@@ -125,6 +126,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
             GameStepType.Title => TITLE_SCENE_NAME,
             GameStepType.Story => STORY_SCENE_NAME,
             GameStepType.Typing => TYPING_SCENE_NAME,
+            GameStepType.Result => RESULT_SCENE_NAME,
             _ => throw new System.ArgumentOutOfRangeException(nameof(stepType), $"Unhandled type: {stepType}")
         };
     }
