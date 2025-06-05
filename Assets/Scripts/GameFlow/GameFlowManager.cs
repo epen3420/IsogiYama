@@ -1,9 +1,7 @@
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using SoundSystem;
 using System.Linq;
 using System.Collections.Generic;
-using System.Threading;
 
 public class GameFlowManager : Singleton<GameFlowManager>
 {
@@ -37,16 +35,21 @@ public class GameFlowManager : Singleton<GameFlowManager>
     public TextAsset GetCurrentCSV()
     {
         var currentGameStep = gameSteps[currentStepIndex];
-        if (currentGameStep == null ||
-            currentGameStep.CsvFile == null)
+
+        if (currentGameStep is not GameStepNeedCSV csvStep)
         {
-            Debug.LogError("Can't get CSV file. Check GameStep or GameFlowDB.\n");
-            return null;
+            throw new System.InvalidOperationException("Current GameStep does not support CSV access. Check gameFlowDB or GameStep type.");
         }
 
-        Debug.Log($"Loaded CSV: {currentGameStep.CsvFile.name}");
-        return currentGameStep.CsvFile;
+        if (csvStep.CsvFile == null)
+        {
+            throw new UnassignedReferenceException($"CSV file is not assigned in {csvStep}. Check the asset reference.");
+        }
+
+        Debug.Log($"Loaded CSV: {csvStep.CsvFile.name}");
+        return csvStep.CsvFile;
     }
+
 
     public void AddClearTime(float time)
     {

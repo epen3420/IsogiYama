@@ -62,13 +62,6 @@ public class GameBranchStep : GameStep
         // クリア時間を昇順にソート
         branchConditions.Sort((x, y) => x.maxClearTime.CompareTo(y.maxClearTime));
 
-        // 分岐内であるというフラグを立てる
-        foreach (var branchCondition in branchConditions)
-        {
-            var step = branchCondition.nextStep;
-            step.SetTrueIsInBranch();
-        }
-
         isInitialized = true;
     }
 }
