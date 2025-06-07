@@ -9,36 +9,26 @@ public class GameBranchStep : GameStep
 {
     [Header("分岐条件と次のステップ")]
     [SerializeField]
-    private List<BranchCondition> branchConditions;
-
-    [System.Serializable]
-    private struct BranchCondition
-    {
-        public float maxClearTime; // 条件のクリア時間
-        public GameStep nextStep; // 条件を満たした場合の次のステップ
-    }
+    private List<BranchTransitionCondition> transitionConditions;
 
     private bool isInitialized = false;
 
-    public GameStep GetNextStepByClearTime(float clearTime)
+    public BranchTransitionCondition GetTransitionConditionByClearTime(float clearTime)
     {
         InitBranchSteps();
 
-        Debug.Log($"Game Clear Time: {clearTime}");
         // 最大クリアタイムが一番遅いものより、クリアタイムが遅い場合それを返す
-        var bestBadEndCondition = branchConditions[branchConditions.Count - 1];
+        var bestBadEndCondition = transitionConditions[transitionConditions.Count - 1];
         if (bestBadEndCondition.maxClearTime <= clearTime)
         {
-            Debug.Log($"Branching {bestBadEndCondition.nextStep.name}");
-            return bestBadEndCondition.nextStep;
+            return bestBadEndCondition;
         }
 
-        foreach (var condition in branchConditions)
+        foreach (var condition in transitionConditions)
         {
             if (condition.maxClearTime > clearTime)
             {
-                Debug.Log($"Branching {condition.nextStep.name}");
-                return condition.nextStep;
+                return condition;
             }
         }
 
@@ -52,15 +42,15 @@ public class GameBranchStep : GameStep
     {
         if (isInitialized) return;
 
-        if (branchConditions == null ||
-            branchConditions.Count == 0)
+        if (transitionConditions == null ||
+            transitionConditions.Count == 0)
         {
             Debug.LogError("Not set next step in branch step");
             return;
         }
 
         // クリア時間を昇順にソート
-        branchConditions.Sort((x, y) => x.maxClearTime.CompareTo(y.maxClearTime));
+        transitionConditions.Sort((x, y) => x.maxClearTime.CompareTo(y.maxClearTime));
 
         isInitialized = true;
     }

@@ -88,8 +88,12 @@ public class GameFlowManager : Singleton<GameFlowManager>
         var nextStepIndex = currentStepIndex + 1;
         if (gameSteps[currentStepIndex] is GameBranchStep branchStep)
         {
-            var clearTime = ResultHolder.instance.GetResult().ClearTime;
-            var nextGameStep = branchStep.GetNextStepByClearTime(clearTime);
+            var result = ResultHolder.instance.GetResult();
+            var transitionCondition = branchStep.GetTransitionConditionByClearTime(result.ClearTime);
+
+            var nextGameStep = transitionCondition.nextStep;
+
+            result.SetEndingBranch(transitionCondition);
             gameSteps.Insert(nextStepIndex, nextGameStep);
             IncStepIndex();
 
