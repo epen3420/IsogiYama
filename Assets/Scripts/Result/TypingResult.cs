@@ -104,6 +104,6 @@ public class TypingResult
             Debug.Log($"ワーストキー: {string.Join(", ", worst.Select(k => k.ToString()))}");
         }
 
-        Debug.Log($"エンディング分岐: {EndingBranchCondition.nextStep.CsvFile.name}");
+        // Debug.Log($"エンディング分岐: {EndingBranchCondition.nextStep.CsvFile.name}");
     }
 }
