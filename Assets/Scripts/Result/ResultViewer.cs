@@ -94,24 +94,25 @@ public class ResultDisplay : MonoBehaviour
             }
         }
 
-        int randomBranch = Random.Range(0, 3);
-        testResult.SetEndingBranch(randomBranch);
+        // 以下一旦コメントアウトする。修正が必要
+        // int randomBranch = Random.Range(0, 3);
+        // testResult.SetEndingBranch(randomBranch);
 
         return testResult;
     }
 
     private TypingResult GetResultData()
     {
-        if(useTestData)
+        if (useTestData)
         {
             // テストデータを使用する場合
             return GetTestData();
         }
 
         // ResultHolder から TypingResult を取得
-        var result =  ResultHolder.instance.GetResult();
+        var result = ResultHolder.instance.GetResult();
 
-        if(result == null)
+        if (result == null)
         {
             Debug.LogWarning("ResultHolder に TypingResult が設定されていません。");
             return GetTestData();
