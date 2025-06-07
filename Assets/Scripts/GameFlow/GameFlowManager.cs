@@ -11,8 +11,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
     private const string RESULT_SCENE_NAME = "ResultScene";
     private const string DEFAULT_BGM_NAME = "BGM";
 
-    private float clearTime = 0.0f;
-
     private List<GameStep> gameSteps;
     private int currentStepIndex = 0;
 
@@ -51,12 +49,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
         return csvStep.CsvFile;
     }
 
-
-    public void AddClearTime(float time)
-    {
-        clearTime += time;
-    }
-
     public void GoToNextScene(bool isGameOver = false)
     {
         GameStepType nextStepType;
@@ -86,7 +78,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
     private void InitGameFlow()
     {
         gameSteps = gameFlowData.gameSteps.ToList();
-        clearTime = 0.0f;
         currentStepIndex = 0;
         var result = ResultHolder.instance.GetResult();
         result.PrintSummary();
@@ -97,7 +88,12 @@ public class GameFlowManager : Singleton<GameFlowManager>
         var nextStepIndex = currentStepIndex + 1;
         if (gameSteps[currentStepIndex] is GameBranchStep branchStep)
         {
-            var nextGameStep = branchStep.GetNextStepByClearTime(clearTime);
+            var result = ResultHolder.instance.GetResult();
+            var transitionCondition = branchStep.GetTransitionConditionByClearTime(result.ClearTime);
+
+            var nextGameStep = transitionCondition.nextStep;
+
+            result.SetEndingBranch(transitionCondition);
             gameSteps.Insert(nextStepIndex, nextGameStep);
             IncStepIndex();
 

@@ -14,8 +14,8 @@ public class TypingResult
     // 総正解タイプ数
     public int TotalCorrectTypes { get; private set; }
 
-    // エンディング分岐
-    public int EndingBranch { get; private set; } = -1;
+    // エンディング分岐の条件
+    public BranchTransitionCondition EndingBranchCondition { get; private set; }
 
     // パート数を取得するプロパティ
     public int PartCount => partResults.Count;
@@ -41,9 +41,9 @@ public class TypingResult
             mistypedKeys[key] = 1;
     }
 
-    public void SetEndingBranch(int branch)
+    public void SetEndingBranch(BranchTransitionCondition branch)
     {
-        EndingBranch = branch;
+        EndingBranchCondition = branch;
     }
 
     // === 取得 ===
@@ -104,6 +104,6 @@ public class TypingResult
             Debug.Log($"ワーストキー: {string.Join(", ", worst.Select(k => k.ToString()))}");
         }
 
-        Debug.Log($"エンディング分岐: ed{EndingBranch}_perf.csv");
+        Debug.Log($"エンディング分岐: {EndingBranchCondition.nextStep.CsvFile.name}");
     }
 }

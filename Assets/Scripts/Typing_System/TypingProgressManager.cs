@@ -160,8 +160,6 @@ public class TypingProgressManager : MonoBehaviour
 
         typingResult.AddPartResult(correctTypeCount, missTypeCount, clearTime);
 
-        gameFlowManager.AddClearTime(clearTime);
-
         timer.ResetTimer();
 
         endTypingScene?.Invoke(isGameOver);
