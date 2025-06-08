@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// 分岐する際に使うGameStep
 /// </summary>
 [CreateAssetMenu(fileName = "GameBranchStep", menuName = "GameFlow/GameBranchStep")]
-public class GameBranchStep : GameStep
+public class GameBranchStep : GameStepNeedCSV
 {
     [Header("分岐条件と次のステップ")]
     [SerializeField]
