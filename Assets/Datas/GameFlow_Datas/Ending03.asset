@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26bf255d29506d347804158e1b7caafa, type: 3}
-  m_Name: ED3Story
+  m_Script: {fileID: 11500000, guid: d30d51928e8a52f4e889a362ee6d25d1, type: 3}
+  m_Name: Ending03
   m_EditorClassIdentifier: 
   stepType: 1
-  csvFile: {fileID: 4900000, guid: 2a40518ceabd7a54dba43520b5c6a890, type: 3}
+  csvFile: {fileID: 4900000, guid: e869801520aee054698824785ab5ef39, type: 3}
+  endingType: 0
