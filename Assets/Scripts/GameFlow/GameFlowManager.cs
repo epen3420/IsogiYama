@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using SoundSystem;
 using System.Linq;
 using System.Collections.Generic;
@@ -81,6 +81,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
         currentStepIndex = 0;
         var result = ResultHolder.instance.GetResult();
         result.PrintSummary();
+        ResultHolder.instance.ClearResult();
     }
 
     private GameStepType GetNextStepType()

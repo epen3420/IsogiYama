@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using Cysharp.Threading.Tasks;
+using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem; // 追加：InputSystem対応
 
 /// <summary>
 /// TypingResult のデータを取得し、TextMeshPro に書式付きで反映するコンポーネント
@@ -10,15 +12,60 @@ public class ResultDisplay : MonoBehaviour
 {
     [Header("表示先の TextMeshProUGUI")]
     [SerializeField] private TMP_Text resultText;
+    [SerializeField] private TMP_Text adviceText;
     [SerializeField] private bool useTestData = false; // テストデータを使用するかどうか
+
+    private VFXController vfxController;
+
+    // Ed3用フラグ
+    private bool isEd3 = false;
+    private bool hasTransitioned = false;
 
     private void Start()
     {
+        vfxController = InstanceRegister.Get<VFXController>();
+
+        // adviceText はデフォルト非表示に
+        adviceText.enabled = false;
+
         var typingResult = GetResultData();
         if (typingResult == null)
         {
             Debug.LogWarning("ResultHolder にデータが入っていません。");
             return;
+        }
+
+        // 将来的にEnumで分岐したい、文字列分岐は望ましくない
+        string branchName;
+        try
+        {
+            branchName = typingResult.EndingBranchCondition.nextStep.CsvFile.name;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"ブランチ名の取得に失敗: {ex.Message}");
+            branchName = "ed1_perf";
+            return;
+        }
+
+        if (branchName == "ed3_perf")
+        {
+            isEd3 = true;
+            vfxController.ChangeBackgroundAsync("ResultEd3", 0).Forget();
+            resultText.enabled = true;
+            adviceText.enabled = false;
+        }
+        else if (branchName == "ed1_perf" || branchName == "ed2_perf")
+        {
+            isEd3 = false;
+            vfxController.ChangeBackgroundAsync("ResultBad", 0).Forget();
+            resultText.enabled = true;
+            adviceText.enabled = true;
+            adviceText.text =
+                "Hint\n\n" +
+                "ミスタイプをNull回減らそう...\n\n" +
+                "クリア時間をあとNull秒早くしよう...";
+            // ※ Null の部分の処理は後で実装
         }
 
         // StringBuilder で文字列を組み立て
@@ -67,9 +114,25 @@ public class ResultDisplay : MonoBehaviour
             sb.Append("<color=#FB570F>苦</color>手な文字  なし");
         }
 
-
         // 完成した文字列を TextMeshPro にセット
         resultText.text = sb.ToString();
+    }
+
+    private void Update()
+    {
+        // Ed3用のクリック or スペースキーで背景遷移
+        if (isEd3 && !hasTransitioned)
+        {
+            bool clicked = Mouse.current.leftButton.wasPressedThisFrame;
+            bool spaced = Keyboard.current.spaceKey.wasPressedThisFrame;
+            if (clicked || spaced)
+            {
+                vfxController.ChangeBackgroundAsync("Ed3_Phone", 0.5f).Forget();
+                // resultText を非表示
+                resultText.enabled = false;
+                hasTransitioned = true;
+            }
+        }
     }
 
     private TypingResult GetTestData()
@@ -93,10 +156,6 @@ public class ResultDisplay : MonoBehaviour
                 testResult.AddMistypedKey(randomKey);
             }
         }
-
-        // 以下一旦コメントアウトする。修正が必要
-        // int randomBranch = Random.Range(0, 3);
-        // testResult.SetEndingBranch(randomBranch);
 
         return testResult;
     }
