@@ -135,7 +135,6 @@ public class TypingResult
     /// W (タイプ数) をどの程度にする必要があるかを計算します。
     /// </summary>
     /// <param name="targetScore">目標とするスコア (0～1)</param>
-    /// <param name="currentE">現在の総ミスタイプ数</param>
     /// <returns>目標スコアを達成するために必要なWの値。達成不可能な場合はNaNを返す。</returns>
     public double GetRequiredWForTargetScore(double targetScore)
     {
@@ -168,7 +167,6 @@ public class TypingResult
     /// E (ミスタイプ数) をどの程度にする必要があるかを計算します。
     /// </summary>
     /// <param name="targetScore">目標とするスコア (0～1)</param>
-    /// <param name="currentW">現在の1分間あたりのタイプ数</param>
     /// <returns>目標スコアを達成するために必要なEの値。達成不可能な場合はNaNを返す。</returns>
     public double GetRequiredEForTargetScore(double targetScore)
     {

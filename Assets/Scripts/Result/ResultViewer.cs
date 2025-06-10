@@ -17,16 +17,29 @@ public class ResultDisplay : MonoBehaviour
     [SerializeField] private TMP_Text ed3AdviceText;
 
     [Header("エンディングごとのスチル画像リスト")]
-    [SerializeField] private List<Sprite> happyEndSprites;   // ハッピーエンド用のスプライト
-    [SerializeField] private List<Sprite> badEndSprites;     // バッドエンド用のスプライト
+    [SerializeField] private List<Sprite> happyEndSprites;
+    [SerializeField] private List<Sprite> badEndSprites;
 
-    [SerializeField] private bool useTestData = false; // テストデータを使用するかどうか
+    // テストデータを使用するかどうか
+    [SerializeField] private bool useTestData = false;
 
     private VFXController vfxController;
     private List<Sprite> currentSprites;
     private int spriteIndex = 0;
-    private Dictionary<string,  (string description, bool isUnlocked, bool isSpecial)> allEndings = new Dictionary<string, (string description, bool isUnlocked, bool isSpecial)>();
-    private const string THEME_COLOR = "#FB570F"; // テーマカラーの定義
+
+    private Dictionary<string, (
+    string displayName,
+    string description,
+    bool isUnlocked,
+    bool isSpecial
+    )> allEndings = new Dictionary<string, (string displayName, string description, bool isUnlocked, bool isSpecial)>();
+    // テーマカラーの定義
+    private const string THEME_COLOR = "#FB570F";
+
+    private void Awake()
+    {
+        ResultHolder.OnEndingsUpdated += UpdateEndingsFlag;
+    }
 
     private void Start()
     {
@@ -36,6 +49,10 @@ public class ResultDisplay : MonoBehaviour
         // 初期化
         adviceText.enabled = false;
         ed3AdviceText.enabled = false;
+        vfxController.SetTextAlpha(adviceText, 0f);
+        vfxController.SetTextAlpha(ed3AdviceText, 0f);
+
+        // 一応明示的に更新しておく
         allEndings = ResultHolder.instance.GetAllEndings();
 
         var typingResult = GetResultData();
@@ -44,6 +61,8 @@ public class ResultDisplay : MonoBehaviour
             Debug.LogWarning("ResultHolder にデータが入っていません。");
             return;
         }
+
+        ResultHolder.instance.UnlockEnding(typingResult.EndingBranchCondition.nextStep.CsvFile.name);
 
         // branchName を判定して currentStills をセット
         string branchName = typingResult.EndingBranchCondition.nextStep.CsvFile.name;
@@ -65,6 +84,7 @@ public class ResultDisplay : MonoBehaviour
         {
             BuildAdviceString(adviceText, typingResult, false);
             adviceText.enabled = true;
+            vfxController.FadeInText(adviceText, 1f, this.GetCancellationTokenOnDestroy()).Forget();
         }
     }
 
@@ -84,6 +104,7 @@ public class ResultDisplay : MonoBehaviour
                 {
                     resultText.enabled = false;
                     ed3AdviceText.enabled = true;
+                    vfxController.FadeInText(ed3AdviceText, 1f, this.GetCancellationTokenOnDestroy()).Forget();
                 }
                 ShowCurrentSprite(spriteIndex, 1f);
             }
@@ -92,9 +113,6 @@ public class ResultDisplay : MonoBehaviour
                 // リストを使い切ったらシーン遷移
                 ResultHolder.instance.ClearResult();
 
-                // おそらくGameFlowManagerの管轄にした方がいい気がする
-                // var sceneLoader = InstanceRegister.Get<SceneLoader>();
-                // sceneLoader.LoadNextScene("TitleScene");
                 GameFlowManager.instance.GoToNextScene();
             }
         }
@@ -150,10 +168,11 @@ public class ResultDisplay : MonoBehaviour
     {
         StringBuilder stringBuilder = new StringBuilder();
         double currentScore = typingResult.GetCurrentScore();
+        Debug.Log($"Current Score: {currentScore}");
+
         stringBuilder.AppendLine("Hint\n\n");
 
-        float improveTime = 0;
-        int improveMissType = 0;
+        float targetScore = 0;
         if (currentScore >= 0.8)
         {
             // 0.8以上
@@ -162,15 +181,13 @@ public class ResultDisplay : MonoBehaviour
             if (ResultHolder.instance.IsEndingUnlocked("ED2"))
             {
                 // Ed2がアンロックされている場合は、Ed1に行けるようにアドバイス
-                improveTime = (float)typingResult.GetRequiredWForTargetScore(0.5);
-                improveMissType = (int)typingResult.GetRequiredEForTargetScore(0.5);
+                targetScore = 0.5f;
                 Debug.Log("ED3 For Go To ED1 Advice");
             }
             else
             {
                 // Ed2がアンロックされていない場合は、Ed2行けるようにアドバイス
-                improveTime = (float)typingResult.GetRequiredWForTargetScore(0.8);
-                improveMissType = (int)typingResult.GetRequiredEForTargetScore(0.8);
+                targetScore = 0.8f;
                 Debug.Log("ED3 For Go To ED2 Advice");
             }
         }
@@ -178,37 +195,40 @@ public class ResultDisplay : MonoBehaviour
         {
             // 0.5以上0.8未満
             // Ed2の場合はEd3に行けるようにアドバイスする
-
-            improveTime = (float)typingResult.GetRequiredWForTargetScore(0.8);
-            improveMissType = (int)typingResult.GetRequiredEForTargetScore(0.8);
+            targetScore = 0.8f;
             Debug.Log("ED2 For Go To ED3 Advice");
         }
         else
         {
             // 0.5未満
             // Ed1の場合はEd2(もしくはEd3)に行けるようにアドバイスする
-
-            improveTime = (float)typingResult.GetRequiredWForTargetScore(0.5);
-            improveMissType = (int)typingResult.GetRequiredEForTargetScore(0.5);
+            targetScore = 0.5f;
             Debug.Log("ED1 For Go To ED2 Advice");
         }
 
-        if (improveMissType > 0)
+        var reqW = (float)typingResult.GetRequiredWForTargetScore(targetScore);
+        var reqE = (int)typingResult.GetRequiredEForTargetScore(targetScore);
+
+        // 必要クリア時間を totalChars / reqW で計算
+        float desiredTime = typingResult.TotalCorrectTypes * 60f / reqW;
+        float timeDiff = typingResult.ClearTime - desiredTime;
+
+        if (reqE > 0)
         {
-            stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{improveMissType}</color>回減らすと...");
+            stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{reqE}</color>回減らすと...");
         }
         else
         {
-            stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{improveMissType * -1}</color>回増やすと...");
+            stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{-reqE}</color>回増やすと...");
         }
 
-        if (improveTime > 0)
+        if (reqW > 0)
         {
-            stringBuilder.AppendLine($"クリア時間をあと<color={THEME_COLOR}>{improveTime}</color>秒早くすると...");
+            stringBuilder.AppendLine($"クリア時間をあと<color={THEME_COLOR}>{timeDiff:F1}</color>秒早くすると...");
         }
         else
         {
-            stringBuilder.AppendLine($"クリア時間をあと<color={THEME_COLOR}>{improveTime * -1}</color>秒遅くすると...");
+            stringBuilder.AppendLine($"クリア時間をあと<color={THEME_COLOR}>{-timeDiff:F1}</color>秒遅くすると...");
         }
 
         stringBuilder.AppendLine("新しいエンディングにいけるかもしれない。");
@@ -222,7 +242,7 @@ public class ResultDisplay : MonoBehaviour
 
             foreach (var entry in allEndings)
             {
-                string endingName = entry.Key;
+                string endingName = entry.Value.displayName;
                 string description = entry.Value.description;
                 bool isUnlocked = entry.Value.isUnlocked;
                 bool isSpecial = entry.Value.isSpecial;
@@ -262,6 +282,11 @@ public class ResultDisplay : MonoBehaviour
         {
             Debug.LogError("TMP_Text component is not assigned to endingHintText.");
         }
+    }
+
+    private void UpdateEndingsFlag()
+    {
+        allEndings = ResultHolder.instance.GetAllEndings();
     }
 
     /// <summary>

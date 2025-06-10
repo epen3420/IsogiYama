@@ -12,9 +12,14 @@ public class ResultHolder : Singleton<ResultHolder>
 
     public void ClearResult() => result = new TypingResult();
 
-    private Dictionary<string, (string description, bool isUnlocked, bool isSpecial)> allEndings = new Dictionary<string, (string description, bool isUnlocked, bool isSpecial)>();
+    private Dictionary<string, (
+    string displayName, // 表示名
+    string description, // 説明文
+    bool isUnlocked,    // 解放済みか
+    bool isSpecial      // 特殊エンディングか
+    )> allEndings = new Dictionary<string, (string displayName, string description, bool isUnlocked, bool isSpecial)>();
 
-    public Dictionary<string, (string description, bool isUnlocked, bool isSpecial)> GetAllEndings() => allEndings;
+    public Dictionary<string, (string displayname, string description, bool isUnlocked, bool isSpecial)> GetAllEndings() => allEndings;
 
     // Endingが更新されたときに呼ばれるイベント
     public static event Action OnEndingsUpdated;
@@ -27,10 +32,10 @@ public class ResultHolder : Singleton<ResultHolder>
 
     private void InitializeEndings()
     {
-        allEndings.Add("ED1", ("間に合わなかった...。", false, false));
-        allEndings.Add("ED2", ("気が付いたときには。", false, false));
-        allEndings.Add("ED3", ("無事に山を下りることができた。", false, false));
-        allEndings.Add("SP", ("そういえば...？", false, true));
+        allEndings.Add("ed1_perf", ("ED1", "間に合わなかった...。", false, false));
+        allEndings.Add("ed2_perf", ("ED2", "気が付いたときには。", false, false));
+        allEndings.Add("ed3_perf", ("ED3", "無事に山を下りることができた。", false, false));
+        allEndings.Add("additional_perf", ("SP", "そういえば...？", false, true));
     }
 
     /// <summary>

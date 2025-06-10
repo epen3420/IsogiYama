@@ -4,6 +4,8 @@ using UnityEngine.Rendering;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using TMPro;
+using System.Threading;
 
 public class VFXController : SceneSingleton<VFXController>
 {
@@ -159,5 +161,64 @@ public class VFXController : SceneSingleton<VFXController>
 
         // 終了後、元の位置に戻す
         rt.anchoredPosition = originalPos;
+    }
+
+    /// <summary>
+    /// 指定されたTMP_Textのテキストのアルファ値を設定します。
+    /// </summary>
+    /// <param name="tmp_Text"></param>
+    /// <param name="alpha"></param>
+    public void SetTextAlpha(TMP_Text tmp_Text, float alpha)
+    {
+        if (tmp_Text == null) return;
+        var color = tmp_Text.color;
+        color.a = alpha;
+        tmp_Text.color = color;
+    }
+
+    /// <summary>
+    /// 指定されたTMP_Textのテキストをフェードインさせます。
+    /// </summary>
+    /// <param name="textComp">フェードアウトさせるTMP_Textコンポーネント</param>
+    /// <param name="duration">フェードアウトにかける時間（秒）</param>
+    /// <param name="token">キャンセルトークン。操作を中断する際に使用します</param>
+    /// <returns></returns>
+    public async UniTask FadeInText(TMP_Text textComp, float duration, CancellationToken token)
+    {
+        var col = textComp.color;
+        col.a = 0f;
+        textComp.color = col;
+        for (float t = 0; t <= duration; t += Time.deltaTime)
+        {
+            token.ThrowIfCancellationRequested();
+            col.a = Mathf.Lerp(0f, 1f, t / duration);
+            textComp.color = col;
+            await UniTask.Yield(token);
+        }
+        col.a = 1f;
+        textComp.color = col;
+    }
+
+    /// <summary>
+    /// 指定されたTMP_Textのテキストをフェードアウトさせます。
+    /// </summary>
+    /// <param name="textComp">フェードアウトさせるTMP_Textコンポーネント</param>
+    /// <param name="duration">フェードアウトにかける時間（秒）</param>
+    /// <param name="token">キャンセルトークン。操作を中断する際に使用します</param>
+    /// <returns></returns>
+    public async UniTask FadeOutText(TMP_Text textComp, float duration, CancellationToken token)
+    {
+        var col = textComp.color;
+        col.a = 1f;
+        textComp.color = col;
+        for (float t = 0; t <= duration; t += Time.deltaTime)
+        {
+            token.ThrowIfCancellationRequested();
+            col.a = Mathf.Lerp(1f, 0f, t / duration);
+            textComp.color = col;
+            await UniTask.Yield(token);
+        }
+        col.a = 0f;
+        textComp.color = col;
     }
 }
