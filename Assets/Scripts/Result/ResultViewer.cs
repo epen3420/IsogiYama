@@ -47,8 +47,8 @@ public class ResultDisplay : MonoBehaviour
         vfxController.FadeOutCanvasAsync(0.8f).Forget();
 
         // 初期化
-        adviceText.enabled = false;
-        ed3AdviceText.enabled = false;
+        adviceText.gameObject.SetActive(false);
+        ed3AdviceText.gameObject.SetActive(false);
         vfxController.SetTextAlpha(adviceText, 0f);
         vfxController.SetTextAlpha(ed3AdviceText, 0f);
 
@@ -62,10 +62,21 @@ public class ResultDisplay : MonoBehaviour
             return;
         }
 
-        ResultHolder.instance.UnlockEnding(typingResult.EndingBranchCondition.nextStep.CsvFile.name);
+        string branchName = string.Empty;
+        try
+        {
+            branchName = typingResult.EndingBranchCondition.nextStep.CsvFile.name;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"EndingBranchCondition の取得に失敗: {e.Message}");
 
-        // branchName を判定して currentStills をセット
-        string branchName = typingResult.EndingBranchCondition.nextStep.CsvFile.name;
+            // デフォルトのブランチ名を設定
+            string[] canditate = { "ed1_perf", "ed2_perf", "ed3_perf", "additional_perf" };
+            branchName = canditate[Random.Range(0, canditate.Length)];
+        }
+
+        ResultHolder.instance.UnlockEnding(branchName);
         bool isEd3 = branchName == "ed3_perf";
         currentSprites = isEd3 ? happyEndSprites : badEndSprites;
 
@@ -103,8 +114,9 @@ public class ResultDisplay : MonoBehaviour
                 // 次のスチルを表示
                 if (spriteIndex == 1)
                 {
-                    resultText.enabled = false;
-                    ed3AdviceText.enabled = true;
+                    vfxController.FadeOutText(resultText, 1f, false, this.GetCancellationTokenOnDestroy()).Forget();
+
+                    ed3AdviceText.gameObject.SetActive(true);
                     vfxController.FadeInText(ed3AdviceText, 1f, this.GetCancellationTokenOnDestroy()).Forget();
                 }
                 ShowCurrentSprite(spriteIndex, 1f);
@@ -171,7 +183,7 @@ public class ResultDisplay : MonoBehaviour
         double currentScore = typingResult.GetCurrentScore();
         Debug.Log($"Current Score: {currentScore}");
 
-        stringBuilder.AppendLine("Hint\n\n");
+        stringBuilder.AppendLine("Hint\n");
 
         float targetScore = 0;
         if (currentScore >= 0.8)
@@ -217,12 +229,14 @@ public class ResultDisplay : MonoBehaviour
 
         if (missDiff > 0)
         {
-            stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{reqE}</color>回減らすと...");
+            stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{missDiff}</color>回減らすと...");
         }
         else
         {
-            stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{-reqE}</color>回増やすと...");
+            stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{-missDiff}</color>回増やすと...");
         }
+
+        stringBuilder.AppendLine("もしくは");
 
         if (timeDiff > 0)
         {
@@ -233,7 +247,7 @@ public class ResultDisplay : MonoBehaviour
             stringBuilder.AppendLine($"クリア時間をあと<color={THEME_COLOR}>{-timeDiff:F1}</color>秒遅くすると...");
         }
 
-        stringBuilder.AppendLine("新しいエンディングにいけるかもしれない。");
+        stringBuilder.AppendLine("今とはまた違う結末になったのかもしれない。");
         stringBuilder.AppendLine();
         stringBuilder.AppendLine();
 

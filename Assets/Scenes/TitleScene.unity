@@ -776,7 +776,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25929fd3fc9a61b47b170aea231ba72f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameFlowData: {fileID: 11400000, guid: 6b1336eed1e77e94c934ed8bbeec14f2, type: 2}
+  gameFlowData: {fileID: 11400000, guid: 5058a80cf0686794881bc4e2f26265df, type: 2}
 --- !u!4 &1582732498
 Transform:
   m_ObjectHideFlags: 0

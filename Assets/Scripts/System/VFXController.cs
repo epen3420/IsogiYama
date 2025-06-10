@@ -185,6 +185,7 @@ public class VFXController : SceneSingleton<VFXController>
     /// <returns></returns>
     public async UniTask FadeInText(TMP_Text textComp, float duration, CancellationToken token)
     {
+        textComp.gameObject.SetActive(true); // フェードイン前にEnabledをtrueにする
         var col = textComp.color;
         col.a = 0f;
         textComp.color = col;
@@ -205,9 +206,11 @@ public class VFXController : SceneSingleton<VFXController>
     /// <param name="textComp">フェードアウトさせるTMP_Textコンポーネント</param>
     /// <param name="duration">フェードアウトにかける時間（秒）</param>
     /// <param name="token">キャンセルトークン。操作を中断する際に使用します</param>
+    /// <param name="beEnabled">フェードアウトしたあとEnabledをbeEnabledにします。</param>
     /// <returns></returns>
-    public async UniTask FadeOutText(TMP_Text textComp, float duration, CancellationToken token)
+    public async UniTask FadeOutText(TMP_Text textComp, float duration, bool beEnabled, CancellationToken token)
     {
+        textComp.enabled = true; // フェードアウト前にEnabledをtrueにする
         var col = textComp.color;
         col.a = 1f;
         textComp.color = col;
@@ -220,5 +223,6 @@ public class VFXController : SceneSingleton<VFXController>
         }
         col.a = 0f;
         textComp.color = col;
+        textComp.gameObject.SetActive(beEnabled); // フェードアウト後にEnabledを設定
     }
 }
