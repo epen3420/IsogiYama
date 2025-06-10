@@ -28,6 +28,23 @@ public class TypingResult
     /// </summary>
     public float ClearTime => partResults.Sum(result => result.partTime);
 
+    // === 計算用係数定数 ===
+
+    // タイピング速度の想定下限値
+    private const float WPM_MIN = 80f;
+
+    // ミスタイプ数の想定上限値
+    private const int E_MAX = 60;
+
+    // タイピング速度の係数
+    private const float ALPHA = 1.2f;
+
+    // ミスタイプ数の係数
+    private const float BETA = 3.6f;
+
+    // スコア計算のオフセット
+    private const float GAMMA = 1.5f;
+
     // === 登録・設定 ===
 
     public void AddPartResult(int correctCount, int missCount, float partTime)
@@ -114,9 +131,9 @@ public class TypingResult
         }
 
         // 自然対数の引数が0以下にならないように注意
-        double termW = 1.2 * Math.Log(W / 280.0);
-        double termE = 3.6 * (E / 60.0);
-        double exponent = -(termW - termE + 1.5);
+        double termW = ALPHA * Math.Log(W / WPM_MIN);
+        double termE = BETA * (E / E_MAX);
+        double exponent = -(termW - termE + GAMMA);
 
         return 1.0 / (1.0 + Math.Exp(exponent));
     }
@@ -155,9 +172,9 @@ public class TypingResult
 
         double X = -Math.Log(inverseScoreTerm); // X = (1.2ln(W/280) -3.6(E/60) + 1.5)
 
-        double E_term = 3.6 * (currentE / 60.0);
-        double exponentNumerator = X + E_term - 1.5;
-        double requiredW = 280.0 * Math.Exp(exponentNumerator / 1.2);
+        double E_term = BETA * (currentE / E_MAX);
+        double exponentNumerator = X + E_term - GAMMA;
+        double requiredW = WPM_MIN * Math.Exp(exponentNumerator / ALPHA);
 
         return requiredW;
     }
@@ -193,8 +210,8 @@ public class TypingResult
 
         double X = -Math.Log(inverseScoreTerm); // X = (1.2ln(W/280) -3.6(E/60) + 1.5)
 
-        double W_term = 1.2 * Math.Log(currentW / 280.0);
-        double requiredE = 60.0 * (X - W_term - 1.5) / -3.6;
+        double W_term = ALPHA * Math.Log(currentW / WPM_MIN);
+        double requiredE = E_MAX * (X - W_term - GAMMA) / -BETA;
 
         return requiredE;
     }
@@ -205,6 +222,7 @@ public class TypingResult
         Debug.Log($"総タイプ数: {TotalCorrectTypes}");
         Debug.Log($"総クリアタイム: {ClearTime:F2}s");
         Debug.Log($"タイピング速度: {GetTypingWPS():F2} 文字/秒");
+        Debug.Log($"タイピング速度: {GetTypingWPM():F2} 文字/分");
 
         for (int i = 0; i < partResults.Count; i++)
         {

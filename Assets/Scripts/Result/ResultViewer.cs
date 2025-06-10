@@ -75,8 +75,9 @@ public class ResultDisplay : MonoBehaviour
 
         // 結果文字列の生成と反映
         BuildResultString(resultText, typingResult);
+        typingResult.PrintSummary();
 
-        if(isEd3)
+        if (isEd3)
         {
             BuildAdviceString(ed3AdviceText, typingResult, true);
         }
@@ -212,8 +213,9 @@ public class ResultDisplay : MonoBehaviour
         // 必要クリア時間を totalChars / reqW で計算
         float desiredTime = typingResult.TotalCorrectTypes * 60f / reqW;
         float timeDiff = typingResult.ClearTime - desiredTime;
+        int missDiff = typingResult.TotalIncorrectTypes - reqE;
 
-        if (reqE > 0)
+        if (missDiff > 0)
         {
             stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{reqE}</color>回減らすと...");
         }
@@ -222,7 +224,7 @@ public class ResultDisplay : MonoBehaviour
             stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{-reqE}</color>回増やすと...");
         }
 
-        if (reqW > 0)
+        if (timeDiff > 0)
         {
             stringBuilder.AppendLine($"クリア時間をあと<color={THEME_COLOR}>{timeDiff:F1}</color>秒早くすると...");
         }
