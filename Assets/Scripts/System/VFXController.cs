@@ -36,7 +36,6 @@ public class VFXController : SceneSingleton<VFXController>
         bgFader = new BackgroundFader(
             backgroundImageMain,
             backgroundImageSub,
-            backgroundCanvasGroup,
             backgroundSprites,
             vfxCanvasCanvasGroup
         );
@@ -46,6 +45,12 @@ public class VFXController : SceneSingleton<VFXController>
         cameraController = new CameraController(mainCam);
     }
 
+    /// <summary>
+    /// 背景画像をクロスフェードで切り替えます。
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="duration">フェード時間（秒）</param>
+    /// <returns></returns>
     public async UniTask ChangeBackgroundAsync(string key, float duration = 0.5f)
     {
         if (isTransitioning) return;
@@ -54,6 +59,11 @@ public class VFXController : SceneSingleton<VFXController>
         finally { isTransitioning = false; }
     }
 
+    /// <summary>
+    /// VFXCanvasをフェードアウトします。
+    /// </summary>
+    /// <param name="duration">フェード時間（秒）</param>
+    /// <returns></returns>
     public async UniTask FadeOutCanvasAsync(float duration = 0.5f)
     {
         if (isFading) return;
@@ -62,6 +72,11 @@ public class VFXController : SceneSingleton<VFXController>
         finally { isFading = false; }
     }
 
+    /// <summary>
+    /// VFXCanvasをフェードインします。
+    /// </summary>
+    /// <param name="duration">フェード時間（秒）</param>
+    /// <returns></returns>
     public async UniTask FadeInCanvasAsync(float duration = 0.5f)
     {
         if (isFading) return;
@@ -69,6 +84,26 @@ public class VFXController : SceneSingleton<VFXController>
         try { await bgFader.FadeInVFXCanvas(overlayCanvasGroup, duration); }
         finally { isFading = false; }
     }
+
+    /// <summary>
+    /// Sub側の背景画像をフェード表示します。
+    /// </summary>
+    /// <param name="key">表示したいスプライト名</param>
+    /// <param name="duration">フェード時間（秒）</param>
+    public async UniTask ShowSubBackgroundAsync(string key, float duration = 0.5f)
+    {
+        await bgFader.ShowSubImageFadeAsync(key, duration);
+    }
+
+    /// <summary>
+    /// Sub側の背景画像をフェード非表示にします。
+    /// </summary>
+    /// <param name="duration">フェード時間（秒）</param>
+    public async UniTask HideSubBackgroundAsync(float duration = 0.5f)
+    {
+        await bgFader.HideSubImageFadeAsync(duration);
+    }
+
 
     public void SetBloom(bool on) => postToggler.SetBloomEnabled(on);
     public void SetBloomParameters(float intensity, float threshold, float scatter) => postToggler.SetBloomParameters(intensity, threshold, scatter);
