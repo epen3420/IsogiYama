@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -114,10 +115,7 @@ public class ResultDisplay : MonoBehaviour
                 // 次のスチルを表示
                 if (spriteIndex == 1)
                 {
-                    vfxController.FadeOutText(resultText, 1f, false, this.GetCancellationTokenOnDestroy()).Forget();
-
-                    ed3AdviceText.gameObject.SetActive(true);
-                    vfxController.FadeInText(ed3AdviceText, 1f, this.GetCancellationTokenOnDestroy()).Forget();
+                    StartSmartPhone().Forget();
                 }
                 ShowCurrentSprite(spriteIndex, 1f);
             }
@@ -129,6 +127,15 @@ public class ResultDisplay : MonoBehaviour
                 GameFlowManager.instance.GoToNextScene();
             }
         }
+    }
+
+    private async UniTask StartSmartPhone()
+    {
+        await vfxController.FadeOutText(resultText, 1f, false, this.GetCancellationTokenOnDestroy());
+
+        vfxController.ShowSubBackgroundAsync("EL", 1f).Forget();
+        ed3AdviceText.gameObject.SetActive(true);
+        await vfxController.FadeInText(ed3AdviceText, 1f, this.GetCancellationTokenOnDestroy());
     }
 
     /// <summary>

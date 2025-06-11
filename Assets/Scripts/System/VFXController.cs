@@ -12,7 +12,6 @@ public class VFXController : SceneSingleton<VFXController>
     [Header("Background Components (Inspector)")]
     [SerializeField] private Image backgroundImageMain;
     [SerializeField] private Image backgroundImageSub;
-    [SerializeField] private CanvasGroup backgroundCanvasGroup;
     [SerializeField] private CanvasGroup vfxCanvasCanvasGroup;
     [SerializeField] private CanvasGroup overlayCanvasGroup;
     [SerializeField] private List<Sprite> backgroundSprites;
