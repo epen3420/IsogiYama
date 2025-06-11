@@ -87,6 +87,7 @@ public class ResultDisplay : MonoBehaviour
 
         // 結果文字列の生成と反映
         BuildResultString(resultText, typingResult);
+        vfxController.FadeInText(resultText, 1f, this.GetCancellationTokenOnDestroy()).Forget();
         typingResult.PrintSummary();
 
         if (isEd3)
