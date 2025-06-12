@@ -145,8 +145,8 @@ public class TypingProgressManager : MonoBehaviour
             return;
         }
         var currentQuestData = questDatas[questIndex++];
-        typingJudger = new TypingJudder(currentQuestData.Roma);
 
+        typingJudger = new TypingJudder(currentQuestData.Roma);
         endCurrentQuest?.Invoke(currentQuestData.Japanese, currentQuestData.Roma);
     }
 
