@@ -1,6 +1,6 @@
-[System.Serializable]
+﻿[System.Serializable]
 public class BranchTransitionCondition
 {
-    public float maxClearTime; // 条件のクリア時間
+    public float minClearScore; // 条件の最低クリアスコア
     public GameStepNeedCSV nextStep; // 条件を満たした場合の次のステップ
 }

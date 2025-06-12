@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
@@ -13,45 +13,44 @@ public class GameBranchStep : GameStepNeedCSV
 
     private bool isInitialized = false;
 
-    public GameStep GetNextStepByClearTime(float clearTime)
+    /// <summary>
+    /// クリア時間に基づいて次のステップを取得します。
+    /// </summary>
+    /// <param name="userScore">0から1の実数</param>
+    /// <returns></returns>
+    public GameStep GetNextGameStepByScore(float userScore)
     {
         InitBranchSteps();
 
-        // 最大クリアタイムが一番遅いものより、クリアタイムが遅い場合それを返す
-        var bestBadEndCondition = transitionConditions[transitionConditions.Count - 1];
-        if (bestBadEndCondition.maxClearTime <= clearTime)
+        // 高い minClearScore から順に見ていく（ギリギリ通過できる条件を探す）
+        for (int i = transitionConditions.Count - 1; i >= 0; i--)
         {
-            return bestBadEndCondition.nextStep;
-        }
-
-        foreach (var condition in transitionConditions)
-        {
-            if (condition.maxClearTime > clearTime)
+            var condition = transitionConditions[i];
+            if (userScore >= condition.minClearScore)
             {
                 return condition.nextStep;
             }
         }
 
+        // どれにも満たない場合は null
         return null;
     }
 
     /// <summary>
-    /// クリア時間で昇順にソートとフラグを立てる
+    /// 分岐ステップの初期化処理を行う。
     /// </summary>
     private void InitBranchSteps()
     {
         if (isInitialized) return;
 
-        if (transitionConditions == null ||
-            transitionConditions.Count == 0)
+        if (transitionConditions == null || transitionConditions.Count == 0)
         {
             Debug.LogError("Not set next step in branch step");
             return;
         }
 
-        // クリア時間を昇順にソート
-        transitionConditions.Sort((x, y) => x.maxClearTime.CompareTo(y.maxClearTime));
-
+        // minClearScore 昇順にソート
+        transitionConditions.Sort((x, y) => x.minClearScore.CompareTo(y.minClearScore));
         isInitialized = true;
     }
 }

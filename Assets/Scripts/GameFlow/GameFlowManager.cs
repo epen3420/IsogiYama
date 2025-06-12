@@ -87,7 +87,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
         if (gameSteps[currentStepIndex] is GameBranchStep branchStep)
         {
             var result = ResultHolder.instance.GetResult();
-            var nextGameStep = branchStep.GetNextStepByClearTime(result.ClearTime);
+            var nextGameStep = branchStep.GetNextGameStepByScore((float)result.GetCurrentScore());
 
             if (nextGameStep is EndingGameStep endingGameStep)
             {
