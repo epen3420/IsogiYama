@@ -13,6 +13,13 @@ public class TypingJudder
 
     public TypingState JudgeChar(char typedChar)
     {
+#if UNITY_EDITOR
+        if (CheatModeWindow.IsCheat)
+        {
+            judeCharsIndex++;
+            return judeCharsIndex >= judeChars.Length ? TypingState.Clear : TypingState.Hit;
+        }
+#endif
         if (judeChars[judeCharsIndex] == typedChar)
         {
             judeCharsIndex++;
