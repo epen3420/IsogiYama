@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -28,12 +27,8 @@ public class ResultDisplay : MonoBehaviour
     private List<Sprite> currentSprites;
     private int spriteIndex = 0;
 
-    private Dictionary<EndingType, (
-    string displayName,
-    string description,
-    bool isUnlocked,
-    bool isSpecial
-    )> allEndings = new Dictionary<EndingType, (string displayName, string description, bool isUnlocked, bool isSpecial)>();
+    private Dictionary<EndingType, EndingEntry> allEndings = new();
+
     // テーマカラーの定義
     private const string THEME_COLOR = "#FB570F";
 

@@ -638,6 +638,71 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1114210974
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1114210976}
+  - component: {fileID: 1114210975}
+  m_Layer: 0
+  m_Name: ResultHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1114210975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1114210974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 040cc9ac68a43af4fa6d3f2d9ce72c3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  endingsList:
+  - Key: 1
+    displayName: ED1
+    description: "\u3082\u3063\u3068\u65E9\u304F\u6765\u3066\u3044\u308C\u3070\u3002"
+    isUnlocked: 0
+    isSpecial: 0
+  - Key: 2
+    displayName: ED2
+    description: "\u9593\u306B\u5408\u308F\u306A\u304B\u3063\u305F..."
+    isUnlocked: 0
+    isSpecial: 0
+  - Key: 3
+    displayName: ED3
+    description: "\u7121\u4E8B\u306B\u5C71\u3092\u4E0B\u308A\u308B\u3053\u3068\u304C\u3067\u304D\u305F\u3002"
+    isUnlocked: 0
+    isSpecial: 0
+  - Key: 4
+    displayName: SP
+    description: "\u771F\u5B9F\u306B\u6C17\u4ED8\u3044\u305F...?"
+    isUnlocked: 0
+    isSpecial: 1
+--- !u!4 &1114210976
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1114210974}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1463882756
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -857,7 +922,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 39.75
+  m_fontSize: 53
   m_fontSizeBase: 43.74
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -939,3 +1004,4 @@ SceneRoots:
   - {fileID: 1582732498}
   - {fileID: 668807953}
   - {fileID: 1463882756}
+  - {fileID: 1114210976}
