@@ -13,7 +13,7 @@ public class GameBranchStep : GameStepNeedCSV
 
     private bool isInitialized = false;
 
-    public BranchTransitionCondition GetTransitionConditionByClearTime(float clearTime)
+    public GameStep GetNextStepByClearTime(float clearTime)
     {
         InitBranchSteps();
 
@@ -21,14 +21,14 @@ public class GameBranchStep : GameStepNeedCSV
         var bestBadEndCondition = transitionConditions[transitionConditions.Count - 1];
         if (bestBadEndCondition.maxClearTime <= clearTime)
         {
-            return bestBadEndCondition;
+            return bestBadEndCondition.nextStep;
         }
 
         foreach (var condition in transitionConditions)
         {
             if (condition.maxClearTime > clearTime)
             {
-                return condition;
+                return condition.nextStep;
             }
         }
 
