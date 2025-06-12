@@ -5,5 +5,5 @@ public class EndingGameStep : GameStepNeedCSV
 {
     [SerializeField]
     private EndingType endingType;
-    public EndingType EndingType { get; private set; }
+    public EndingType EndingType => endingType;
 }

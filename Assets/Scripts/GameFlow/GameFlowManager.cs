@@ -27,7 +27,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
             return;
         }
         InitGameFlow();
-
         SoundPlayer.instance.PlayBgm(DEFAULT_BGM_NAME);
     }
 
@@ -93,7 +92,10 @@ public class GameFlowManager : Singleton<GameFlowManager>
             var result = ResultHolder.instance.GetResult();
             var nextGameStep = branchStep.GetNextStepByClearTime(result.ClearTime);
 
-            result.SetEndingType(((EndingGameStep)nextGameStep).EndingType);
+            if (nextGameStep is EndingGameStep endingGameStep)
+            {
+                result.SetEndingType(endingGameStep.EndingType);
+            }
 
             gameSteps.Insert(nextStepIndex, nextGameStep);
             IncStepIndex();

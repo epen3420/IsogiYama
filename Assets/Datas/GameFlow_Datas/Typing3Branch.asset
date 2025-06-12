@@ -16,8 +16,8 @@ MonoBehaviour:
   csvFile: {fileID: 4900000, guid: f32ac26cfe034164fa4f57eda5fcf7bb, type: 3}
   transitionConditions:
   - maxClearTime: 180
-    nextStep: {fileID: 11400000, guid: 4b14e5625a54be448995301445ed9435, type: 2}
+    nextStep: {fileID: 11400000, guid: 7e36e8424c72f3e449e06bcd4270688f, type: 2}
   - maxClearTime: 270
-    nextStep: {fileID: 11400000, guid: afef2e8facaa86e4baf705111f28487b, type: 2}
+    nextStep: {fileID: 11400000, guid: 7093458b0b790a044a2d1541412cce6a, type: 2}
   - maxClearTime: 600
-    nextStep: {fileID: 11400000, guid: af3dc536988705849b39c0f29e82222c, type: 2}
+    nextStep: {fileID: 11400000, guid: 53cdd9d715a0a19498b99a4c9f0ecbaa, type: 2}

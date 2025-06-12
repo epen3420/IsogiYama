@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Ending03
   m_EditorClassIdentifier: 
   stepType: 1
-  csvFile: {fileID: 4900000, guid: e869801520aee054698824785ab5ef39, type: 3}
-  endingType: 0
+  csvFile: {fileID: 4900000, guid: 2a40518ceabd7a54dba43520b5c6a890, type: 3}
+  endingType: 3

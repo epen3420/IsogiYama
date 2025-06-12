@@ -35,27 +35,15 @@ public class ResultDisplay : MonoBehaviour
             return;
         }
 
-        // 将来的にEnumで分岐したい、文字列分岐は望ましくない
-        string branchName;
-        try
-        {
-            branchName = typingResult.EndingBranchCondition.nextStep.CsvFile.name;
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError($"ブランチ名の取得に失敗: {ex.Message}");
-            branchName = "ed1_perf";
-            return;
-        }
-
-        if (branchName == "ed3_perf")
+        EndingType endingType = typingResult.EndingType;
+        if (endingType == EndingType.ED3)
         {
             isEd3 = true;
             vfxController.ChangeBackgroundAsync("ResultEd3", 0).Forget();
             resultText.enabled = true;
             adviceText.enabled = false;
         }
-        else if (branchName == "ed1_perf" || branchName == "ed2_perf")
+        else if (endingType == EndingType.ED1 || endingType == EndingType.ED2)
         {
             isEd3 = false;
             vfxController.ChangeBackgroundAsync("ResultBad", 0).Forget();

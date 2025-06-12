@@ -1,6 +1,7 @@
 public enum EndingType
 {
-    ED1,
-    ED2,
-    ED3,
+    None = 0,
+    ED1 = 1,
+    ED2 = 2,
+    ED3 = 3,
 }
