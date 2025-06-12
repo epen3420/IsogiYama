@@ -417,7 +417,7 @@ PrefabInstance:
     - target: {fileID: 5459387047336711901, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8938598779873148172, guid: 00e80615373fdb84ea91346b942b0331, type: 3}
     - target: {fileID: 5459387047336711901, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_Color.a
       value: 1
@@ -445,7 +445,7 @@ PrefabInstance:
     - target: {fileID: 6263537813110184674, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -1673019375328249834, guid: 4ce3288c8ed84b746b5a4069400b4329, type: 3}
+      objectReference: {fileID: -9102406494775990262, guid: a5e2601dab259f146ab721c63d09edcd, type: 3}
     - target: {fileID: 6263537813110184674, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_Color.a
       value: 1
@@ -779,7 +779,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2013976034
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1055,7 +1055,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2098550067
 RectTransform:
   m_ObjectHideFlags: 0
