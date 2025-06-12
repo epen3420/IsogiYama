@@ -78,9 +78,6 @@ public class GameFlowManager : Singleton<GameFlowManager>
     {
         gameSteps = gameFlowData.gameSteps.ToList();
         currentStepIndex = 0;
-        var result = ResultHolder.instance.GetResult();
-        result.PrintSummary();
-        ResultHolder.instance.ClearResult();
     }
 
     private GameStepType GetNextStepType()
@@ -96,7 +93,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
             {
                 result.SetEndingType(endingGameStep.EndingType);
             }
-
+            
             gameSteps.Insert(nextStepIndex, nextGameStep);
             IncStepIndex();
 

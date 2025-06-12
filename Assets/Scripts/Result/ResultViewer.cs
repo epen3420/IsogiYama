@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem; // 追加：InputSystem対応
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// TypingResult のデータを取得し、TextMeshPro に書式付きで反映するコンポーネント
@@ -13,20 +14,46 @@ public class ResultDisplay : MonoBehaviour
     [Header("表示先の TextMeshProUGUI")]
     [SerializeField] private TMP_Text resultText;
     [SerializeField] private TMP_Text adviceText;
-    [SerializeField] private bool useTestData = false; // テストデータを使用するかどうか
+    [SerializeField] private TMP_Text ed3AdviceText;
+
+    [Header("エンディングごとのスチル画像リスト")]
+    [SerializeField] private List<Sprite> happyEndSprites;
+    [SerializeField] private List<Sprite> badEndSprites;
+
+    // テストデータを使用するかどうか
+    [SerializeField] private bool useTestData = false;
 
     private VFXController vfxController;
+    private List<Sprite> currentSprites;
+    private int spriteIndex = 0;
 
-    // Ed3用フラグ
-    private bool isEd3 = false;
-    private bool hasTransitioned = false;
+    private Dictionary<string, (
+    string displayName,
+    string description,
+    bool isUnlocked,
+    bool isSpecial
+    )> allEndings = new Dictionary<string, (string displayName, string description, bool isUnlocked, bool isSpecial)>();
+    // テーマカラーの定義
+    private const string THEME_COLOR = "#FB570F";
+
+    private void Awake()
+    {
+        ResultHolder.OnEndingsUpdated += UpdateEndingsFlag;
+    }
 
     private void Start()
     {
         vfxController = InstanceRegister.Get<VFXController>();
+        vfxController.FadeOutCanvasAsync(0.8f).Forget();
 
-        // adviceText はデフォルト非表示に
-        adviceText.enabled = false;
+        // 初期化
+        adviceText.gameObject.SetActive(false);
+        ed3AdviceText.gameObject.SetActive(false);
+        vfxController.SetTextAlpha(adviceText, 0f);
+        vfxController.SetTextAlpha(ed3AdviceText, 0f);
+
+        // 一応明示的に更新しておく
+        allEndings = ResultHolder.instance.GetAllEndings();
 
         var typingResult = GetResultData();
         if (typingResult == null)
@@ -35,64 +62,109 @@ public class ResultDisplay : MonoBehaviour
             return;
         }
 
-        EndingType endingType = typingResult.EndingType;
-        if (endingType == EndingType.ED3)
+        string branchName = string.Empty;
+        try
         {
-            isEd3 = true;
-            vfxController.ChangeBackgroundAsync("ResultEd3", 0).Forget();
-            resultText.enabled = true;
-            adviceText.enabled = false;
+            branchName = typingResult.EndingBranchCondition.nextStep.CsvFile.name;
         }
-        else if (endingType == EndingType.ED1 || endingType == EndingType.ED2)
+        catch (System.Exception e)
         {
-            isEd3 = false;
-            vfxController.ChangeBackgroundAsync("ResultBad", 0).Forget();
-            resultText.enabled = true;
-            adviceText.enabled = true;
-            adviceText.text =
-                "Hint\n\n" +
-                "ミスタイプをNull回減らそう...\n\n" +
-                "クリア時間をあとNull秒早くしよう...";
-            // ※ Null の部分の処理は後で実装
+            Debug.LogError($"EndingBranchCondition の取得に失敗: {e.Message}");
+
+            // デフォルトのブランチ名を設定
+            string[] canditate = { "ed1_perf", "ed2_perf", "ed3_perf", "additional_perf" };
+            branchName = canditate[Random.Range(0, canditate.Length)];
         }
 
-        // StringBuilder で文字列を組み立て
+        ResultHolder.instance.UnlockEnding(branchName);
+        bool isEd3 = branchName == "ed3_perf";
+        currentSprites = isEd3 ? happyEndSprites : badEndSprites;
+
+        // 最初の背景を表示
+        ShowCurrentSprite(0, 0f);
+        resultText.enabled = true;
+
+        // 結果文字列の生成と反映
+        BuildResultString(resultText, typingResult);
+        typingResult.PrintSummary();
+
+        if (isEd3)
+        {
+            BuildAdviceString(ed3AdviceText, typingResult, true);
+        }
+        else
+        {
+            BuildAdviceString(adviceText, typingResult, false);
+            adviceText.enabled = true;
+            vfxController.FadeInText(adviceText, 1f, this.GetCancellationTokenOnDestroy()).Forget();
+        }
+    }
+
+    private void Update()
+    {
+        bool clicked = Mouse.current.leftButton.wasPressedThisFrame;
+        bool spaced = Keyboard.current.spaceKey.wasPressedThisFrame;
+
+        if (clicked || spaced)
+        {
+            spriteIndex++;
+
+            if (spriteIndex < currentSprites.Count)
+            {
+                // 次のスチルを表示
+                if (spriteIndex == 1)
+                {
+                    vfxController.FadeOutText(resultText, 1f, false, this.GetCancellationTokenOnDestroy()).Forget();
+
+                    ed3AdviceText.gameObject.SetActive(true);
+                    vfxController.FadeInText(ed3AdviceText, 1f, this.GetCancellationTokenOnDestroy()).Forget();
+                }
+                ShowCurrentSprite(spriteIndex, 1f);
+            }
+            else
+            {
+                // リストを使い切ったらシーン遷移
+                ResultHolder.instance.ClearResult();
+
+                GameFlowManager.instance.GoToNextScene();
+            }
+        }
+    }
+
+    /// <summary>
+    /// TypingResult から表示用の結果文字列を組み立てて返す
+    /// </summary>
+    private void BuildResultString(TMP_Text resultText,TypingResult typingResult)
+    {
         var sb = new StringBuilder();
 
+        // 各パートのクリアタイムとミス数
         int partCount = typingResult.PartCount;
         for (int i = 0; i < partCount; i++)
         {
-            // 各パートのクリアタイムとミス数を取得
             (float partTime, int missCount) = typingResult.GetPartInfo(i);
-
             sb.AppendLine($"{i + 1}回目    {partTime:F1}秒 / {missCount}ミス");
             sb.AppendLine();
         }
 
         sb.AppendLine();
 
-        // 合計行を表示
+        // 合計タイム・ミス数
         float totalTime = typingResult.ClearTime;
-        int totalMiss = 0;
-        // PartCount が分かるので、合計ミス数を足していく
-        for (int i = 0; i < partCount; i++)
-        {
-            totalMiss += typingResult.GetPartInfo(i).missCount;
-        }
+        int totalMiss = typingResult.TotalIncorrectTypes;
 
         sb.AppendLine($"<size=70><color=#FB570F>合計</color>    {totalTime:F1}秒 / {totalMiss}ミス</size>");
         sb.AppendLine();
 
         // タイピング速度
-        float speed = typingResult.GetTypingSpeed(); // 文字/秒
+        float speed = typingResult.GetTypingWPS();
         sb.AppendLine($"{speed:F1}文字 / 秒");
         sb.AppendLine();
 
         // 苦手な文字
-        var worstKeys = typingResult.GetWorstMistypedKeys(3);
-        if (worstKeys != null && worstKeys.Length > 0)
+        if (totalMiss != 0)
         {
-            // ここで char.ToUpper を使って大文字に変換する
+            var worstKeys = typingResult.GetWorstMistypedKeys(3);
             var upperKeys = worstKeys.Select(c => char.ToUpper(c));
             string joinedKeys = string.Join(", ", upperKeys.Select(c => c.ToString()));
             sb.Append($"<color=#FB570F>苦</color>手な文字  {joinedKeys}");
@@ -102,25 +174,145 @@ public class ResultDisplay : MonoBehaviour
             sb.Append("<color=#FB570F>苦</color>手な文字  なし");
         }
 
-        // 完成した文字列を TextMeshPro にセット
-        resultText.text = sb.ToString();
+        resultText.SetText(sb.ToString());
     }
 
-    private void Update()
+    private void BuildAdviceString(TMP_Text endingHintText, TypingResult typingResult, bool showAllEndings = false)
     {
-        // Ed3用のクリック or スペースキーで背景遷移
-        if (isEd3 && !hasTransitioned)
+        StringBuilder stringBuilder = new StringBuilder();
+        double currentScore = typingResult.GetCurrentScore();
+        Debug.Log($"Current Score: {currentScore}");
+
+        stringBuilder.AppendLine("Hint\n");
+
+        float targetScore = 0;
+        if (currentScore >= 0.8)
         {
-            bool clicked = Mouse.current.leftButton.wasPressedThisFrame;
-            bool spaced = Keyboard.current.spaceKey.wasPressedThisFrame;
-            if (clicked || spaced)
+            // 0.8以上
+            // Ed3の場合はEd2もしくはEd1に行けるようにアドバイスする
+
+            if (ResultHolder.instance.IsEndingUnlocked("ED2"))
             {
-                vfxController.ChangeBackgroundAsync("Ed3_Phone", 0.5f).Forget();
-                // resultText を非表示
-                resultText.enabled = false;
-                hasTransitioned = true;
+                // Ed2がアンロックされている場合は、Ed1に行けるようにアドバイス
+                targetScore = 0.5f;
+                Debug.Log("ED3 For Go To ED1 Advice");
+            }
+            else
+            {
+                // Ed2がアンロックされていない場合は、Ed2行けるようにアドバイス
+                targetScore = 0.8f;
+                Debug.Log("ED3 For Go To ED2 Advice");
             }
         }
+        else if (currentScore >= 0.5)
+        {
+            // 0.5以上0.8未満
+            // Ed2の場合はEd3に行けるようにアドバイスする
+            targetScore = 0.8f;
+            Debug.Log("ED2 For Go To ED3 Advice");
+        }
+        else
+        {
+            // 0.5未満
+            // Ed1の場合はEd2(もしくはEd3)に行けるようにアドバイスする
+            targetScore = 0.5f;
+            Debug.Log("ED1 For Go To ED2 Advice");
+        }
+
+        var reqW = (float)typingResult.GetRequiredWForTargetScore(targetScore);
+        var reqE = (int)typingResult.GetRequiredEForTargetScore(targetScore);
+
+        // 必要クリア時間を totalChars / reqW で計算
+        float desiredTime = typingResult.TotalCorrectTypes * 60f / reqW;
+        float timeDiff = typingResult.ClearTime - desiredTime;
+        int missDiff = typingResult.TotalIncorrectTypes - reqE;
+
+        if (missDiff > 0)
+        {
+            stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{missDiff}</color>回減らすと...");
+        }
+        else
+        {
+            stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{-missDiff}</color>回増やすと...");
+        }
+
+        stringBuilder.AppendLine("もしくは");
+
+        if (timeDiff > 0)
+        {
+            stringBuilder.AppendLine($"クリア時間をあと<color={THEME_COLOR}>{timeDiff:F1}</color>秒早くすると...");
+        }
+        else
+        {
+            stringBuilder.AppendLine($"クリア時間をあと<color={THEME_COLOR}>{-timeDiff:F1}</color>秒遅くすると...");
+        }
+
+        stringBuilder.AppendLine("今とはまた違う結末になったのかもしれない。");
+        stringBuilder.AppendLine();
+        stringBuilder.AppendLine();
+
+        if (showAllEndings)
+        {
+            stringBuilder.AppendLine("エンディング一覧");
+            stringBuilder.AppendLine("====================");
+
+            foreach (var entry in allEndings)
+            {
+                string endingName = entry.Value.displayName;
+                string description = entry.Value.description;
+                bool isUnlocked = entry.Value.isUnlocked;
+                bool isSpecial = entry.Value.isSpecial;
+
+                if (isUnlocked)
+                {
+                    if (isSpecial)
+                    {
+                        stringBuilder.AppendLine($"<color=red>・{endingName} <size=20>{description}</size></color>");
+                    }
+                    else
+                    {
+                        stringBuilder.AppendLine($"・{endingName} <size=20>{description}</size>");
+                    }
+                }
+                else
+                {
+                    if (isSpecial)
+                    {
+                        stringBuilder.AppendLine("<color=red>・???</color>");
+                    }
+                    else
+                    {
+                        stringBuilder.AppendLine("・???");
+                    }
+                }
+                stringBuilder.AppendLine();
+            }
+        }
+        
+
+        if (endingHintText != null)
+        {
+            endingHintText.SetText(stringBuilder.ToString());
+        }
+        else
+        {
+            Debug.LogError("TMP_Text component is not assigned to endingHintText.");
+        }
+    }
+
+    private void UpdateEndingsFlag()
+    {
+        allEndings = ResultHolder.instance.GetAllEndings();
+    }
+
+    /// <summary>
+    /// 指定したインデックスのスプライトを VFXController に渡して背景を変更します。
+    /// </summary>
+    private void ShowCurrentSprite(int index, float fadeDuration)
+    {
+        Sprite sprite = currentSprites[index];
+        // スプライト名を ChangeBackgroundAsync の引数に
+        vfxController.ChangeBackgroundAsync(sprite.name, fadeDuration).Forget();
     }
 
     private TypingResult GetTestData()
