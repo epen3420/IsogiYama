@@ -35,6 +35,8 @@ public class BackgroundFader
     /// <summary>
     /// 指定キーで背景をクロスフェード切り替え
     /// </summary>
+    /// <param name="duration">フェード時間（秒）</param>
+    /// <param name="key"> 切り替える背景のキー</param>
     public async UniTask ChangeBackgroundAsync(string key, float duration = 0.5f)
     {
         if (!spriteLookup.TryGetValue(key, out var target))
@@ -43,36 +45,28 @@ public class BackgroundFader
             return;
         }
 
-        // Subにセットして有効化
-        subImage.sprite = target;
-        subImage.gameObject.SetActive(true);
-        vfxCanvasGroup.alpha = 1f;
-
-        // フェードアウト→スワップ→フェードイン
-        await FadeSwapAsync(duration);
+        // SubImage は FadeSwap 側で旧Mainのコピーにしてからフェードする
+        await FadeSwapAsync(target, duration);
     }
 
     /// <summary>
     /// メイン画像とサブ画像をフェードアウト・フェードインで切り替え
     /// </summary>
+    /// <param name="newSprite"></param>
     /// <param name="duration"></param>
     /// <returns></returns>
-    private async UniTask FadeSwapAsync(float duration)
+    private async UniTask FadeSwapAsync(Sprite newSprite, float duration)
     {
-        // Sub の初期透明化
-        var subColor = subImage.color;
-        subImage.color = new Color(subColor.r, subColor.g, subColor.b, 0f);
+        // Sub に現在の Main の状態をコピー
+        subImage.sprite = mainImage.sprite;
+        subImage.color = new Color(mainImage.color.r, mainImage.color.g, mainImage.color.b, 1f);
         subImage.gameObject.SetActive(true);
 
-        // 同時並行でフェード
-        var fadeOutMain = FadeImageAlphaAsync(mainImage, 1f, 0f, duration);
-        var fadeInSub = FadeImageAlphaAsync(subImage, 0f, 1f, duration);
+        // Main に新しい画像をセット
+        mainImage.sprite = newSprite;
 
-        await UniTask.WhenAll(fadeOutMain, fadeInSub);
-
-        // メイン画像を差し替えて Alpha を元に戻す
-        mainImage.sprite = subImage.sprite;
-        mainImage.color = new Color(mainImage.color.r, mainImage.color.g, mainImage.color.b, 1f);
+        // Sub をフェードアウト
+        await FadeImageAlphaAsync(subImage, 1f, 0f, duration);
 
         subImage.gameObject.SetActive(false);
     }
@@ -133,7 +127,7 @@ public class BackgroundFader
     /// <param name="key"></param>
     /// <param name="duration"></param>
     /// <returns></returns>
-    public async UniTask ShowSubImageFadeAsync(string key, float duration = 0.5f)
+    public async UniTask ShowSubImageFadeAsync(string key, float duration = 0.5f, float endValue = 1f)
     {
         if (!spriteLookup.TryGetValue(key, out var sprite))
         {
@@ -143,7 +137,7 @@ public class BackgroundFader
 
         subImage.sprite = sprite;
         subImage.gameObject.SetActive(true);
-        await FadeImageAlphaAsync(subImage, 0f, 1f, duration);
+        await FadeImageAlphaAsync(subImage, 0f, endValue, duration);
     }
 
     /// <summary>

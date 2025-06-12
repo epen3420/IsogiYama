@@ -88,9 +88,9 @@ public class VFXController : SceneSingleton<VFXController>
     /// </summary>
     /// <param name="key">表示したいスプライト名</param>
     /// <param name="duration">フェード時間（秒）</param>
-    public async UniTask ShowSubBackgroundAsync(string key, float duration = 0.5f)
+    public async UniTask ShowSubBackgroundAsync(string key, float duration = 0.5f, float endValue = 1f)
     {
-        await bgFader.ShowSubImageFadeAsync(key, duration);
+        await bgFader.ShowSubImageFadeAsync(key, duration, endValue);
     }
 
     /// <summary>

@@ -69,6 +69,5 @@ public class ResultHolder : Singleton<ResultHolder>
     override public void Awake()
     {
         endingsDict = endingsList.ToDictionary(e => e.Key);
-        endingsDict.Clear();
     }
 }

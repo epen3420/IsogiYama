@@ -117,7 +117,7 @@ public class ResultDisplay : MonoBehaviour
     {
         await vfxController.FadeOutText(resultText, 1f, false, this.GetCancellationTokenOnDestroy());
 
-        vfxController.ShowSubBackgroundAsync("EL", 1f).Forget();
+        vfxController.ShowSubBackgroundAsync("EL", 1f, 0.3f).Forget();
         ed3AdviceText.gameObject.SetActive(true);
         await vfxController.FadeInText(ed3AdviceText, 1f, this.GetCancellationTokenOnDestroy());
     }
