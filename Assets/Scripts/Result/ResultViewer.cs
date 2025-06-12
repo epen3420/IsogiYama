@@ -28,12 +28,12 @@ public class ResultDisplay : MonoBehaviour
     private List<Sprite> currentSprites;
     private int spriteIndex = 0;
 
-    private Dictionary<string, (
+    private Dictionary<EndingType, (
     string displayName,
     string description,
     bool isUnlocked,
     bool isSpecial
-    )> allEndings = new Dictionary<string, (string displayName, string description, bool isUnlocked, bool isSpecial)>();
+    )> allEndings = new Dictionary<EndingType, (string displayName, string description, bool isUnlocked, bool isSpecial)>();
     // テーマカラーの定義
     private const string THEME_COLOR = "#FB570F";
 
@@ -63,22 +63,10 @@ public class ResultDisplay : MonoBehaviour
             return;
         }
 
-        string branchName = string.Empty;
-        try
-        {
-            branchName = typingResult.EndingBranchCondition.nextStep.CsvFile.name;
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"EndingBranchCondition の取得に失敗: {e.Message}");
-
-            // デフォルトのブランチ名を設定
-            string[] canditate = { "ed1_perf", "ed2_perf", "ed3_perf", "additional_perf" };
-            branchName = canditate[Random.Range(0, canditate.Length)];
-        }
+        var branchName = typingResult.EndingType;
 
         ResultHolder.instance.UnlockEnding(branchName);
-        bool isEd3 = branchName == "ed3_perf";
+        bool isEd3 = branchName == EndingType.ED3;
         currentSprites = isEd3 ? happyEndSprites : badEndSprites;
 
         // 最初の背景を表示
@@ -199,7 +187,7 @@ public class ResultDisplay : MonoBehaviour
             // 0.8以上
             // Ed3の場合はEd2もしくはEd1に行けるようにアドバイスする
 
-            if (ResultHolder.instance.IsEndingUnlocked("ED2"))
+            if (ResultHolder.instance.IsEndingUnlocked(EndingType.ED2))
             {
                 // Ed2がアンロックされている場合は、Ed1に行けるようにアドバイス
                 targetScore = 0.5f;
@@ -232,7 +220,7 @@ public class ResultDisplay : MonoBehaviour
 
         // 必要クリア時間を totalChars / reqW で計算
         float desiredTime = typingResult.TotalCorrectTypes * 60f / reqW;
-        float timeDiff = typingResult.ClearTime - desiredTime;
+        float timeDiff = desiredTime - typingResult.ClearTime;
         int missDiff = typingResult.TotalIncorrectTypes - reqE;
 
         if (missDiff > 0)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
@@ -205,7 +205,7 @@ public class TypingProgressManager : MonoBehaviour
                 correctTyping?.Invoke();
                 soundPlayer.PlaySe("TypeHit");
 
-                Debug.Log($"{typedChar}: Hit");
+                // Debug.Log($"{typedChar}: Hit");
                 break;
 
             case TypingState.Miss:
@@ -214,7 +214,7 @@ public class TypingProgressManager : MonoBehaviour
                 missTypeCount++;
                 typingResult.AddMistypedKey(typedChar);
 
-                Debug.Log($"{typedChar}: Miss");
+                // Debug.Log($"{typedChar}: Miss");
                 soundPlayer.PlaySe("TypeMiss");
 
                 break;

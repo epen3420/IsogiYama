@@ -12,14 +12,14 @@ public class ResultHolder : Singleton<ResultHolder>
 
     public void ClearResult() => result = new TypingResult();
 
-    private Dictionary<string, (
+    private Dictionary<EndingType, (
     string displayName, // 表示名
     string description, // 説明文
     bool isUnlocked,    // 解放済みか
     bool isSpecial      // 特殊エンディングか
-    )> allEndings = new Dictionary<string, (string displayName, string description, bool isUnlocked, bool isSpecial)>();
+    )> allEndings = new Dictionary<EndingType, (string displayName, string description, bool isUnlocked, bool isSpecial)>();
 
-    public Dictionary<string, (string displayname, string description, bool isUnlocked, bool isSpecial)> GetAllEndings() => allEndings;
+    public Dictionary<EndingType, (string displayname, string description, bool isUnlocked, bool isSpecial)> GetAllEndings() => allEndings;
 
     // Endingが更新されたときに呼ばれるイベント
     public static event Action OnEndingsUpdated;
@@ -32,10 +32,10 @@ public class ResultHolder : Singleton<ResultHolder>
 
     private void InitializeEndings()
     {
-        allEndings.Add("ed1_perf", ("ED1", "間に合わなかった...。", false, false));
-        allEndings.Add("ed2_perf", ("ED2", "気が付いたときには。", false, false));
-        allEndings.Add("ed3_perf", ("ED3", "無事に山を下りることができた。", false, false));
-        allEndings.Add("additional_perf", ("SP", "そういえば...？", false, true));
+        allEndings.Add(EndingType.ED1, ("ED1", "間に合わなかった...。", false, false));
+        allEndings.Add(EndingType.ED2, ("ED2", "気が付いたときには。", false, false));
+        allEndings.Add(EndingType.ED3, ("ED3", "無事に山を下りることができた。", false, false));
+        allEndings.Add(EndingType.Hidden, ("Hidden", "そういえば...？", false, true));
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ public class ResultHolder : Singleton<ResultHolder>
     /// 更新があった場合、OnEndingsUpdatedイベントを発行します。
     /// </summary>
     /// <param name="endingName">解放するエンディングの名前</param>
-    public void UnlockEnding(string endingName)
+    public void UnlockEnding(EndingType endingName)
     {
         // Dictionaryから指定のエンディングのデータを取り出す
         if (allEndings.TryGetValue(endingName, out var endingData))
@@ -76,7 +76,7 @@ public class ResultHolder : Singleton<ResultHolder>
     /// </summary>
     /// <param name="endingName">チェックするエンディングの名前</param>
     /// <returns>エンディングが解放済みであればtrue、そうでなければfalse。</returns>
-    public bool IsEndingUnlocked(string endingName)
+    public bool IsEndingUnlocked(EndingType endingName)
     {
         if (allEndings.TryGetValue(endingName, out var endingData))
         {
