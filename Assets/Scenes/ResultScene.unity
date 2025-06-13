@@ -445,7 +445,7 @@ PrefabInstance:
     - target: {fileID: 6263537813110184674, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -9102406494775990262, guid: a5e2601dab259f146ab721c63d09edcd, type: 3}
+      objectReference: {fileID: -1673019375328249834, guid: 4ce3288c8ed84b746b5a4069400b4329, type: 3}
     - target: {fileID: 6263537813110184674, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_Color.a
       value: 1
@@ -779,7 +779,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2013976034
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1055,7 +1055,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2098550067
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1095,7 +1095,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Hint\n\n\u30DF\u30B9\u30BF\u30A4\u30D7\u3092Null\u56DE\u5897\u3084\u3059\u3068...\n\u3082\u3057\u304F\u306F\n\u30AF\u30EA\u30A2\u6642\u9593\u3092\u3042\u3068Null\u79D2\u9045\u304F\u3059\u308B\u3068...\n\u30A8\u30F3\u30C7\u30A3\u30F3\u30B02\u306B\u3044\u3051\u308B\u304B\u3082\u3057\u308C\u306A\u3044\u3002\n"
+  m_text: "Hint\n\n\u30DF\u30B9\u30BF\u30A4\u30D7\u3092Null\u56DE\u5897\u3084\u3059\u3068...\n\u3082\u3057\u304F\u306F\n\u30AF\u30EA\u30A2\u6642\u9593\u3092\u3042\u3068Null\u79D2\u9045\u304F\u3059\u308B\u3068...\n\u4ECA\u3068\u306F\u307E\u305F\u9055\u3046\u7D50\u672B\u3060\u3063\u305F\u306E\u304B\u3082\u3057\u308C\u306A\u3044\u3002\n\n\n\u30A8\u30F3\u30C7\u30A3\u30F3\u30B0\u4E00\u89A7\n====================\n\u30FB\uFF1F\uFF1F\uFF1F\n\u30FB\uFF1F\uFF1F\uFF1F\n\u30FBED3
+    <size=20>\u7121\u4E8B\u306B\u5C71\u3092\u4E0B\u308A\u308B\u3053\u3068\u304C\u3067\u304D\u305F\u3002</size>\n<color=red>\u30FB\uFF1F\uFF1F\uFF1F</color>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1a92889711cbfc84688b5b62c2af3ca5, type: 2}
   m_sharedMaterial: {fileID: -4342207860613944793, guid: 1a92889711cbfc84688b5b62c2af3ca5, type: 2}
@@ -1122,8 +1123,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1160,7 +1161,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -55.953445, y: 156.78146, z: -89.484924, w: -767.7342}
+  m_margin: {x: -55.953445, y: 63.41533, z: -89.484924, w: -767.7342}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

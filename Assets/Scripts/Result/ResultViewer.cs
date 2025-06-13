@@ -79,7 +79,7 @@ public class ResultDisplay : MonoBehaviour
         }
         else
         {
-            BuildAdviceString(adviceText, typingResult, false);
+            BuildAdviceString(adviceText, typingResult, true);
             adviceText.enabled = true;
             vfxController.FadeInText(adviceText, 1f, this.GetCancellationTokenOnDestroy()).Forget();
         }
