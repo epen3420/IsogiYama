@@ -1,74 +1,56 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
 /// 分岐する際に使うGameStep
 /// </summary>
 [CreateAssetMenu(fileName = "GameBranchStep", menuName = "GameFlow/GameBranchStep")]
-public class GameBranchStep : GameStep
+public class GameBranchStep : GameStepNeedCSV
 {
     [Header("分岐条件と次のステップ")]
     [SerializeField]
-    private List<BranchCondition> branchConditions;
-
-    [System.Serializable]
-    private struct BranchCondition
-    {
-        public float maxClearTime; // 条件のクリア時間
-        public GameStep nextStep; // 条件を満たした場合の次のステップ
-    }
+    private List<BranchTransitionCondition> transitionConditions;
 
     private bool isInitialized = false;
 
-    public GameStep GetNextStepByClearTime(float clearTime)
+    /// <summary>
+    /// クリア時間に基づいて次のステップを取得します。
+    /// </summary>
+    /// <param name="userScore">0から1の実数</param>
+    /// <returns></returns>
+    public GameStep GetNextGameStepByScore(float userScore)
     {
         InitBranchSteps();
 
-        Debug.Log($"Game Clear Time: {clearTime}");
-        // 最大クリアタイムが一番遅いものより、クリアタイムが遅い場合それを返す
-        var bestBadEndCondition = branchConditions[branchConditions.Count - 1];
-        if (bestBadEndCondition.maxClearTime <= clearTime)
+        // 高い minClearScore から順に見ていく（ギリギリ通過できる条件を探す）
+        for (int i = transitionConditions.Count - 1; i >= 0; i--)
         {
-            Debug.Log($"Branching {bestBadEndCondition.nextStep.name}");
-            return bestBadEndCondition.nextStep;
-        }
-
-        foreach (var condition in branchConditions)
-        {
-            if (condition.maxClearTime > clearTime)
+            var condition = transitionConditions[i];
+            if (userScore >= condition.minClearScore)
             {
-                Debug.Log($"Branching {condition.nextStep.name}");
                 return condition.nextStep;
             }
         }
 
+        // どれにも満たない場合は null
         return null;
     }
 
     /// <summary>
-    /// クリア時間で昇順にソートとフラグを立てる
+    /// 分岐ステップの初期化処理を行う。
     /// </summary>
     private void InitBranchSteps()
     {
         if (isInitialized) return;
 
-        if (branchConditions == null ||
-            branchConditions.Count == 0)
+        if (transitionConditions == null || transitionConditions.Count == 0)
         {
             Debug.LogError("Not set next step in branch step");
             return;
         }
 
-        // クリア時間を昇順にソート
-        branchConditions.Sort((x, y) => x.maxClearTime.CompareTo(y.maxClearTime));
-
-        // 分岐内であるというフラグを立てる
-        foreach (var branchCondition in branchConditions)
-        {
-            var step = branchCondition.nextStep;
-            step.SetTrueIsInBranch();
-        }
-
+        // minClearScore 昇順にソート
+        transitionConditions.Sort((x, y) => x.minClearScore.CompareTo(y.minClearScore));
         isInitialized = true;
     }
 }

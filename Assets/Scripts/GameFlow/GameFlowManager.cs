@@ -1,18 +1,15 @@
-using Cysharp.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 using SoundSystem;
 using System.Linq;
 using System.Collections.Generic;
-using System.Threading;
 
 public class GameFlowManager : Singleton<GameFlowManager>
 {
     private const string TITLE_SCENE_NAME = "TitleScene";
     private const string TYPING_SCENE_NAME = "TypingScene";
     private const string STORY_SCENE_NAME = "StoryScene";
+    private const string RESULT_SCENE_NAME = "ResultScene";
     private const string DEFAULT_BGM_NAME = "BGM";
-
-    private float clearTime = 0.0f;
 
     private List<GameStep> gameSteps;
     private int currentStepIndex = 0;
@@ -30,27 +27,25 @@ public class GameFlowManager : Singleton<GameFlowManager>
             return;
         }
         InitGameFlow();
-
         SoundPlayer.instance.PlayBgm(DEFAULT_BGM_NAME);
     }
 
     public TextAsset GetCurrentCSV()
     {
         var currentGameStep = gameSteps[currentStepIndex];
-        if (currentGameStep == null ||
-            currentGameStep.CsvFile == null)
+
+        if (currentGameStep is not GameStepNeedCSV csvStep)
         {
-            Debug.LogError("Can't get CSV file. Check GameStep or GameFlowDB.\n");
-            return null;
+            throw new System.InvalidOperationException("Current GameStep does not support CSV access. Check gameFlowDB or GameStep type.");
         }
 
-        Debug.Log($"Loaded CSV: {currentGameStep.CsvFile.name}");
-        return currentGameStep.CsvFile;
-    }
+        if (csvStep.CsvFile == null)
+        {
+            throw new UnassignedReferenceException($"CSV file is not assigned in {csvStep}. Check the asset reference.");
+        }
 
-    public void AddClearTime(float time)
-    {
-        clearTime += time;
+        Debug.Log($"Loaded CSV: {csvStep.CsvFile.name}");
+        return csvStep.CsvFile;
     }
 
     public void GoToNextScene(bool isGameOver = false)
@@ -82,16 +77,23 @@ public class GameFlowManager : Singleton<GameFlowManager>
     private void InitGameFlow()
     {
         gameSteps = gameFlowData.gameSteps.ToList();
-        clearTime = 0.0f;
         currentStepIndex = 0;
     }
 
     private GameStepType GetNextStepType()
     {
         var nextStepIndex = currentStepIndex + 1;
+
         if (gameSteps[currentStepIndex] is GameBranchStep branchStep)
         {
-            var nextGameStep = branchStep.GetNextStepByClearTime(clearTime);
+            var result = ResultHolder.instance.GetResult();
+            var nextGameStep = branchStep.GetNextGameStepByScore((float)result.GetCurrentScore());
+
+            if (nextGameStep is EndingGameStep endingGameStep)
+            {
+                result.SetEndingType(endingGameStep.EndingType);
+            }
+            
             gameSteps.Insert(nextStepIndex, nextGameStep);
             IncStepIndex();
 
@@ -122,6 +124,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
             GameStepType.Title => TITLE_SCENE_NAME,
             GameStepType.Story => STORY_SCENE_NAME,
             GameStepType.Typing => TYPING_SCENE_NAME,
+            GameStepType.Result => RESULT_SCENE_NAME,
             _ => throw new System.ArgumentOutOfRangeException(nameof(stepType), $"Unhandled type: {stepType}")
         };
     }
