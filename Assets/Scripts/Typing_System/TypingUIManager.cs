@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 public class TypingUIManager : MonoBehaviour
@@ -7,8 +7,6 @@ public class TypingUIManager : MonoBehaviour
     private TMP_Text japaneseText;
     [SerializeField]
     private TMP_Text romaText;
-    [SerializeField]
-    private TMP_Text inputText;
 
     [SerializeField]
     private StopwatchTimer timer;
@@ -23,6 +21,9 @@ public class TypingUIManager : MonoBehaviour
     [SerializeField]
     private TypingProgressManager progressManager;
 
+    private int typedCharCount = 0;
+    private string originalRomaText;
+
     private void Start()
     {
         progressManager.correctTyping += UpdateInputText;
@@ -33,18 +34,20 @@ public class TypingUIManager : MonoBehaviour
 
     public void SetUIText(string japanese, string roma)
     {
-        inputText.maxVisibleCharacters = 0;
+        // inputText.maxVisibleCharacters = 0;
+        typedCharCount = 0;
 
         japaneseText.text = japanese;
         romaText.text = roma;
-        inputText.text = roma;
+        originalRomaText = roma;
+        // inputText.text = roma;
     }
 
     public void ResetText()
     {
         japaneseText.text = "";
         romaText.text = "";
-        inputText.text = "";
+        // inputText.text = "";
     }
 
     public void HideTextWindow()
@@ -54,7 +57,26 @@ public class TypingUIManager : MonoBehaviour
 
     public void UpdateInputText()
     {
-        inputText.maxVisibleCharacters++;
+        // inputText.maxVisibleCharacters++;
+        typedCharCount++;
+
+        if (romaText.text == null) return;
+
+        string coloredText = "";
+
+        // 入力済みの部分に色を付ける
+        if (typedCharCount > 0)
+        {
+            coloredText += $"<color=#BA3E06>{originalRomaText.Substring(0, typedCharCount)}</color>";
+        }
+        // 未入力の部分を追加
+        if (typedCharCount < originalRomaText.Length)
+        {
+            coloredText += originalRomaText.Substring(typedCharCount);
+        }
+
+        Debug.Log(typedCharCount);
+        romaText.SetText(coloredText);
     }
 
     public void UpdateIncorrectTypeCount(int count)
