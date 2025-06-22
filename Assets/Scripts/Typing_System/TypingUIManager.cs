@@ -30,6 +30,8 @@ public class TypingUIManager : MonoBehaviour
         progressManager.incorrectTyping += UpdateIncorrectTypeCount;
         progressManager.endCurrentQuest += SetUIText;
         progressManager.endTypingScene += End;
+
+        typoCountText.text = "0回";
     }
 
     public void SetUIText(string japanese, string roma)
@@ -87,7 +89,7 @@ public class TypingUIManager : MonoBehaviour
     private void Update()
     {
         timerText.text = $"{timer.GetTime():F1}";
-        typoCountText.SetText($"回");
+        // typoCountText.SetText($"回");
     }
 
     private void End(bool isGameOver)

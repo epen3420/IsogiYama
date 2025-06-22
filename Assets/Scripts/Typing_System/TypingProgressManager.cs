@@ -213,6 +213,7 @@ public class TypingProgressManager : MonoBehaviour
 
                 missTypeCount++;
                 typingResult.AddMistypedKey(typedChar);
+                incorrectTyping?.Invoke(missTypeCount);
 
                 // Debug.Log($"{typedChar}: Miss");
                 soundPlayer.PlaySe("TypeMiss");
