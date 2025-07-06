@@ -179,6 +179,11 @@ public class TypingJudder
         {"ちぇ", new string[] {"tye", "che", "cye"}},
         {"ちょ", new string[] {"tyo", "cho", "cyo"}},
 
+        {"つぁ", new string[] {"tsa"}},
+        {"つぃ", new string[] {"tsi"}},
+        {"つぇ", new string[] {"tse"}},
+        {"つぉ", new string[] {"tso"}},
+
         {"てゃ", new string[] {"tha"}},
         {"てぃ", new string[] {"thi"}},
         {"てゅ", new string[] {"thu"}},
@@ -436,7 +441,6 @@ public class TypingJudder
                     if (nextSegmentDefaultRoma.Length > 0 && char.ToLower(nextSegmentDefaultRoma[0]) == lowerTypedChar &&
                         !"aiueony".Contains(lowerTypedChar))
                     {
-                        // currentSegment.Romaji = "n"; // 「ん」のローマ字を「n」に設定   
                         // 「ん」のセグメントをスキップし、次のセグメントへ移動
                         currentSegmentIndex++;
                         // 次のセグメントの CurrentInput も更新（入力された文字が、次のセグメントの最初の文字として扱われる）
@@ -485,8 +489,8 @@ public class TypingJudder
         }
 
         // 複合ひらがなの動的分割試行
-        // 現在のセグメントが複数文字のひらがなで、かつ、まだ入力が開始されていない場合
-        if (currentSegment.Hiragana.Length > 1 && currentSegment.CurrentInput.Length == 0)
+        // 現在のセグメントが複数文字のひらがなで、かつ、現在のローマ字表記で attemptedInput と一致しなかった場合
+        if (currentSegment.Hiragana.Length > 1 && !currentSegment.Romaji.ToLower().StartsWith(attemptedInput))
         {
             string firstChar = currentSegment.Hiragana.Substring(0, 1); // 最初のひらがな
             string remainingChars = currentSegment.Hiragana.Substring(1); // 残りのひらがな
@@ -500,8 +504,8 @@ public class TypingJudder
                 // 分割後の最初のひらがなの各ローマ字表記を試す
                 foreach (string splitRomajiOption in firstCharRomajiOptions)
                 {
-                    // 分割後の最初のひらがなのローマ字が入力された文字で始まるか
-                    if (splitRomajiOption.StartsWith(lowerTypedChar.ToString(), StringComparison.OrdinalIgnoreCase))
+                    // 分割後の最初のひらがなのローマ字が、現在の試行入力(attemptedInput)で始まるか
+                    if (splitRomajiOption.StartsWith(attemptedInput, StringComparison.OrdinalIgnoreCase))
                     {
                         // リストから現在のセグメントを削除
                         judgeList.RemoveAt(currentSegmentIndex);
@@ -516,7 +520,7 @@ public class TypingJudder
                         judgeList.Insert(currentSegmentIndex, newFirstSegment);
 
                         // 挿入された最初のセグメントのCurrentInputを更新
-                        newFirstSegment.CurrentInput = lowerTypedChar.ToString();
+                        newFirstSegment.CurrentInput = attemptedInput;
 
                         OnRomajiTextChanged?.Invoke(FullRomajiText); // ローマ字テキストが変更されたことを通知
 
