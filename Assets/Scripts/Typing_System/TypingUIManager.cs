@@ -21,35 +21,40 @@ public class TypingUIManager : MonoBehaviour
     [SerializeField]
     private TypingProgressManager progressManager;
 
-    private int typedCharCount = 0;
-    private string originalRomaText;
+    private string currentOriginalRomaText; // ローマ字が変更された場合に備えて、現在の表示対象を保持
 
     private void Start()
     {
-        progressManager.correctTyping += UpdateInputText;
         progressManager.incorrectTyping += UpdateIncorrectTypeCount;
-        progressManager.endCurrentQuest += SetUIText;
         progressManager.endTypingScene += End;
+
+        progressManager.onUpdateJapaneseText += SetJapaneseText;
+        progressManager.onSetInitialRomajiText += SetRomajiText;
+        progressManager.onUpdateRomajiText += UpdateInputText;
+        progressManager.onResetUIText += ResetText;
+        progressManager.onHideTextWindow += HideTextWindow;
 
         typoCountText.text = "0回";
     }
 
-    public void SetUIText(string japanese, string roma)
+    // 日本語テキストを個別に設定するメソッド
+    public void SetJapaneseText(string japanese)
     {
-        // inputText.maxVisibleCharacters = 0;
-        typedCharCount = 0;
-
         japaneseText.text = japanese;
-        romaText.text = roma;
-        originalRomaText = roma;
-        // inputText.text = roma;
+    }
+
+    // ローマ字テキストと現在の入力済み長さを引数で受け取る (TypingJudderから直接呼び出されることを想定し、RomaTextを更新する)
+    // このメソッドはprogressManager.onSetInitialRomajiTextイベントのハンドラとしても機能
+    public void SetRomajiText(string newRomaji)
+    {
+        currentOriginalRomaText = newRomaji;
+        UpdateInputText(newRomaji, 0); // 初期表示として、まだ何も入力されていない状態に設定
     }
 
     public void ResetText()
     {
         japaneseText.text = "";
         romaText.text = "";
-        // inputText.text = "";
     }
 
     public void HideTextWindow()
@@ -57,27 +62,28 @@ public class TypingUIManager : MonoBehaviour
         textWindow.SetActive(false);
     }
 
-    public void UpdateInputText()
+    public void UpdateInputText(string fullRomaji, int typedCharCount)
     {
-        // inputText.maxVisibleCharacters++;
-        typedCharCount++;
+        currentOriginalRomaText = fullRomaji;
 
-        if (romaText.text == null) return;
+        if (currentOriginalRomaText == null) return;
 
         string coloredText = "";
 
         // 入力済みの部分に色を付ける
-        if (typedCharCount > 0)
+        // typedCharCountがcurrentOriginalRomaText.Lengthを超える可能性があるので、Minを使用
+        int charsToColor = Mathf.Min(typedCharCount, currentOriginalRomaText.Length);
+        if (charsToColor > 0)
         {
-            coloredText += $"<color=#BA3E06>{originalRomaText.Substring(0, typedCharCount)}</color>";
+            coloredText += $"<color=#BA3E06>{currentOriginalRomaText.Substring(0, charsToColor)}</color>";
         }
         // 未入力の部分を追加
-        if (typedCharCount < originalRomaText.Length)
+        if (typedCharCount < currentOriginalRomaText.Length)
         {
-            coloredText += originalRomaText.Substring(typedCharCount);
+            coloredText += currentOriginalRomaText.Substring(charsToColor);
         }
 
-        Debug.Log(typedCharCount);
+        Debug.Log($"Typed: {typedCharCount}, Full Romaji: {currentOriginalRomaText}, Colored Text: {coloredText}");
         romaText.SetText(coloredText);
     }
 
@@ -89,7 +95,6 @@ public class TypingUIManager : MonoBehaviour
     private void Update()
     {
         timerText.text = $"{timer.GetTime():F1}";
-        // typoCountText.SetText($"回");
     }
 
     private void End(bool isGameOver)
@@ -98,6 +103,21 @@ public class TypingUIManager : MonoBehaviour
         if (isGameOver)
         {
             HideTextWindow();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (progressManager != null)
+        {
+            progressManager.incorrectTyping -= UpdateIncorrectTypeCount;
+            progressManager.endTypingScene -= End;
+
+            progressManager.onUpdateJapaneseText -= SetJapaneseText;
+            progressManager.onSetInitialRomajiText -= SetRomajiText;
+            progressManager.onUpdateRomajiText -= UpdateInputText;
+            progressManager.onResetUIText -= ResetText;
+            progressManager.onHideTextWindow -= HideTextWindow;
         }
     }
 }

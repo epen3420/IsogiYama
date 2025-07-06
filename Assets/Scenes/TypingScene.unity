@@ -871,6 +871,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c05c455526c7d34b8c4f6a214569d90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  typingUIManager: {fileID: 483177098}
   gameOverTime: 180
   displayTimeOfGameOverScreen: 5000
   gameOverImageName: Blood
