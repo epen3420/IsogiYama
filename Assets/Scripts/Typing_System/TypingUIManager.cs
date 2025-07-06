@@ -83,7 +83,7 @@ public class TypingUIManager : MonoBehaviour
             coloredText += currentOriginalRomaText.Substring(charsToColor);
         }
 
-        Debug.Log($"Typed: {typedCharCount}, Full Romaji: {currentOriginalRomaText}, Colored Text: {coloredText}");
+        // Debug.Log($"Typed: {typedCharCount}, Text: {coloredText}");
         romaText.SetText(coloredText);
     }
 

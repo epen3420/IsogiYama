@@ -46,14 +46,14 @@ public class TypingJudder
         {"こ", new string[] {"ko", "co"}},
 
         {"さ", new string[] {"sa"}},
-        {"し", new string[] {"sii", "shi", "ci"}},
+        {"し", new string[] {"si", "shi", "ci"}},
         {"す", new string[] {"su"}},
         {"せ", new string[] {"se", "ce"}},
         {"そ", new string[] {"so"}},
 
         {"た", new string[] {"ta"}},
         {"ち", new string[] {"ti", "chi"}},
-        {"つ", new string[] {"tuu", "tsu", "du"}},
+        {"つ", new string[] {"tu", "tsu", "du"}},
         {"て", new string[] {"te"}},
         {"と", new string[] {"to"}},
 
