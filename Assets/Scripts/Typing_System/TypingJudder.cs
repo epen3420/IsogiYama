@@ -53,7 +53,7 @@ public class TypingJudder
 
         {"た", new string[] {"ta"}},
         {"ち", new string[] {"ti", "chi"}},
-        {"つ", new string[] {"tu", "tsu", "du"}},
+        {"つ", new string[] {"tu", "tsu"}},
         {"て", new string[] {"te"}},
         {"と", new string[] {"to"}},
 

@@ -276,7 +276,7 @@ public class ResultDisplay : MonoBehaviour
                         stringBuilder.AppendLine("・???");
                     }
                 }
-                stringBuilder.AppendLine();
+                // stringBuilder.AppendLine();
             }
         }
         
