@@ -100,24 +100,24 @@ public class TypingProgressManager : MonoBehaviour
     /// </summary>
     private async void Start()
     {
-        // インスタンスの生成と参照
+        InitializeDependencies();
+        if (!InitializeTypingData())
+        {
+            Debug.LogError("Typing data initialization failed. Aborting scene start.");
+            return;
+        }
+        await SetupSceneAndStartTyping();
+    }
+
+    private void InitializeDependencies()
+    {
         gameFlowManager = GameFlowManager.instance;
         soundPlayer = SoundPlayer.instance;
         typingResult = ResultHolder.instance.GetResult();
-
-        var isInitComplete = InitTypingData();
-
-        if (!isInitComplete) return;
-
-        // 初期化処理をしてからタイピング画面にフェードインし、タイピングのスタート
-        NextQuest(); // NextQuest内でUI初期化を呼び出す
-        await typingBGScheduler.FadeOut();
-        EnableKeyboardInput();
     }
 
-    private bool InitTypingData()
+    private bool InitializeTypingData()
     {
-        // CSVファイルの取得
         var csvFile = gameFlowManager.GetCurrentCSV();
         if (csvFile == null)
         {
@@ -125,7 +125,6 @@ public class TypingProgressManager : MonoBehaviour
             return false;
         }
 
-        // CSVファイルからデータを抽出
         var csvLoader = new CSVLoader();
         var csvData = csvLoader.LoadCSV<TypingQuestType>(csvFile);
         if (csvData == null)
@@ -144,8 +143,14 @@ public class TypingProgressManager : MonoBehaviour
             gameOverTime,
             displayTimeOfGameOverScreen
         );
-
         return true;
+    }
+
+    private async UniTask SetupSceneAndStartTyping()
+    {
+        NextQuest();
+        await typingBGScheduler.FadeOut();
+        EnableKeyboardInput();
     }
 
     private void NextQuest()
@@ -179,6 +184,13 @@ public class TypingProgressManager : MonoBehaviour
 
     private void End(bool isGameOver = false)
     {
+        ProcessEndOfQuest(isGameOver);
+        UpdateUIManagerOnEnd(isGameOver);
+        TransitionToNextScene(isGameOver);
+    }
+
+    private void ProcessEndOfQuest(bool isGameOver)
+    {
         timer.StopTimer();
         DisableKeyboardInput();
 
@@ -186,18 +198,21 @@ public class TypingProgressManager : MonoBehaviour
         Debug.Log($"This scene clear time: {clearTime}");
 
         typingResult.AddPartResult(correctTypeCount, missTypeCount, clearTime);
-
         timer.ResetTimer();
-
         endTypingScene?.Invoke(isGameOver);
+    }
 
-        // UIManagerにUIリセットとウィンドウ非表示を通知
+    private void UpdateUIManagerOnEnd(bool isGameOver)
+    {
         onResetUIText?.Invoke();
         if (isGameOver)
         {
             onHideTextWindow?.Invoke();
         }
+    }
 
+    private void TransitionToNextScene(bool isGameOver)
+    {
         ResultHolder.instance.SetResult(typingResult);
         gameFlowManager.GoToNextScene(isGameOver);
     }

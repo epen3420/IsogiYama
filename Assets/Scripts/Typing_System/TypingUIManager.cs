@@ -21,6 +21,8 @@ public class TypingUIManager : MonoBehaviour
     [SerializeField]
     private TypingProgressManager progressManager;
 
+    private const string TYPED_TEXT_COLOR = "#BA3E06";
+
     private void Start()
     {
         progressManager.incorrectTyping += UpdateIncorrectTypeCount;
@@ -79,7 +81,7 @@ public class TypingUIManager : MonoBehaviour
 
         string coloredPart = fullText.Substring(0, index);
         string rest = fullText.Substring(index);
-        return $"<color=#BA3E06>{coloredPart}</color>{rest}";
+        return $"<color={TYPED_TEXT_COLOR}>{coloredPart}</color>{rest}";
     }
 
 
