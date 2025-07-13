@@ -1,5 +1,6 @@
 ﻿using TMPro;
 using UnityEngine;
+using System.Text;
 
 public class TypingUIManager : MonoBehaviour
 {
@@ -21,34 +22,16 @@ public class TypingUIManager : MonoBehaviour
     [SerializeField]
     private TypingProgressManager progressManager;
 
-    private string currentOriginalRomaText; // ローマ字が変更された場合に備えて、現在の表示対象を保持
-
     private void Start()
     {
         progressManager.incorrectTyping += UpdateIncorrectTypeCount;
         progressManager.endTypingScene += End;
+        progressManager.onUpdateAllTexts += UpdateDisplayTexts;
 
-        progressManager.onUpdateJapaneseText += SetJapaneseText;
-        progressManager.onSetInitialRomajiText += SetRomajiText;
-        progressManager.onUpdateRomajiText += UpdateInputText;
         progressManager.onResetUIText += ResetText;
         progressManager.onHideTextWindow += HideTextWindow;
 
         typoCountText.text = "0回";
-    }
-
-    // 日本語テキストを個別に設定するメソッド
-    public void SetJapaneseText(string japanese)
-    {
-        japaneseText.text = japanese;
-    }
-
-    // ローマ字テキストと現在の入力済み長さを引数で受け取る (TypingJudderから直接呼び出されることを想定し、RomaTextを更新する)
-    // このメソッドはprogressManager.onSetInitialRomajiTextイベントのハンドラとしても機能
-    public void SetRomajiText(string newRomaji)
-    {
-        currentOriginalRomaText = newRomaji;
-        UpdateInputText(newRomaji, 0); // 初期表示として、まだ何も入力されていない状態に設定
     }
 
     public void ResetText()
@@ -62,30 +45,44 @@ public class TypingUIManager : MonoBehaviour
         textWindow.SetActive(false);
     }
 
-    public void UpdateInputText(string fullRomaji, int typedCharCount)
+    public void UpdateDisplayTexts(string fullJapanese, int typedJapaneseCount, string fullRomaji, int typedRomajiCount)
     {
-        currentOriginalRomaText = fullRomaji;
+        // 日本語テキストの更新: typedJapaneseCount は完全にタイプされたひらがなの文字数
+        string coloredJapaneseText = GetColoredText(fullJapanese, typedJapaneseCount);
+        japaneseText.SetText(coloredJapaneseText);
 
-        if (currentOriginalRomaText == null) return;
-
-        string coloredText = "";
-
-        // 入力済みの部分に色を付ける
-        // typedCharCountがcurrentOriginalRomaText.Lengthを超える可能性があるので、Minを使用
-        int charsToColor = Mathf.Min(typedCharCount, currentOriginalRomaText.Length);
-        if (charsToColor > 0)
-        {
-            coloredText += $"<color=#BA3E06>{currentOriginalRomaText.Substring(0, charsToColor)}</color>";
-        }
-        // 未入力の部分を追加
-        if (typedCharCount < currentOriginalRomaText.Length)
-        {
-            coloredText += currentOriginalRomaText.Substring(charsToColor);
-        }
-
-        // Debug.Log($"Typed: {typedCharCount}, Text: {coloredText}");
-        romaText.SetText(coloredText);
+        // ローマ字テキストの更新
+        string coloredRomajiText = GetColoredText(fullRomaji, typedRomajiCount);
+        romaText.SetText(coloredRomajiText);
     }
+
+    private string GetColoredText(string fullText, int typedCount)
+    {
+        int count = 0;
+        int index = 0;
+
+        while (index < fullText.Length && count < typedCount)
+        {
+            if (fullText[index] == '\\' && index + 1 < fullText.Length && fullText[index + 1] == 'n')
+            {
+                index += 2;
+            }
+            else if (fullText[index] == '\r' || fullText[index] == '\n')
+            {
+                index++;
+            }
+            else
+            {
+                count++;
+                index++;
+            }
+        }
+
+        string coloredPart = fullText.Substring(0, index);
+        string rest = fullText.Substring(index);
+        return $"<color=#BA3E06>{coloredPart}</color>{rest}";
+    }
+
 
     public void UpdateIncorrectTypeCount(int count)
     {
@@ -112,10 +109,8 @@ public class TypingUIManager : MonoBehaviour
         {
             progressManager.incorrectTyping -= UpdateIncorrectTypeCount;
             progressManager.endTypingScene -= End;
+            progressManager.onUpdateAllTexts -= UpdateDisplayTexts;
 
-            progressManager.onUpdateJapaneseText -= SetJapaneseText;
-            progressManager.onSetInitialRomajiText -= SetRomajiText;
-            progressManager.onUpdateRomajiText -= UpdateInputText;
             progressManager.onResetUIText -= ResetText;
             progressManager.onHideTextWindow -= HideTextWindow;
         }

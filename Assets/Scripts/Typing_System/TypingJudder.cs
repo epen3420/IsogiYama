@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System;
 using System.Linq;
+using System.Diagnostics;
+using UnityEngine;
 
 /// <summary>
 /// 文単位でタイピングの正誤判定を行うクラス
@@ -15,7 +17,24 @@ public class TypingJudder
 
     public string FullRomajiText => string.Join("", judgeList.Select(segment => segment.Romaji));
 
+    public string FullJapaneseText => string.Join("", judgeList.Select(segment => segment.Hiragana));
+
     public event Action<string> OnRomajiTextChanged;
+
+    /// <summary>
+    /// ひらがなの入力が完了したセグメントまでの、合計のひらがな文字数を返す
+    /// </summary>
+    /// <returns></returns>
+    public int GetCombinedHiraganaLength()
+    {
+        IEnumerable<string> completedHiraganas = judgeList
+            .Where(segment => segment.IsComplete)
+            .Select(segment => segment.Hiragana);
+
+        string combinedHiragana = string.Join("", completedHiraganas);
+
+        return combinedHiragana.Length;
+    }
 
     public int GetCurrentInputLength()
     {
@@ -29,6 +48,22 @@ public class TypingJudder
             length += judgeList[currentSegmentIndex].CurrentInput.Length;
         }
         return length;
+    }
+
+    public int GetCurrentHiraganaLength()
+    {
+        int hiraganaLength = 0;
+        // 完了したセグメントのひらがな長さを加算
+        for (int i = 0; i < currentSegmentIndex; i++)
+        {
+            hiraganaLength += judgeList[i].Hiragana.Length;
+        }
+        // 現在入力中のセグメントがあり、かつ何らかの入力がされている場合、そのセグメントのひらがな長さを全て加算
+        if (currentSegmentIndex < judgeList.Count && !string.IsNullOrEmpty(judgeList[currentSegmentIndex].CurrentInput))
+        {
+            hiraganaLength += judgeList[currentSegmentIndex].Hiragana.Length;
+        }
+        return hiraganaLength;
     }
 
     private static readonly Dictionary<string, string[]> JapaneseToRomaMap = new Dictionary<string, string[]>
@@ -391,6 +426,7 @@ public class TypingJudder
             // 現在のセグメントのローマ字入力が完了したか
             if (currentSegment.CurrentInput.Length == currentSegment.Romaji.Length)
             {
+                currentSegment.IsComplete = true; // セグメントの入力が完了
                 currentSegmentIndex++;
                 return CheckIfCleared();
             }
@@ -417,6 +453,7 @@ public class TypingJudder
 
                         if (currentSegment.CurrentInput.Length == currentSegment.Romaji.Length)
                         {
+                            currentSegment.IsComplete = true; // セグメントの入力が完了
                             currentSegmentIndex++;
                             return CheckIfCleared();
                         }
@@ -450,6 +487,7 @@ public class TypingJudder
 
                         if (nextSegment.CurrentInput.Length == nextSegment.Romaji.Length)
                         {
+                            currentSegment.IsComplete = true; // セグメントの入力が完了
                             currentSegmentIndex++;
                             return CheckIfCleared();
                         }
@@ -480,6 +518,7 @@ public class TypingJudder
 
                     if (currentSegment.CurrentInput.Length == currentSegment.Romaji.Length)
                     {
+                        currentSegment.IsComplete = true; // セグメントの入力が完了
                         currentSegmentIndex++;
                         return CheckIfCleared();
                     }
@@ -526,6 +565,7 @@ public class TypingJudder
 
                         if (newFirstSegment.CurrentInput.Length == newFirstSegment.Romaji.Length)
                         {
+                            currentSegment.IsComplete = true; // セグメントの入力が完了
                             currentSegmentIndex++;
                             return CheckIfCleared();
                         }

@@ -12,28 +12,36 @@ public class TypingProgressManager : MonoBehaviour
     // Eventの定義
     public event Action correctTyping;
     public event Action<int> incorrectTyping;
-    public event Action<bool> endTypingScene;
+    public event Action<string, string> endCurrentQuest; // 日本語とローマ字を渡すイベント
 
-    public event Action<string> onUpdateJapaneseText; // 日本語テキスト更新用
-    public event Action<string, int> onUpdateRomajiText; // ローマ字テキストと入力済み文字数更新用
-    public event Action<string> onSetInitialRomajiText; // 初期ローマ字テキスト設定用 (MappingHiraganaToRomajiからの最初の値)
-    public event Action onResetUIText; // テキストリセット用
-    public event Action onHideTextWindow; // テキストウィンドウ非表示用
+    // 日本語とローマ字のUI更新をまとめて行うイベント
+    public event Action<string, int, string, int> onUpdateAllTexts; // fullJapanese, typedJapaneseCount, fullRomaji, RomaTypedCount
+
+    // UIリセットとテキストウィンドウ非表示のイベント
+    public event Action onResetUIText; // 追加
+    public event Action onHideTextWindow; // 追加
+
+    public event Action<bool> endTypingScene;
+    public event Action<string> updateInputText; // このイベントはTypingJudderからの更新用
 
     // インスタンスの保持
     private GameFlowManager gameFlowManager;
     private TypingResult typingResult;
     private SoundPlayer soundPlayer;
-    private TypingJudder typingJudger;
+    private TypingJudder typingJudder;
     private TypingBGScheduler typingBGScheduler;
+    [SerializeField] // TypingUIManagerへの参照を追加
+    private TypingUIManager typingUIManager;
 
     // 日本語とローマ字の対応リスト
     private List<JapaneseRomaPair> questDatas;
+    private JapaneseRomaPair currentQuestData; // 現在のクエストデータ
+
     [System.Serializable]
     private struct JapaneseRomaPair
     {
         public string Japanese;
-        public string Input;
+        public string Input; // ここはローマ字文字列
 
         public JapaneseRomaPair(string japanese, string input)
         {
@@ -103,7 +111,7 @@ public class TypingProgressManager : MonoBehaviour
         if (!isInitComplete) return;
 
         // 初期化処理をしてからタイピング画面にフェードインし、タイピングのスタート
-        NextQuest();
+        NextQuest(); // NextQuest内でUI初期化を呼び出す
         await typingBGScheduler.FadeOut();
         EnableKeyboardInput();
     }
@@ -148,27 +156,26 @@ public class TypingProgressManager : MonoBehaviour
             End();
             return;
         }
-        var currentQuestData = questDatas[questIndex++];
+        currentQuestData = questDatas[questIndex++];
 
-        typingJudger = new TypingJudder(currentQuestData.Input);
-        typingJudger.OnRomajiTextChanged += OnRomajiTextUpdatedByJudger;
+        typingJudder = new TypingJudder(currentQuestData.Input); // Inputはローマ字文字列
 
         // Debug.Log
-        foreach (var segment in typingJudger.judgeList)
+        foreach (var segment in typingJudder.judgeList)
         {
             Debug.Log(segment.ToString());
         }
 
-        onUpdateJapaneseText?.Invoke(currentQuestData.Japanese); //
-        onSetInitialRomajiText?.Invoke(typingJudger.FullRomajiText); // 初期ローマ字テキストを設定
-    }
+        // UIの初期表示を新しいUpdateDisplayTextsメソッドで直接行う
+        onUpdateAllTexts?.Invoke(
+            currentQuestData.Japanese,
+            0,
+            typingJudder.FullRomajiText,
+            0
+        );
 
-    // TypingJudderのOnRomajiTextChangedイベントのハンドラ
-    private void OnRomajiTextUpdatedByJudger(string newRomaji)
-    {
-        onSetInitialRomajiText?.Invoke(newRomaji); // ローマ字が変更されたことをUIに通知
-        // この時点ではまだ入力は行われていないので、typedCharCountは0で良い
-        onUpdateRomajiText?.Invoke(newRomaji, 0); //
+        // endCurrentQuestイベントは、他のシステムに通知するために保持
+        endCurrentQuest?.Invoke(currentQuestData.Japanese, typingJudder.FullRomajiText);
     }
 
     private void End(bool isGameOver = false)
@@ -185,11 +192,11 @@ public class TypingProgressManager : MonoBehaviour
 
         endTypingScene?.Invoke(isGameOver);
 
-        // UIリセットと非表示のイベントを発火
-        onResetUIText?.Invoke(); //
+        // UIManagerにUIリセットとウィンドウ非表示を通知
+        onResetUIText?.Invoke();
         if (isGameOver)
         {
-            onHideTextWindow?.Invoke(); //
+            onHideTextWindow?.Invoke();
         }
 
         ResultHolder.instance.SetResult(typingResult);
@@ -221,7 +228,8 @@ public class TypingProgressManager : MonoBehaviour
     {
         if (typedChar == ' ') return;
 
-        TypingState state = typingJudger.JudgeChar(typedChar);
+        // TypingJudgerから現在の入力済み文字数を取得し、UIManagerに渡す
+        TypingState state = typingJudder.JudgeChar(typedChar);
 
         switch (state)
         {
@@ -233,7 +241,15 @@ public class TypingProgressManager : MonoBehaviour
                 }
                 correctTypeCount++;
                 soundPlayer.PlaySe("TypeHit");
-                onUpdateRomajiText?.Invoke(typingJudger.FullRomajiText, typingJudger.GetCurrentInputLength()); //
+
+                onUpdateAllTexts?.Invoke(
+                    currentQuestData.Japanese,
+                    typingJudder.GetCombinedHiraganaLength(),
+                    typingJudder.FullRomajiText,
+                    typingJudder.GetCurrentInputLength()
+                );
+                Debug.Log(typingJudder.GetCombinedHiraganaLength());
+                // Debug.Log($"{typedChar}: Hit");
                 break;
 
             case TypingState.Miss:
@@ -243,6 +259,7 @@ public class TypingProgressManager : MonoBehaviour
                 typingResult.AddMistypedKey(typedChar);
                 incorrectTyping?.Invoke(missTypeCount);
 
+                // Debug.Log($"{typedChar}: Miss");
                 soundPlayer.PlaySe("TypeMiss");
 
                 break;
@@ -251,7 +268,14 @@ public class TypingProgressManager : MonoBehaviour
                 correctTypeCount++;
 
                 soundPlayer.PlaySe("TypeHit");
-                onUpdateRomajiText?.Invoke(typingJudger.FullRomajiText, typingJudger.GetCurrentInputLength()); //
+                onUpdateAllTexts?.Invoke(
+                    currentQuestData.Japanese,
+                    typingJudder.GetCombinedHiraganaLength(), // クリア時は全ての色付けが完了
+                    typingJudder.FullRomajiText,
+                    typingJudder.GetCurrentInputLength() // クリア時は全ての色付けが完了
+                );
+
+                Debug.Log($"{typedChar}: Clear");
 
                 NextQuest();
                 break;
@@ -265,10 +289,17 @@ public class TypingProgressManager : MonoBehaviour
     private void OnDestroy()
     {
         DisableKeyboardInput();
-        if (typingJudger != null)
+        if (onUpdateAllTexts != null && typingUIManager != null)
         {
-            typingJudger.OnRomajiTextChanged -= OnRomajiTextUpdatedByJudger; // TypingJudgerイベントの購読解除
+            onUpdateAllTexts -= typingUIManager.UpdateDisplayTexts;
         }
-        // 他のイベント購読解除もここに追加することを推奨
+        if (onResetUIText != null && typingUIManager != null)
+        {
+            onResetUIText -= typingUIManager.ResetText;
+        }
+        if (onHideTextWindow != null && typingUIManager != null)
+        {
+            onHideTextWindow -= typingUIManager.HideTextWindow;
+        }
     }
 }
