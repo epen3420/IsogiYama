@@ -17,6 +17,6 @@
     public override string ToString()
     {
         // Debug用にCurrentInputも表示するように変更
-        return $"Hiragana: {Hiragana}, Roma: {Romaji} (Index: {RomajiIndex}')";
+        return $"Hiragana: {Hiragana}, Roma: {Romaji}";
     }
 }

@@ -22,7 +22,6 @@ public class TypingProgressManager : MonoBehaviour
     public event Action onHideTextWindow; // 追加
 
     public event Action<bool> endTypingScene;
-    public event Action<string> updateInputText; // このイベントはTypingJudderからの更新用
 
     // インスタンスの保持
     private GameFlowManager gameFlowManager;

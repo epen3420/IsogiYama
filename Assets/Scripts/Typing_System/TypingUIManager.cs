@@ -1,6 +1,5 @@
 ﻿using TMPro;
 using UnityEngine;
-using System.Text;
 
 public class TypingUIManager : MonoBehaviour
 {
