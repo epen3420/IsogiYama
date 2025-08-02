@@ -991,6 +991,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Menu
       objectReference: {fileID: 0}
+    - target: {fileID: 4351865596453964253, guid: 8f5142d44b6028645a70ef929f35c769, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 200
+      objectReference: {fileID: 0}
     - target: {fileID: 6452120189538401169, guid: 8f5142d44b6028645a70ef929f35c769, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1057,7 +1061,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6452120189538401169, guid: 8f5142d44b6028645a70ef929f35c769, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6452120189538401169, guid: 8f5142d44b6028645a70ef929f35c769, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
