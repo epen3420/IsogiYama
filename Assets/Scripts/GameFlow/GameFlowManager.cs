@@ -87,13 +87,13 @@ public class GameFlowManager : Singleton<GameFlowManager>
         if (gameSteps[currentStepIndex] is GameBranchStep branchStep)
         {
             var result = ResultHolder.instance.GetResult();
-            var nextGameStep = branchStep.GetNextGameStepByScore((float)result.GetCurrentScore());
+            var nextGameStep = branchStep.GetNextGameStepByScore(result);
 
             if (nextGameStep is EndingGameStep endingGameStep)
             {
                 result.SetEndingType(endingGameStep.EndingType);
             }
-            
+
             gameSteps.Insert(nextStepIndex, nextGameStep);
             IncStepIndex();
 
