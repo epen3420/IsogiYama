@@ -110,7 +110,7 @@ public class CommandFactory
                 break;
 
             default:
-                Debug.LogError("Command Was Not Found");
+                Debug.LogError("Command Was Not Found: " + cmdRow);
                 break;
         }
 
