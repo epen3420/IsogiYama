@@ -23,7 +23,7 @@ public class VolumeAdjuster : MonoBehaviour
         seSlider.onValueChanged.AddListener((x) => soundPlayer.SeVolumeAdjust(x));
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         bgmSlider.onValueChanged.RemoveAllListeners();
         seSlider.onValueChanged.RemoveAllListeners();
