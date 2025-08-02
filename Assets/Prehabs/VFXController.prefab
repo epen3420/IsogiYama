@@ -54,7 +54,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backgroundImageMain: {fileID: 6263537813110184674}
   backgroundImageSub: {fileID: 5459387047336711901}
-  backgroundCanvasGroup: {fileID: 1688748811271095418}
   vfxCanvasCanvasGroup: {fileID: 4481366700216735049}
   overlayCanvasGroup: {fileID: 5515943002409863522}
   backgroundSprites:
@@ -62,6 +61,7 @@ MonoBehaviour:
   - {fileID: -1674285225112526545, guid: 42d7ba6c69c8f7748891fa571fa59d99, type: 3}
   - {fileID: -5365079252436373173, guid: beb6e03c9b8415345bb90b69ae4e96d1, type: 3}
   - {fileID: -7884923617590946874, guid: 3921581a1e8cabd459160198abf58f4c, type: 3}
+  - {fileID: 1702831262813877017, guid: 7d2f224fbc4151c4a90620104bea2dab, type: 3}
   - {fileID: -6304401044826705295, guid: 0a6972fd8e79c5b4392945f407b91f07, type: 3}
   - {fileID: -7604350766316953522, guid: a21dfd24876074c488904918746e2d49, type: 3}
   - {fileID: -7178147107983324341, guid: fd2bc755839739d488972d9084921629, type: 3}
@@ -88,6 +88,8 @@ MonoBehaviour:
   - {fileID: -7828099364642985542, guid: 128a12c001a4ef240a7d5d88b1c11494, type: 3}
   - {fileID: -9102406494775990262, guid: a5e2601dab259f146ab721c63d09edcd, type: 3}
   - {fileID: 8938598779873148172, guid: 00e80615373fdb84ea91346b942b0331, type: 3}
+  - {fileID: -2114221072466570604, guid: 44abd9365f7757644b94510ea3d19861, type: 3}
+  - {fileID: -2389130200614153039, guid: 7f86182a13a3c1d4ea40c04b76030d59, type: 3}
   globalVolume: {fileID: 8308047500030059576}
   glitchMaterial: {fileID: 2100000, guid: 52da6905e25eb8d42bf6150e87698736, type: 2}
 --- !u!222 &4979178500327222025

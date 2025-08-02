@@ -7,6 +7,8 @@
     time2,
     image3,
     time3,
+    image4,
+    time4,
     japanese,
     input
 }
