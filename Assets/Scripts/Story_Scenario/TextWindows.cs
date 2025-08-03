@@ -173,32 +173,43 @@ public class TextWindows : SceneSingleton<TextWindows>
     }
 
     /// <summary>
-    /// UIの上にポインターがある場合、かつそのUIが「AllowInteract」タグを持たなければ入力を無視する
+    /// UIの上にポインターがある場合、かつそのUIが「ExclusionUI」タグを持つものがあれば、入力は無効
     /// </summary>
     /// <returns>入力を処理して良いかどうか</returns>
     private bool ShouldProcessInput()
     {
-        return true;
-
-        // EventSystemが存在し、かつポインターがUI上にある場合
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        // EventSystemが存在しない場合は、入力処理を続行
+        if (EventSystem.current == null)
         {
-            PointerEventData pointerData = new PointerEventData(EventSystem.current)
-            {
-                position = Input.mousePosition
-            };
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(pointerData, results);
+            return true;
+        }
 
+        // 現在のマウス位置でUIに対するレイキャストを実行
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        // ヒットしたUI要素がなければ、入力処理を続行
+        if (results.Count == 0)
+        {
+            return true;
+        }
+
+        // ヒットしたUI要素を全てチェック
+        foreach (var result in results)
+        {
             // もしヒットしたUIの中に「ExclusionUI」タグを持つものがあれば、入力は無効
-            foreach (var result in results)
+            if (result.gameObject.CompareTag("ExclusionUI"))
             {
-                if (result.gameObject.CompareTag("ExclusionUI"))
-                {
-                    return false;
-                }
+                return false;
             }
         }
+
+        // ExclusionUIタグを持つUIにヒットしなかった場合は、入力処理を続行
         return true;
     }
 

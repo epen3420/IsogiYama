@@ -128,4 +128,12 @@ public class GameFlowManager : Singleton<GameFlowManager>
             _ => throw new System.ArgumentOutOfRangeException(nameof(stepType), $"Unhandled type: {stepType}")
         };
     }
+
+    public void ResetGameFlow()
+    {
+        InitGameFlow();
+        var sceneLoader = InstanceRegister.Get<SceneLoader>();
+        sceneLoader.LoadNextScene(TITLE_SCENE_NAME);
+        ResultHolder.instance.ClearResult();
+    }
 }
