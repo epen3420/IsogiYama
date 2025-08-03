@@ -1,49 +1,68 @@
 ﻿using UnityEngine;
 
 [RequireComponent(typeof(Camera))]
+[ExecuteAlways]
 public class FixedAspectRatio : MonoBehaviour
 {
     // 固定したいアスペクト比
     [SerializeField]
-    private float targetAspect = 4f / 3f;
+    private Vector2 targetAspectVector = new Vector2(4, 3);
 
-    private const float FULL_SCREEN = 1.0f;
+    private Camera targetCamera;
+    private float currentScreenWidth = 0;
+    private float currentScreenHeight = 0;
 
     void Awake()
     {
-        Camera cam = GetComponent<Camera>();
-        if (cam == null)
+        targetCamera = GetComponent<Camera>();
+        if (targetCamera == null)
         {
-            Debug.LogError("Camera component not found on the GameObject.");
+            Debug.LogError("Camera component not found on the GameObject. Please attach this script to a GameObject with a Camera.");
             return;
         }
 
-        // 現在の画面のアスペクト比
-        float windowAspect = (float)Screen.width / Screen.height;
+        // 初期設定をAwakeで一度だけ実行
+        UpdateCameraAspect();
+    }
 
-        // 目標アスペクト比に対する現在の画面アスペクト比の比率
-        float aspectScale = windowAspect / targetAspect;
-
-        Rect rect = cam.rect;
-
-        if (aspectScale < FULL_SCREEN)
+    void Update()
+    {
+        // 画面サイズが変更された時のみアスペクト比を再計算
+        if (currentScreenWidth != Screen.width || currentScreenHeight != Screen.height)
         {
-            // 画面が横長すぎるとき縦に黒帯
-            rect.y = (FULL_SCREEN - aspectScale) / 2.0f;
-            rect.height = aspectScale;
-            rect.x = 0;
-            rect.width = FULL_SCREEN;
+            UpdateCameraAspect();
+        }
+    }
+
+    private void UpdateCameraAspect()
+    {
+        currentScreenWidth = Screen.width;
+        currentScreenHeight = Screen.height;
+
+        // 現在の画面と目的のアスペクト比を計算
+        float screenAspect = currentScreenWidth / currentScreenHeight;
+        float targetAspect = targetAspectVector.x / targetAspectVector.y;
+        float aspectScale = targetAspect / screenAspect;
+
+        Rect viewportRect = new Rect(0, 0, 1, 1);
+
+        if (aspectScale < 1.0f)
+        {
+            // 画面が目的のアスペクト比より縦長の場合（左右に黒帯）
+            viewportRect.width = aspectScale;
+            viewportRect.x = (1.0f - aspectScale) * 0.5f;
+            viewportRect.height = 1.0f;
+            viewportRect.y = 0;
         }
         else
         {
-            // 画面が縦長すぎるとき横に黒帯
-            float scaleWidth = FULL_SCREEN / aspectScale;
-            rect.x = (FULL_SCREEN - scaleWidth) / 2.0f;
-            rect.width = scaleWidth;
-            rect.y = 0;
-            rect.height = FULL_SCREEN;
+            // 画面が目的のアスペクト比より横長の場合（上下に黒帯）
+            viewportRect.height = 1.0f / aspectScale;
+            viewportRect.y = (1.0f - viewportRect.height) * 0.5f;
+            viewportRect.width = 1.0f;
+            viewportRect.x = 0;
         }
 
-        cam.rect = rect;
+        targetCamera.rect = viewportRect;
     }
 }
