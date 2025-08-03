@@ -1,45 +1,49 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 [RequireComponent(typeof(Camera))]
 public class FixedAspectRatio : MonoBehaviour
 {
-    public float targetAspect = 4f / 3f; // ŒÅ’è‚µ‚½‚¢ƒAƒXƒyƒNƒg”äi‚±‚±‚Å‚Í4:3j
+    // å›ºå®šã—ãŸã„ã‚¢ã‚¹ãƒšã‚¯ãƒˆæ¯”
+    [SerializeField]
+    private float targetAspect = 4f / 3f;
 
-    void Start()
+    private const float FULL_SCREEN = 1.0f;
+
+    void Awake()
     {
         Camera cam = GetComponent<Camera>();
-
-        // Œ»İ‚Ì‰æ–Ê‚ÌƒAƒXƒyƒNƒg”ä
-        float windowAspect = (float)Screen.width / (float)Screen.height;
-
-        // ƒAƒXƒyƒNƒg”ä‚Ì”ä—¦
-        float scaleHeight = windowAspect / targetAspect;
-
-        if (scaleHeight < 1.0f)
+        if (cam == null)
         {
-            // ‰¡‚É•‘ÑiƒŒƒ^[ƒ{ƒbƒNƒXj
-            Rect rect = cam.rect;
+            Debug.LogError("Camera component not found on the GameObject.");
+            return;
+        }
 
-            rect.width = 1.0f;
-            rect.height = scaleHeight;
+        // ç¾åœ¨ã®ç”»é¢ã®ã‚¢ã‚¹ãƒšã‚¯ãƒˆæ¯”
+        float windowAspect = (float)Screen.width / Screen.height;
+
+        // ç›®æ¨™ã‚¢ã‚¹ãƒšã‚¯ãƒˆæ¯”ã«å¯¾ã™ã‚‹ç¾åœ¨ã®ç”»é¢ã‚¢ã‚¹ãƒšã‚¯ãƒˆæ¯”ã®æ¯”ç‡
+        float aspectScale = windowAspect / targetAspect;
+
+        Rect rect = cam.rect;
+
+        if (aspectScale < FULL_SCREEN)
+        {
+            // ç”»é¢ãŒæ¨ªé•·ã™ãã‚‹ã¨ãç¸¦ã«é»’å¸¯
+            rect.y = (FULL_SCREEN - aspectScale) / 2.0f;
+            rect.height = aspectScale;
             rect.x = 0;
-            rect.y = (1.0f - scaleHeight) / 2.0f;
-
-            cam.rect = rect;
+            rect.width = FULL_SCREEN;
         }
         else
         {
-            // c‚É•‘Ñiƒsƒ‰[ƒ{ƒbƒNƒXj
-            float scaleWidth = 1.0f / scaleHeight;
-
-            Rect rect = cam.rect;
-
+            // ç”»é¢ãŒç¸¦é•·ã™ãã‚‹ã¨ãæ¨ªã«é»’å¸¯
+            float scaleWidth = FULL_SCREEN / aspectScale;
+            rect.x = (FULL_SCREEN - scaleWidth) / 2.0f;
             rect.width = scaleWidth;
-            rect.height = 1.0f;
-            rect.x = (1.0f - scaleWidth) / 2.0f;
             rect.y = 0;
-
-            cam.rect = rect;
+            rect.height = FULL_SCREEN;
         }
+
+        cam.rect = rect;
     }
 }
