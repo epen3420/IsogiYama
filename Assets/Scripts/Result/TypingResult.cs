@@ -155,7 +155,7 @@ public class TypingResult
     /// <returns>目標スコアを達成するために必要なWの値。達成不可能な場合はNaNを返す。</returns>
     public double GetRequiredWForTargetScore(double targetScore)
     {
-        int currentE = TotalIncorrectTypes; 
+        int currentE = TotalIncorrectTypes;
 
         if (targetScore <= 0 || targetScore >= 1)
         {
@@ -164,17 +164,22 @@ public class TypingResult
         }
 
         double inverseScoreTerm = (1.0 / targetScore) - 1.0;
-        if (inverseScoreTerm <= 0) // lnの引数が0以下にならないように
+        if (inverseScoreTerm <= 0)
         {
             Debug.LogError("Target score too high to reach with this formula's bounds.");
             return double.NaN;
         }
 
-        double X = -Math.Log(inverseScoreTerm); // X = (1.2ln(W/280) -3.6(E/60) + 1.5)
-
+        double lnInverseScoreTerm = Math.Log(inverseScoreTerm);
         double E_term = BETA * (currentE / E_MAX);
-        double exponentNumerator = X + E_term - GAMMA;
-        double requiredW = WPM_MIN * Math.Exp(exponentNumerator / ALPHA);
+
+        // 指数の分子 -ln(1/targetScore-1) + beta*(E/E_MAX) - gamma
+        double exponentNumerator = -lnInverseScoreTerm + E_term - GAMMA;
+
+        // 指数
+        double exponent = exponentNumerator / ALPHA;
+
+        double requiredW = WPM_MIN * Math.Exp(exponent);
 
         return requiredW;
     }
@@ -200,7 +205,6 @@ public class TypingResult
             return double.NaN;
         }
 
-        // スコアの逆関数を解く
         double inverseScoreTerm = (1.0 / targetScore) - 1.0;
         if (inverseScoreTerm <= 0)
         {
@@ -208,10 +212,16 @@ public class TypingResult
             return double.NaN;
         }
 
-        double X = -Math.Log(inverseScoreTerm); // X = (1.2ln(W/280) -3.6(E/60) + 1.5)
-
+        double lnInverseScoreTerm = Math.Log(inverseScoreTerm);
         double W_term = ALPHA * Math.Log(currentW / WPM_MIN);
-        double requiredE = E_MAX * (X - W_term - GAMMA) / -BETA;
+
+        // 修正された分子
+        // 導出した式: (alpha * ln(W/W_MIN) + gamma + ln(1/score - 1))
+        // 符号を合わせるため、逆の符号で計算
+        double numerator = W_term + GAMMA + lnInverseScoreTerm;
+
+        // 修正された requiredE の計算
+        double requiredE = (E_MAX / BETA) * numerator;
 
         return requiredE;
     }

@@ -174,76 +174,135 @@ public class ResultDisplay : MonoBehaviour
         double currentScore = typingResult.GetCurrentScore();
         Debug.Log($"Current Score: {currentScore}");
 
-        stringBuilder.AppendLine("Hint\n");
+        // 隠しエンディングの条件
+        bool isSecretEndingCondition = typingResult.TotalIncorrectTypes == 0 && currentScore >= 0.93f;
 
-        float targetScore = 0;
-        if (currentScore >= 0.8)
+        // 全てのエンディングがアンロック済みかチェック
+        bool allEndingsUnlocked = allEndings.All(entry => entry.Value.isUnlocked);
+
+        // --- 誘導文言の決定 ---
+
+        // 隠しエンディングの条件を満たしている場合
+        if (isSecretEndingCondition)
         {
-            // 0.8以上
-            // Ed3の場合はEd2もしくはEd1に行けるようにアドバイスする
+            stringBuilder.AppendLine("「…気づいてしまったようですね」");
+        }
+        // 全てのエンディングがアンロック済みの場合
+        else if (allEndingsUnlocked)
+        {
+            stringBuilder.AppendLine("今、全ての結末があなたに示された。");
+        }
+        // 通常のアドバイス
+        else
+        {
+            stringBuilder.AppendLine("Hint\n");
+            float targetScore = 0;
+            EndingType currentEnding = typingResult.EndingType;
 
-            if (ResultHolder.instance.IsEndingUnlocked(EndingType.ED2))
+            // ED3（スコア0.8以上）を達成した場合
+            if (currentScore >= 0.8)
             {
-                // Ed2がアンロックされている場合は、Ed1に行けるようにアドバイス
-                targetScore = 0.5f;
-                Debug.Log("ED3 For Go To ED1 Advice");
+                // ED2が未開放ならED2へ誘導
+                if (!ResultHolder.instance.IsEndingUnlocked(EndingType.ED2))
+                {
+                    targetScore = 0.5f;
+                    stringBuilder.AppendLine("…どうやら、まだ見ぬ物語があるようだ。");
+                }
+                // ED2が開放済みならED1へ誘導
+                else
+                {
+                    targetScore = 0.5f;
+                    stringBuilder.AppendLine("もう少し違う道を選んでいれば、別の物語が見えたかもしれない。");
+                }
+            }
+            // ED2（スコア0.5以上0.8未満）を達成した場合
+            else if (currentScore >= 0.5)
+            {
+                // ED3が未開放ならED3へ誘導
+                if (!ResultHolder.instance.IsEndingUnlocked(EndingType.ED3))
+                {
+                    targetScore = 0.8f;
+                    stringBuilder.AppendLine("この先には、まだ辿り着いていない結末がある。");
+                }
+                // ED3が開放済みならED1へ誘導
+                else
+                {
+                    targetScore = 0.5f;
+                    stringBuilder.AppendLine("違うやり方を試せば、別の結末が待っているだろう。");
+                }
+            }
+            // ED1（スコア0.5未満）を達成した場合
+            else
+            {
+                // ED2が未開放ならED2へ誘導
+                if (!ResultHolder.instance.IsEndingUnlocked(EndingType.ED2))
+                {
+                    targetScore = 0.5f;
+                    stringBuilder.AppendLine("この結末が、全てではない。");
+                }
+                // ED2が開放済みならED3へ誘導
+                else
+                {
+                    targetScore = 0.8f;
+                    stringBuilder.AppendLine("さらに先に進めば、新たな物語が見えるだろう。");
+                }
+            }
+
+            // 目標スコアに基づいた具体的なアドバイス
+            var reqW = (float)typingResult.GetRequiredWForTargetScore(targetScore);
+            var reqE = (int)typingResult.GetRequiredEForTargetScore(targetScore);
+
+            float desiredTime = typingResult.TotalCorrectTypes * 60f / reqW;
+            float timeDiff = desiredTime - typingResult.ClearTime;
+            int missDiff = (int)(typingResult.TotalIncorrectTypes - reqE);
+
+            // ミスタイプのアドバイス
+            if (missDiff > 0)
+            {
+                stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{missDiff}</color>回減らすと...");
             }
             else
             {
-                // Ed2がアンロックされていない場合は、Ed2行けるようにアドバイス
-                targetScore = 0.8f;
-                Debug.Log("ED3 For Go To ED2 Advice");
+                stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{-missDiff}</color>回増やすと...");
+            }
+
+            stringBuilder.AppendLine("もしくは");
+
+            // 時間のアドバイス
+            if (timeDiff < 0)
+            {
+                stringBuilder.AppendLine($"クリア時間をあと<color={THEME_COLOR}>{Mathf.Abs(timeDiff):F1}</color>秒早くすると...");
+            }
+            else
+            {
+                stringBuilder.AppendLine($"クリア時間をあと<color={THEME_COLOR}>{timeDiff:F1}</color>秒遅くすると...");
             }
         }
-        else if (currentScore >= 0.5)
+
+        // --- 最後の文言とエンディング一覧表示 ---
+
+        // 隠しエンディングの条件を満たしている場合
+        if (isSecretEndingCondition)
         {
-            // 0.5以上0.8未満
-            // Ed2の場合はEd3に行けるようにアドバイスする
-            targetScore = 0.8f;
-            Debug.Log("ED2 For Go To ED3 Advice");
+            stringBuilder.AppendLine("そして、あなたは真実を知る。");
         }
+        // 全てのエンディングがアンロック済みの場合
+        else if (allEndingsUnlocked)
+        {
+            stringBuilder.AppendLine("おめでとう。全ての物語を紡ぎきった。");
+        }
+        // 通常のアドバイスの場合
         else
         {
-            // 0.5未満
-            // Ed1の場合はEd2(もしくはEd3)に行けるようにアドバイスする
-            targetScore = 0.5f;
-            Debug.Log("ED1 For Go To ED2 Advice");
+            stringBuilder.AppendLine("今とはまた違う結末になったのかもしれない。");
         }
 
-        var reqW = (float)typingResult.GetRequiredWForTargetScore(targetScore);
-        var reqE = (int)typingResult.GetRequiredEForTargetScore(targetScore);
-
-        // 必要クリア時間を totalChars / reqW で計算
-        float desiredTime = typingResult.TotalCorrectTypes * 60f / reqW;
-        float timeDiff = desiredTime - typingResult.ClearTime;
-        int missDiff = typingResult.TotalIncorrectTypes - reqE;
-
-        if (missDiff > 0)
-        {
-            stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{missDiff}</color>回減らすと...");
-        }
-        else
-        {
-            stringBuilder.AppendLine($"ミスタイプを<color={THEME_COLOR}>{-missDiff}</color>回増やすと...");
-        }
-
-        stringBuilder.AppendLine("もしくは");
-
-        if (timeDiff > 0)
-        {
-            stringBuilder.AppendLine($"クリア時間をあと<color={THEME_COLOR}>{timeDiff:F1}</color>秒早くすると...");
-        }
-        else
-        {
-            stringBuilder.AppendLine($"クリア時間をあと<color={THEME_COLOR}>{-timeDiff:F1}</color>秒遅くすると...");
-        }
-
-        stringBuilder.AppendLine("今とはまた違う結末になったのかもしれない。");
         stringBuilder.AppendLine();
         stringBuilder.AppendLine();
 
         if (showAllEndings)
         {
+            // エンディング一覧の表示ロジックはそのまま
             stringBuilder.AppendLine("エンディング一覧");
             stringBuilder.AppendLine("====================");
 
@@ -276,10 +335,8 @@ public class ResultDisplay : MonoBehaviour
                         stringBuilder.AppendLine("・???");
                     }
                 }
-                // stringBuilder.AppendLine();
             }
         }
-        
 
         if (endingHintText != null)
         {
