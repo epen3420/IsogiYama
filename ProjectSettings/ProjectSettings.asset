@@ -14,7 +14,7 @@ PlayerSettings:
   accelerometerFrequency: 60
   companyName: IsogiYama_Creators
   productName: IsogiYama
-  defaultCursor: {fileID: 2800000, guid: dc0beb8f22e5d2a46adb5ec0bde0a602, type: 3}
+  defaultCursor: {fileID: 2800000, guid: 170ba54733633b24b9aacc383c04543a, type: 3}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_ShowUnitySplashScreen: 1
