@@ -93,7 +93,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
             {
                 result.SetEndingType(endingGameStep.EndingType);
             }
-            
+
             gameSteps.Insert(nextStepIndex, nextGameStep);
             IncStepIndex();
 
@@ -127,5 +127,13 @@ public class GameFlowManager : Singleton<GameFlowManager>
             GameStepType.Result => RESULT_SCENE_NAME,
             _ => throw new System.ArgumentOutOfRangeException(nameof(stepType), $"Unhandled type: {stepType}")
         };
+    }
+
+    public void ResetGameFlow()
+    {
+        InitGameFlow();
+        var sceneLoader = InstanceRegister.Get<SceneLoader>();
+        sceneLoader.LoadNextScene(TITLE_SCENE_NAME);
+        ResultHolder.instance.ClearResult();
     }
 }
