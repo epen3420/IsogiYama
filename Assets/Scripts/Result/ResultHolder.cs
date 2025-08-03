@@ -24,7 +24,7 @@ public class ResultHolder : Singleton<ResultHolder>
     public static event Action OnEndingsUpdated;
 
     // CSVファイルのパス
-    private static readonly string _csvFilePath = Path.Combine(Application.persistentDataPath, "typing_results.csv");
+    private string _csvFilePath;
 
     /// <summary>
     /// 現在のTypingResultデータをCSVに保存し、新しい結果オブジェクトを作成します。
@@ -84,8 +84,9 @@ public class ResultHolder : Singleton<ResultHolder>
 
     private void Start()
     {
+        _csvFilePath = Path.Combine(Application.persistentDataPath, "typing_results.csv");
+
         endingsDict = endingsList.ToDictionary(e => e.Key);
-        // ここでCSVファイルチェックと作成の関数を呼び出します
         CheckAndCreateCsvFile();
     }
 
