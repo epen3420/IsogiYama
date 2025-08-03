@@ -173,10 +173,10 @@ public class TypingResult
         double lnInverseScoreTerm = Math.Log(inverseScoreTerm);
         double E_term = BETA * (currentE / E_MAX);
 
-        // 修正された指数の分子
+        // 指数の分子 -ln(1/targetScore-1) + beta*(E/E_MAX) - gamma
         double exponentNumerator = -lnInverseScoreTerm + E_term - GAMMA;
 
-        // 修正された指数
+        // 指数
         double exponent = exponentNumerator / ALPHA;
 
         double requiredW = WPM_MIN * Math.Exp(exponent);
