@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5492543713546862692}
   m_Layer: 5
   m_Name: Background
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -88,7 +88,7 @@ GameObject:
   - component: {fileID: 5824704476811249029}
   m_Layer: 5
   m_Name: minVolume
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -163,7 +163,7 @@ GameObject:
   - component: {fileID: 7922298454716899745}
   m_Layer: 5
   m_Name: minVolume
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -236,7 +236,7 @@ GameObject:
   - component: {fileID: 6452120189538401169}
   m_Layer: 5
   m_Name: Menu
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -275,7 +275,7 @@ GameObject:
   - component: {fileID: 4490304343837513822}
   m_Layer: 5
   m_Name: maxVolume
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -348,7 +348,7 @@ GameObject:
   - component: {fileID: 7332592858771491217}
   m_Layer: 5
   m_Name: Handle Slide Area
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -387,7 +387,7 @@ GameObject:
   - component: {fileID: 5137478832775166405}
   m_Layer: 5
   m_Name: MenuPanel
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -479,7 +479,7 @@ GameObject:
   - component: {fileID: 1110055153434024345}
   m_Layer: 5
   m_Name: maxVolume
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -555,7 +555,7 @@ GameObject:
   - component: {fileID: 2300596504860738145}
   m_Layer: 5
   m_Name: Return_Btn
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -684,7 +684,7 @@ GameObject:
   - component: {fileID: 3528875817918624903}
   m_Layer: 5
   m_Name: Fill Area
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -720,7 +720,7 @@ GameObject:
   - component: {fileID: 8840552746154208479}
   m_Layer: 5
   m_Name: Fill Area
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -758,7 +758,7 @@ GameObject:
   - component: {fileID: 6954480720341285146}
   m_Layer: 5
   m_Name: Fill
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -833,7 +833,7 @@ GameObject:
   - component: {fileID: 1004007763187934731}
   m_Layer: 5
   m_Name: Handle
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -908,7 +908,7 @@ GameObject:
   - component: {fileID: 7209217228499384286}
   m_Layer: 5
   m_Name: Handle
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -984,7 +984,7 @@ GameObject:
   - component: {fileID: 8801608226469808085}
   m_Layer: 5
   m_Name: Setting_Btn
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1115,7 +1115,7 @@ GameObject:
   - component: {fileID: 978198380604334665}
   m_Layer: 5
   m_Name: Fill
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1188,7 +1188,7 @@ GameObject:
   - component: {fileID: 4039448389052737354}
   m_Layer: 5
   m_Name: Handle Slide Area
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1226,7 +1226,7 @@ GameObject:
   - component: {fileID: 8254091924917373417}
   m_Layer: 5
   m_Name: Background
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1300,7 +1300,7 @@ GameObject:
   - component: {fileID: 4739587775043486923}
   m_Layer: 5
   m_Name: SEVolumeSlider
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1392,7 +1392,7 @@ GameObject:
   - component: {fileID: 1221735024993778665}
   m_Layer: 5
   m_Name: BGMVolumeSlider
-  m_TagString: Untagged
+  m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
