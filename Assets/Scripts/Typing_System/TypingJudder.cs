@@ -384,13 +384,6 @@ public class TypingJudder
     /*
     public TypingState JudgeChar(char typedChar)
     {
-#if UNITY_EDITOR
-        if (CheatModeWindow.IsCheat)
-        {
-            currentSegmentIndex++;
-            return currentSegmentIndex >= judeChars.Length ? TypingState.Clear : TypingState.Hit;
-        }
-#endif
         if (judeChars[currentSegmentIndex] == typedChar)
         {
             currentSegmentIndex++;
@@ -406,6 +399,13 @@ public class TypingJudder
 
     public TypingState JudgeChar(char typedChar)
     {
+#if UNITY_EDITOR
+        if (CheatModeWindow.IsCheat)
+        {
+            currentSegmentIndex++;
+            return currentSegmentIndex >= judgeList.Count ? TypingState.Clear : TypingState.Hit;
+        }
+#endif
         if (currentSegmentIndex >= judgeList.Count)
         {
             // 全てのひらがなセグメントの入力が完了済み
