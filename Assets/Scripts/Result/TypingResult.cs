@@ -171,15 +171,18 @@ public class TypingResult
         }
 
         double lnInverseScoreTerm = Math.Log(inverseScoreTerm);
-        double E_term = BETA * (currentE / E_MAX);
+        double E_term = BETA * ((double)currentE / E_MAX); // ← 修正ポイント
 
-        // 指数の分子 -ln(1/targetScore-1) + beta*(E/E_MAX) - gamma
         double exponentNumerator = -lnInverseScoreTerm + E_term - GAMMA;
-
-        // 指数
         double exponent = exponentNumerator / ALPHA;
 
         double requiredW = WPM_MIN * Math.Exp(exponent);
+
+        // 極端な値だった場合に警告ログ
+        if (requiredW > 1000)
+        {
+            Debug.LogWarning($"計算されたWが異常に大きい値です: {requiredW}");
+        }
 
         return requiredW;
     }

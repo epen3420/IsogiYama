@@ -199,7 +199,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_TargetDisplay: 0
 --- !u!224 &354054163
 RectTransform:
@@ -234,6 +234,26 @@ PrefabInstance:
     - target: {fileID: 385982854295624180, guid: 677afd055dd0041408311e605b756fca, type: 3}
       propertyPath: m_Name
       value: Clear Camera
+      objectReference: {fileID: 0}
+    - target: {fileID: 385982854295624180, guid: 677afd055dd0041408311e605b756fca, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879687076348059952, guid: 677afd055dd0041408311e605b756fca, type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879687076348059952, guid: 677afd055dd0041408311e605b756fca, type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879687076348059952, guid: 677afd055dd0041408311e605b756fca, type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879687076348059952, guid: 677afd055dd0041408311e605b756fca, type: 3}
+      propertyPath: m_CullingMask.m_Bits
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5706516074354608865, guid: 677afd055dd0041408311e605b756fca, type: 3}
       propertyPath: m_LocalPosition.x
@@ -471,6 +491,10 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 2064247317}
+    - target: {fileID: 5333073194331924788, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5459387047336711901, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -526,6 +550,10 @@ PrefabInstance:
     - target: {fileID: 8134680860715355257, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8308047500030059576, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
+      propertyPath: weight
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -999,7 +1027,7 @@ Camera:
   m_GameObject: {fileID: 2064247315}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
+  m_ClearFlags: 2
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -1079,7 +1107,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
