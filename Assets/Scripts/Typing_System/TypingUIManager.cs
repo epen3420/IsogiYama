@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 public class TypingUIManager : MonoBehaviour
@@ -7,8 +7,6 @@ public class TypingUIManager : MonoBehaviour
     private TMP_Text japaneseText;
     [SerializeField]
     private TMP_Text romaText;
-    [SerializeField]
-    private TMP_Text inputText;
 
     [SerializeField]
     private StopwatchTimer timer;
@@ -23,28 +21,24 @@ public class TypingUIManager : MonoBehaviour
     [SerializeField]
     private TypingProgressManager progressManager;
 
+    private const string TYPED_TEXT_COLOR = "#BA3E06";
+
     private void Start()
     {
-        progressManager.correctTyping += UpdateInputText;
         progressManager.incorrectTyping += UpdateIncorrectTypeCount;
-        progressManager.endCurrentQuest += SetUIText;
         progressManager.endTypingScene += End;
-    }
+        progressManager.onUpdateAllTexts += UpdateDisplayTexts;
 
-    public void SetUIText(string japanese, string roma)
-    {
-        inputText.maxVisibleCharacters = 0;
+        progressManager.onResetUIText += ResetText;
+        progressManager.onHideTextWindow += HideTextWindow;
 
-        japaneseText.text = japanese;
-        romaText.text = roma;
-        inputText.text = roma;
+        typoCountText.text = "0回";
     }
 
     public void ResetText()
     {
         japaneseText.text = "";
         romaText.text = "";
-        inputText.text = "";
     }
 
     public void HideTextWindow()
@@ -52,10 +46,44 @@ public class TypingUIManager : MonoBehaviour
         textWindow.SetActive(false);
     }
 
-    public void UpdateInputText()
+    public void UpdateDisplayTexts(string fullJapanese, int typedJapaneseCount, string fullRomaji, int typedRomajiCount)
     {
-        inputText.maxVisibleCharacters++;
+        // 日本語テキストの更新: typedJapaneseCount は完全にタイプされたひらがなの文字数
+        string coloredJapaneseText = GetColoredText(fullJapanese, typedJapaneseCount);
+        japaneseText.SetText(coloredJapaneseText);
+
+        // ローマ字テキストの更新
+        string coloredRomajiText = GetColoredText(fullRomaji, typedRomajiCount);
+        romaText.SetText(coloredRomajiText);
     }
+
+    private string GetColoredText(string fullText, int typedCount)
+    {
+        int count = 0;
+        int index = 0;
+
+        while (index < fullText.Length && count < typedCount)
+        {
+            if (fullText[index] == '\\' && index + 1 < fullText.Length && fullText[index + 1] == 'n')
+            {
+                index += 2;
+            }
+            else if (fullText[index] == '\r' || fullText[index] == '\n')
+            {
+                index++;
+            }
+            else
+            {
+                count++;
+                index++;
+            }
+        }
+
+        string coloredPart = fullText.Substring(0, index);
+        string rest = fullText.Substring(index);
+        return $"<color={TYPED_TEXT_COLOR}>{coloredPart}</color>{rest}";
+    }
+
 
     public void UpdateIncorrectTypeCount(int count)
     {
@@ -65,7 +93,6 @@ public class TypingUIManager : MonoBehaviour
     private void Update()
     {
         timerText.text = $"{timer.GetTime():F1}";
-        typoCountText.SetText($"回");
     }
 
     private void End(bool isGameOver)
@@ -74,6 +101,19 @@ public class TypingUIManager : MonoBehaviour
         if (isGameOver)
         {
             HideTextWindow();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (progressManager != null)
+        {
+            progressManager.incorrectTyping -= UpdateIncorrectTypeCount;
+            progressManager.endTypingScene -= End;
+            progressManager.onUpdateAllTexts -= UpdateDisplayTexts;
+
+            progressManager.onResetUIText -= ResetText;
+            progressManager.onHideTextWindow -= HideTextWindow;
         }
     }
 }

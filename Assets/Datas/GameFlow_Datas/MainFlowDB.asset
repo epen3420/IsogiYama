@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameSteps:
   - {fileID: 11400000, guid: 19ac97c5d03eca94f86a90d13fdc446e, type: 2}
-  - {fileID: 11400000, guid: ca7f09496297d8f40a08e6861fd912e5, type: 2}
-  - {fileID: 11400000, guid: 0294d20a0d64e9541a15756895e717ea, type: 2}
-  - {fileID: 11400000, guid: 9d724a55cfda6a4459d3db7e99448cb3, type: 2}
-  - {fileID: 11400000, guid: d1d3bfc8e0e3031489af8b5b692a1df8, type: 2}
+  - {fileID: 11400000, guid: b420fbb6ca9efb44287bd51fd131b530, type: 2}
+  - {fileID: 11400000, guid: 7f327a53ed0676f43bb754b237ad5b36, type: 2}
+  - {fileID: 11400000, guid: d45ae1ee674cf434a867d785a8be8433, type: 2}
+  - {fileID: 11400000, guid: 38d18fcfd1b30fa47afa39e11090d50f, type: 2}
   - {fileID: 11400000, guid: d2b5055d7357b7f43bf93a1d920d2880, type: 2}
+  - {fileID: 11400000, guid: 9d366eda16c87484eba06665d5db9f50, type: 2}

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
@@ -12,33 +12,46 @@ public class TypingProgressManager : MonoBehaviour
     // Eventの定義
     public event Action correctTyping;
     public event Action<int> incorrectTyping;
-    public event Action<string, string> endCurrentQuest;
+    public event Action<string, string> endCurrentQuest; // 日本語とローマ字を渡すイベント
+
+    // 日本語とローマ字のUI更新をまとめて行うイベント
+    public event Action<string, int, string, int> onUpdateAllTexts; // fullJapanese, typedJapaneseCount, fullRomaji, RomaTypedCount
+
+    // UIリセットとテキストウィンドウ非表示のイベント
+    public event Action onResetUIText; // 追加
+    public event Action onHideTextWindow; // 追加
+
     public event Action<bool> endTypingScene;
 
     // インスタンスの保持
     private GameFlowManager gameFlowManager;
-    private VFXController vfxController;
+    private TypingResult typingResult;
     private SoundPlayer soundPlayer;
-    private TypingJudder typingJudger;
+    private TypingJudder typingJudder;
     private TypingBGScheduler typingBGScheduler;
+    [SerializeField] // TypingUIManagerへの参照を追加
+    private TypingUIManager typingUIManager;
 
     // 日本語とローマ字の対応リスト
     private List<JapaneseRomaPair> questDatas;
+    private JapaneseRomaPair currentQuestData; // 現在のクエストデータ
+
     [System.Serializable]
     private struct JapaneseRomaPair
     {
         public string Japanese;
-        public string Roma;
+        public string Input; // ここはローマ字文字列
 
-        public JapaneseRomaPair(string japanese, string roma)
+        public JapaneseRomaPair(string japanese, string input)
         {
             Japanese = japanese;
-            Roma = roma;
+            Input = input;
         }
     }
     private int questIndex = 0;
 
     private bool hasStartedTimer = false;
+    private int correctTypeCount = 0;
     private int missTypeCount = 0;
 
     [Header("ゲームオーバーになる秒数")]
@@ -56,7 +69,6 @@ public class TypingProgressManager : MonoBehaviour
 
     [SerializeField]
     private StopwatchTimer timer;
-
 
     /// <summary>
     /// タイピング時のキーボード入力を有効化
@@ -88,24 +100,24 @@ public class TypingProgressManager : MonoBehaviour
     /// </summary>
     private async void Start()
     {
-        // インスタンスの生成と参照
-        gameFlowManager = GameFlowManager.instance;
-        soundPlayer = SoundPlayer.instance;
-        vfxController = InstanceRegister.Get<VFXController>();
-
-        var isInitComplete = InitTypingData();
-
-        if (!isInitComplete) return;
-
-        // 初期化処理をしてからフェードアウトし、タイピングのスタート
-        NextQuest();
-        await typingBGScheduler.FadeOut();
-        EnableKeyboardInput();
+        InitializeDependencies();
+        if (!InitializeTypingData())
+        {
+            Debug.LogError("Typing data initialization failed. Aborting scene start.");
+            return;
+        }
+        await SetupSceneAndStartTyping();
     }
 
-    private bool InitTypingData()
+    private void InitializeDependencies()
     {
-        // CSVファイルの取得
+        gameFlowManager = GameFlowManager.instance;
+        soundPlayer = SoundPlayer.instance;
+        typingResult = ResultHolder.instance.GetResult();
+    }
+
+    private bool InitializeTypingData()
+    {
         var csvFile = gameFlowManager.GetCurrentCSV();
         if (csvFile == null)
         {
@@ -113,7 +125,6 @@ public class TypingProgressManager : MonoBehaviour
             return false;
         }
 
-        // CSVファイルからデータを抽出
         var csvLoader = new CSVLoader();
         var csvData = csvLoader.LoadCSV<TypingQuestType>(csvFile);
         if (csvData == null)
@@ -132,8 +143,14 @@ public class TypingProgressManager : MonoBehaviour
             gameOverTime,
             displayTimeOfGameOverScreen
         );
-
         return true;
+    }
+
+    private async UniTask SetupSceneAndStartTyping()
+    {
+        NextQuest();
+        await typingBGScheduler.FadeOut();
+        EnableKeyboardInput();
     }
 
     private void NextQuest()
@@ -143,13 +160,36 @@ public class TypingProgressManager : MonoBehaviour
             End();
             return;
         }
-        var currentQuestData = questDatas[questIndex++];
-        typingJudger = new TypingJudder(currentQuestData.Roma);
+        currentQuestData = questDatas[questIndex++];
 
-        endCurrentQuest?.Invoke(currentQuestData.Japanese, currentQuestData.Roma);
+        typingJudder = new TypingJudder(currentQuestData.Input); // Inputはローマ字文字列
+
+        // Debug.Log
+        foreach (var segment in typingJudder.judgeList)
+        {
+            Debug.Log(segment.ToString());
+        }
+
+        // UIの初期表示を新しいUpdateDisplayTextsメソッドで直接行う
+        onUpdateAllTexts?.Invoke(
+            currentQuestData.Japanese,
+            0,
+            typingJudder.FullRomajiText,
+            0
+        );
+
+        // endCurrentQuestイベントは、他のシステムに通知するために保持
+        endCurrentQuest?.Invoke(currentQuestData.Japanese, typingJudder.FullRomajiText);
     }
 
     private void End(bool isGameOver = false)
+    {
+        ProcessEndOfQuest(isGameOver);
+        UpdateUIManagerOnEnd(isGameOver);
+        TransitionToNextScene(isGameOver);
+    }
+
+    private void ProcessEndOfQuest(bool isGameOver)
     {
         timer.StopTimer();
         DisableKeyboardInput();
@@ -157,12 +197,23 @@ public class TypingProgressManager : MonoBehaviour
         var clearTime = timer.GetTime();
         Debug.Log($"This scene clear time: {clearTime}");
 
-        gameFlowManager.AddClearTime(clearTime);
-
+        typingResult.AddPartResult(correctTypeCount, missTypeCount, clearTime);
         timer.ResetTimer();
-
         endTypingScene?.Invoke(isGameOver);
+    }
 
+    private void UpdateUIManagerOnEnd(bool isGameOver)
+    {
+        onResetUIText?.Invoke();
+        if (isGameOver)
+        {
+            onHideTextWindow?.Invoke();
+        }
+    }
+
+    private void TransitionToNextScene(bool isGameOver)
+    {
+        ResultHolder.instance.SetResult(typingResult);
         gameFlowManager.GoToNextScene(isGameOver);
     }
 
@@ -177,9 +228,9 @@ public class TypingProgressManager : MonoBehaviour
         foreach (var row in csvData.Rows)
         {
             var japanese = row.Get<string>(TypingQuestType.japanese);
-            var roma = row.Get<string>(TypingQuestType.roma);
+            var input = row.Get<string>(TypingQuestType.input);
 
-            questDatas.Add(new JapaneseRomaPair(japanese, roma));
+            questDatas.Add(new JapaneseRomaPair(japanese, input));
         }
     }
 
@@ -189,7 +240,12 @@ public class TypingProgressManager : MonoBehaviour
     /// <param name="typedChar"></param>
     private void OnKeyboardInput(char typedChar)
     {
-        switch (typingJudger.JudgeChar(typedChar))
+        if (typedChar == ' ') return;
+
+        // TypingJudgerから現在の入力済み文字数を取得し、UIManagerに渡す
+        TypingState state = typingJudder.JudgeChar(typedChar);
+
+        switch (state)
         {
             case TypingState.Hit:
                 if (!hasStartedTimer)
@@ -197,24 +253,41 @@ public class TypingProgressManager : MonoBehaviour
                     hasStartedTimer = true;
                     timer.StartTimer();
                 }
-                correctTyping?.Invoke();
+                correctTypeCount++;
                 soundPlayer.PlaySe("TypeHit");
 
-                Debug.Log($"{typedChar}: Hit");
+                onUpdateAllTexts?.Invoke(
+                    currentQuestData.Japanese,
+                    typingJudder.GetCombinedHiraganaLength(),
+                    typingJudder.FullRomajiText,
+                    typingJudder.GetCurrentInputLength()
+                );
+                Debug.Log(typingJudder.GetCombinedHiraganaLength());
+                // Debug.Log($"{typedChar}: Hit");
                 break;
 
             case TypingState.Miss:
-                Debug.Log($"{typedChar}: Miss");
+                if (!hasStartedTimer) break;
+
+                missTypeCount++;
+                typingResult.AddMistypedKey(typedChar);
+                incorrectTyping?.Invoke(missTypeCount);
+
+                // Debug.Log($"{typedChar}: Miss");
                 soundPlayer.PlaySe("TypeMiss");
-                if (hasStartedTimer)
-                {
-                    missTypeCount++;
-                }
+
                 break;
 
             case TypingState.Clear:
-                correctTyping?.Invoke();
+                correctTypeCount++;
+
                 soundPlayer.PlaySe("TypeHit");
+                onUpdateAllTexts?.Invoke(
+                    currentQuestData.Japanese,
+                    typingJudder.GetCombinedHiraganaLength(), // クリア時は全ての色付けが完了
+                    typingJudder.FullRomajiText,
+                    typingJudder.GetCurrentInputLength() // クリア時は全ての色付けが完了
+                );
 
                 Debug.Log($"{typedChar}: Clear");
 
@@ -225,16 +298,22 @@ public class TypingProgressManager : MonoBehaviour
                 Debug.Log("Error");
                 break;
         }
-
-        // if (maxMissTypeCount <= missTypeCount)
-        // {
-        //     isGameOver = true;
-        //     End().Forget();
-        // }
     }
 
     private void OnDestroy()
     {
         DisableKeyboardInput();
+        if (onUpdateAllTexts != null && typingUIManager != null)
+        {
+            onUpdateAllTexts -= typingUIManager.UpdateDisplayTexts;
+        }
+        if (onResetUIText != null && typingUIManager != null)
+        {
+            onResetUIText -= typingUIManager.ResetText;
+        }
+        if (onHideTextWindow != null && typingUIManager != null)
+        {
+            onHideTextWindow -= typingUIManager.HideTextWindow;
+        }
     }
 }

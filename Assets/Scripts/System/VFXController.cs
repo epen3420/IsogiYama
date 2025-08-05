@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine.Rendering;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.InputSystem;
+using TMPro;
+using System.Threading;
 
 public class VFXController : SceneSingleton<VFXController>
 {
     [Header("Background Components (Inspector)")]
     [SerializeField] private Image backgroundImageMain;
     [SerializeField] private Image backgroundImageSub;
-    [SerializeField] private CanvasGroup backgroundCanvasGroup;
     [SerializeField] private CanvasGroup vfxCanvasCanvasGroup;
     [SerializeField] private CanvasGroup overlayCanvasGroup;
     [SerializeField] private List<Sprite> backgroundSprites;
@@ -34,7 +34,6 @@ public class VFXController : SceneSingleton<VFXController>
         bgFader = new BackgroundFader(
             backgroundImageMain,
             backgroundImageSub,
-            backgroundCanvasGroup,
             backgroundSprites,
             vfxCanvasCanvasGroup
         );
@@ -44,6 +43,12 @@ public class VFXController : SceneSingleton<VFXController>
         cameraController = new CameraController(mainCam);
     }
 
+    /// <summary>
+    /// 背景画像をクロスフェードで切り替えます。
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="duration">フェード時間（秒）</param>
+    /// <returns></returns>
     public async UniTask ChangeBackgroundAsync(string key, float duration = 0.5f)
     {
         if (isTransitioning) return;
@@ -52,6 +57,11 @@ public class VFXController : SceneSingleton<VFXController>
         finally { isTransitioning = false; }
     }
 
+    /// <summary>
+    /// VFXCanvasをフェードアウトします。
+    /// </summary>
+    /// <param name="duration">フェード時間（秒）</param>
+    /// <returns></returns>
     public async UniTask FadeOutCanvasAsync(float duration = 0.5f)
     {
         if (isFading) return;
@@ -60,6 +70,11 @@ public class VFXController : SceneSingleton<VFXController>
         finally { isFading = false; }
     }
 
+    /// <summary>
+    /// VFXCanvasをフェードインします。
+    /// </summary>
+    /// <param name="duration">フェード時間（秒）</param>
+    /// <returns></returns>
     public async UniTask FadeInCanvasAsync(float duration = 0.5f)
     {
         if (isFading) return;
@@ -67,6 +82,26 @@ public class VFXController : SceneSingleton<VFXController>
         try { await bgFader.FadeInVFXCanvas(overlayCanvasGroup, duration); }
         finally { isFading = false; }
     }
+
+    /// <summary>
+    /// Sub側の背景画像をフェード表示します。
+    /// </summary>
+    /// <param name="key">表示したいスプライト名</param>
+    /// <param name="duration">フェード時間（秒）</param>
+    public async UniTask ShowSubBackgroundAsync(string key, float duration = 0.5f, float endValue = 1f)
+    {
+        await bgFader.ShowSubImageFadeAsync(key, duration, endValue);
+    }
+
+    /// <summary>
+    /// Sub側の背景画像をフェード非表示にします。
+    /// </summary>
+    /// <param name="duration">フェード時間（秒）</param>
+    public async UniTask HideSubBackgroundAsync(float duration = 0.5f)
+    {
+        await bgFader.HideSubImageFadeAsync(duration);
+    }
+
 
     public void SetBloom(bool on) => postToggler.SetBloomEnabled(on);
     public void SetBloomParameters(float intensity, float threshold, float scatter) => postToggler.SetBloomParameters(intensity, threshold, scatter);
@@ -159,5 +194,68 @@ public class VFXController : SceneSingleton<VFXController>
 
         // 終了後、元の位置に戻す
         rt.anchoredPosition = originalPos;
+    }
+
+    /// <summary>
+    /// 指定されたTMP_Textのテキストのアルファ値を設定します。
+    /// </summary>
+    /// <param name="tmp_Text"></param>
+    /// <param name="alpha"></param>
+    public void SetTextAlpha(TMP_Text tmp_Text, float alpha)
+    {
+        if (tmp_Text == null) return;
+        var color = tmp_Text.color;
+        color.a = alpha;
+        tmp_Text.color = color;
+    }
+
+    /// <summary>
+    /// 指定されたTMP_Textのテキストをフェードインさせます。
+    /// </summary>
+    /// <param name="textComp">フェードアウトさせるTMP_Textコンポーネント</param>
+    /// <param name="duration">フェードアウトにかける時間（秒）</param>
+    /// <param name="token">キャンセルトークン。操作を中断する際に使用します</param>
+    /// <returns></returns>
+    public async UniTask FadeInText(TMP_Text textComp, float duration, CancellationToken token)
+    {
+        textComp.gameObject.SetActive(true); // フェードイン前にEnabledをtrueにする
+        var col = textComp.color;
+        col.a = 0f;
+        textComp.color = col;
+        for (float t = 0; t <= duration; t += Time.deltaTime)
+        {
+            token.ThrowIfCancellationRequested();
+            col.a = Mathf.Lerp(0f, 1f, t / duration);
+            textComp.color = col;
+            await UniTask.Yield(token);
+        }
+        col.a = 1f;
+        textComp.color = col;
+    }
+
+    /// <summary>
+    /// 指定されたTMP_Textのテキストをフェードアウトさせます。
+    /// </summary>
+    /// <param name="textComp">フェードアウトさせるTMP_Textコンポーネント</param>
+    /// <param name="duration">フェードアウトにかける時間（秒）</param>
+    /// <param name="token">キャンセルトークン。操作を中断する際に使用します</param>
+    /// <param name="beEnabled">フェードアウトしたあとEnabledをbeEnabledにします。</param>
+    /// <returns></returns>
+    public async UniTask FadeOutText(TMP_Text textComp, float duration, bool beEnabled, CancellationToken token)
+    {
+        textComp.enabled = true; // フェードアウト前にEnabledをtrueにする
+        var col = textComp.color;
+        col.a = 1f;
+        textComp.color = col;
+        for (float t = 0; t <= duration; t += Time.deltaTime)
+        {
+            token.ThrowIfCancellationRequested();
+            col.a = Mathf.Lerp(1f, 0f, t / duration);
+            textComp.color = col;
+            await UniTask.Yield(token);
+        }
+        col.a = 0f;
+        textComp.color = col;
+        textComp.gameObject.SetActive(beEnabled); // フェードアウト後にEnabledを設定
     }
 }

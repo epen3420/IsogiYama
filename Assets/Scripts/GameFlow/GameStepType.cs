@@ -6,5 +6,6 @@ public enum GameStepType
     None = -1,
     Title = 0,
     Story = 1,
-    Typing = 2
+    Typing = 2,
+    Result = 3
 }

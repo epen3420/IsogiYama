@@ -74,12 +74,12 @@ public class ProgressManager : SceneSingleton<ProgressManager>
             LineData<ScenarioFields> line = currentScenarioData.Rows[currentIndex];
             currentCommand = line.Get<string>(ScenarioFields.Command);
 
-            Debug.Log($"Read : {currentCommand} / Line : {currentIndex}");
+            // Debug.Log($"Read : {currentCommand} / Line : {currentIndex}");
 
             CommandBase cmd = commandFactory.CreateCommandInstance(currentCommand);
             if (cmd != null)
             {
-                Debug.Log($"Execute : {currentCommand} / Line : {currentIndex}");
+                // Debug.Log($"Execute : {currentCommand} / Line : {currentIndex}");
                 await cmd.ExecuteAsync(line).AttachExternalCancellation(ct); ;
             }
 

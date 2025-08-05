@@ -1,4 +1,4 @@
-public enum TypingQuestType
+﻿public enum TypingQuestType
 {
     initBGImage = 0,
     image1,
@@ -7,6 +7,8 @@ public enum TypingQuestType
     time2,
     image3,
     time3,
+    image4,
+    time4,
     japanese,
-    roma
+    input
 }

@@ -14,6 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stepType: 2
   csvFile: {fileID: 4900000, guid: d20ea414df555db44a476226dd62ec07, type: 3}
-  branchConditions:
-  - maxClearTime: 60
-    nextStep: {fileID: 11400000, guid: 7d89562fe9dbeb647afc808be3e2afb0, type: 2}
+  transitionConditions:
+  - maxClearTime: 15
+    nextStep: {fileID: 11400000, guid: 7e36e8424c72f3e449e06bcd4270688f, type: 2}
+  - maxClearTime: 20
+    nextStep: {fileID: 11400000, guid: 7093458b0b790a044a2d1541412cce6a, type: 2}
+  - maxClearTime: 25
+    nextStep: {fileID: 11400000, guid: 53cdd9d715a0a19498b99a4c9f0ecbaa, type: 2}

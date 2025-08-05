@@ -649,6 +649,10 @@ MonoBehaviour:
   bodyText: {fileID: 258887451}
   nameText: {fileID: 1269648746}
   SkipIcon: {fileID: 156953060}
+  logoCanvasG: {fileID: 0}
+  blankPeriod: 1.5
+  minAlpha: 0.2
+  waitmsec: 3000
 --- !u!4 &869540016
 Transform:
   m_ObjectHideFlags: 0
