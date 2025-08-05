@@ -75,10 +75,12 @@ public class ResultDisplay : MonoBehaviour
 
         if (isEd3)
         {
+            Debug.Log("ResultViewer isED3 true");
             BuildAdviceString(ed3AdviceText, typingResult, true);
         }
         else
         {
+            Debug.Log("ResultViewer isED3 false");
             BuildAdviceString(adviceText, typingResult, true);
             adviceText.enabled = true;
             vfxController.FadeInText(adviceText, 1f, this.GetCancellationTokenOnDestroy()).Forget();
@@ -127,6 +129,8 @@ public class ResultDisplay : MonoBehaviour
     /// </summary>
     private void BuildResultString(TMP_Text resultText,TypingResult typingResult)
     {
+        Debug.Log($"BuildResultString: {resultText.text}");
+
         var sb = new StringBuilder();
 
         // 各パートのクリアタイムとミス数
@@ -170,6 +174,8 @@ public class ResultDisplay : MonoBehaviour
 
     private void BuildAdviceString(TMP_Text endingHintText, TypingResult typingResult, bool showAllEndings = false)
     {
+        Debug.Log($"BuildAdviceString: {endingHintText.text}, {typingResult.GetCurrentScore()}");
+
         StringBuilder stringBuilder = new StringBuilder();
         double currentScore = typingResult.GetCurrentScore();
         Debug.Log($"Current Score: {currentScore}");
