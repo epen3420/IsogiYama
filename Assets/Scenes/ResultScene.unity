@@ -235,26 +235,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Clear Camera
       objectReference: {fileID: 0}
-    - target: {fileID: 385982854295624180, guid: 677afd055dd0041408311e605b756fca, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4879687076348059952, guid: 677afd055dd0041408311e605b756fca, type: 3}
-      propertyPath: m_BackGroundColor.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4879687076348059952, guid: 677afd055dd0041408311e605b756fca, type: 3}
-      propertyPath: m_BackGroundColor.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4879687076348059952, guid: 677afd055dd0041408311e605b756fca, type: 3}
-      propertyPath: m_BackGroundColor.r
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4879687076348059952, guid: 677afd055dd0041408311e605b756fca, type: 3}
-      propertyPath: m_CullingMask.m_Bits
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5706516074354608865, guid: 677afd055dd0041408311e605b756fca, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -555,6 +535,10 @@ PrefabInstance:
       propertyPath: weight
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8308047500030059576, guid: 0ffa61bf203d4b94da2fbed75d04992d, type: 3}
+      propertyPath: sharedProfile
+      value: 
+      objectReference: {fileID: 11400000, guid: 4e9bd002b54bb654aae37f904c41376f, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -68,10 +68,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81180773991d8724ab7f2d216912b564, type: 3}
   m_Name: ChromaticAberration
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.25
 --- !u!114 &-8410153177847197894
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -186,7 +186,7 @@ MonoBehaviour:
   active: 1
   mode:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 2
   gaussianStart:
     m_OverrideState: 0
     m_Value: 10
@@ -195,19 +195,19 @@ MonoBehaviour:
     m_Value: 30
   gaussianMaxRadius:
     m_OverrideState: 1
-    m_Value: 1.5
+    m_Value: 0.5
   highQualitySampling:
     m_OverrideState: 0
     m_Value: 0
   focusDistance:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 10
   aperture:
     m_OverrideState: 0
     m_Value: 5.6
   focalLength:
-    m_OverrideState: 0
-    m_Value: 50
+    m_OverrideState: 1
+    m_Value: 80
   bladeCount:
     m_OverrideState: 0
     m_Value: 5
@@ -238,16 +238,16 @@ MonoBehaviour:
     m_Value: 0.6
   intensity:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 0.8
   scatter:
     m_OverrideState: 1
-    m_Value: 0.6
+    m_Value: 0.2
   clamp:
     m_OverrideState: 0
     m_Value: 65454.2
   tint:
     m_OverrideState: 1
-    m_Value: {r: 0.15294118, g: 0.03529412, b: 0.121568635, a: 1}
+    m_Value: {r: 0.1137255, g: 0.09411766, b: 0.050980397, a: 1}
   highQualityFiltering:
     m_OverrideState: 0
     m_Value: 0
