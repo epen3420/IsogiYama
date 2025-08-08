@@ -1,4 +1,4 @@
-Shader "Custom/GlitchEffectRandomTimingURP_Irregular"
+ï»¿Shader "Custom/GlitchEffectRandomTimingURP_Irregular"
 {
     Properties
     {
@@ -43,7 +43,7 @@ Shader "Custom/GlitchEffectRandomTimingURP_Irregular"
             float _GlitchChance;
             float _ColorSeparation;
 
-            // ƒVƒ“ƒvƒ‹‚È 2D ƒnƒbƒVƒ…ŠÖ”
+            // ç°¡æ˜“2Dãƒãƒƒã‚·ãƒ¥é–¢æ•°
             float rand(float2 co)
             {
                 return frac(sin(dot(co, float2(12.9898,78.233))) * 43758.5453);
@@ -62,19 +62,19 @@ Shader "Custom/GlitchEffectRandomTimingURP_Irregular"
                 float2 uv = IN.uv;
                 float time = _Time.y;
 
-                // •s‹K‘¥ƒOƒŠƒbƒ`”»’èFFrequency ‚ÅƒTƒ“ƒvƒŠƒ“ƒO‚µ‚½—”‚ª Chance ˆÈ‰º‚È‚çƒAƒNƒeƒBƒu
+                // Frequencyã§ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ã—ãŸä¹±æ•°ãŒ Chance ä»¥ä¸‹ãªã‚‰ã‚¢ã‚¯ãƒ†ã‚£ãƒ–
                 float sample = rand(float2(time * _GlitchFrequency, time * 0.37));
                 float isActive = step(sample, _GlitchChance);
 
-                // ƒuƒƒbƒN’PˆÊ UV
+                // ãƒ–ãƒ­ãƒƒã‚¯å˜ä½ UV
                 float2 block = floor(uv * _BlockSize) / _BlockSize;
 
-                // Šî–{ƒIƒtƒZƒbƒg
+                // åŸºæœ¬ã‚ªãƒ•ã‚»ãƒƒãƒˆ
                 float baseRand = rand(float2(block.y, time * _GlitchFrequency + 1.23));
                 float offset = (baseRand * 2.0 - 1.0) * _GlitchAmount * isActive;
 
-                // Šeƒ`ƒƒƒ“ƒlƒ‹—pƒIƒtƒZƒbƒgiFû·‚ğ‘å‚«‚ß‚Éj
-                float sep = _ColorSeparation * isActive * 2.0; // ”{—¦ 2.0 ‚Å‹­’²
+                // å„ãƒãƒ£ãƒ³ãƒãƒ«ç”¨ã‚ªãƒ•ã‚»ãƒƒãƒˆ
+                float sep = _ColorSeparation * isActive * 2.0;
 
                 float3 col;
                 col.r = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(offset + sep, offset)).r;
