@@ -1,0 +1,54 @@
+name: Release To GitHub Release (Windows/WebGL)
+
+on:
+  workflow_call:
+    inputs:
+      build_target_name:
+        description: 'Choose Windows or WebGL'
+        required: true
+        type: string
+      version_tag:
+        description: 'Release Version Tag (e.g., 1.0.1)'
+        required: true
+        type: string
+
+    secrets:
+      UNITY_EMAIL:
+        required: true
+      UNITY_PASSWORD:
+        required: true
+      UNITY_LICENSE:
+        required: true
+
+  workflow_dispatch:
+    inputs:
+      build_target_name:
+        description: 'Choose Windows or WebGL'
+        required: true
+        type: choice
+        options:
+          - Windows
+          - WebGL
+        default: 'Windows'
+      version_tag:
+        description: 'Release Version Tag (e.g., 1.0.1)'
+        required: true
+        type: string
+
+jobs:
+  call_build:
+    name: Build ${{ inputs.build_target_name }}
+    uses: ./.github/workflows/build-unity.yml
+    secrets: inherit
+    with:
+      build_target_name: ${{ inputs.build_target_name }}
+
+  call_release:
+    name: Release
+    needs: call_build
+
+    uses: ./.github/workflows/create-release-note.yml
+    secrets: inherit
+    with:
+      ARTIFACT_NAME: ${{ needs.call_build.outputs.artifact_name }}
+      VERSION_TAG: ${{ inputs.version_tag }}

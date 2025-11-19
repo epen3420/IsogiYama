@@ -1,0 +1,47 @@
+name: GitHub Event Handler
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+# labelにrelease/Windowsとrelease/WebGLがついてたら両方通る
+# ブランチ名がrelease/*だったら、*をタグにする
+# じゃなければ、ブランチ名がそのままタグになる
+jobs:
+  init:
+    name: Check conditions and Set version variables
+    runs-on: ubuntu-latest
+    # PRがマージ、labelがrelease/*
+    if: >
+      github.event.pull_request.merged == true &&
+      ( contains(github.event.pull_request.labels.*.name, 'release/Windows') ||
+        contains(github.event.pull_request.labels.*.name, 'release/WebGL') )
+
+    outputs:
+      version_tag: ${{ steps.var.outputs.version_tag }}
+
+    steps:
+      - id: var
+        # version_tag = ブランチ名がrelease/*の場合その後を使い、それ以外はそのまま
+        run: |
+          branch_name="${{ github.event.pull_request.head.ref }}"
+          if [[ "${branch_name}" == release/* ]]; then
+            version_tag=$(echo "${branch_name}" | sed 's/release\///')
+          else
+            version_tag="${branch_name}"
+          fi
+          echo "version_tag=${version_tag}" >> $GITHUB_OUTPUT
+
+  # labelがrelease/Windowの時実行
+  call_release_windows_to_github:
+    name: Call release Windows build to GitHub
+    needs: init
+    if: >
+      contains(github.event.pull_request.labels.*.name, 'release/Windows')
+    uses: ./.github/workflows/release-github.yml
+    secrets: inherit
+    with:
+      build_target_name: Windows
+      version_tag: ${{ needs.init.outputs.version_tag }}

@@ -1,0 +1,60 @@
+name: Create GitHub Release Note
+
+on:
+  # リポジトリ上でテスト可能にするため
+  workflow_dispatch:
+    inputs:
+      VERSION_TAG:
+        description: 'Build version tag'
+        required: true
+        type: string
+      ARTIFACT_NAME:
+        description: 'Build artifact name to download'
+        required: true
+        type: string
+      RUN_ID:
+        description: 'Build artifact run id to download'
+        required: true
+        type: string
+
+  workflow_call:
+    inputs:
+      VERSION_TAG:
+        description: 'Build version tag'
+        required: true
+        type: string
+      ARTIFACT_NAME:
+        description: 'Build artifact name to download'
+        required: true
+        type: string
+
+jobs:
+  create_release:
+    name: Create github release note
+    runs-on: ubuntu-latest
+    env:
+      ZIP_FILE_NAME: ${{ github.event.repository.name }}-${{ inputs.VERSION_TAG }}.zip
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.ARTIFACT_NAME }}
+          path: ${{ inputs.ARTIFACT_NAME }}
+          run-id: ${{ inputs.RUN_ID }} # nullだったら自動で今のrun-idになる
+
+      - name: action
+        run: echo $(du -h)
+
+      - name: Zip build files
+        run: zip -r ${{ env.ZIP_FILE_NAME }} ./${{ inputs.ARTIFACT_NAME }}
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ inputs.VERSION_TAG }}
+          name: Release ${{ inputs.VERSION_TAG }}
+          files: ./${{ env.ZIP_FILE_NAME }}
+          generate_release_notes: true # 自動でリリースの記事を書いてくれる

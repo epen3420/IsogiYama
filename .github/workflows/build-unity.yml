@@ -1,0 +1,121 @@
+name: Unity Build (Windows/WebGL)
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_target_name:
+        description: 'Choose Windows or WebGL'
+        required: true
+        type: choice
+        options:
+          - Windows
+          - WebGL
+        default: 'Windows'
+
+  workflow_call:
+    inputs:
+      build_target_name:
+        description: 'Choose Windows or WebGL'
+        required: true
+        type: string
+
+    secrets:
+      UNITY_EMAIL:
+        required: true
+      UNITY_PASSWORD:
+        required: true
+      UNITY_LICENSE:
+        required: true
+
+    # 生成したアーティファクト名を出力
+    outputs:
+      artifact_name:
+        description: "The name of the build artifact"
+        value: ${{ jobs.build.outputs.artifact_name }}
+
+jobs:
+  build:
+    name: Run the build for ${{ inputs.build_target_name }}
+    runs-on: ubuntu-latest
+
+    outputs:
+      artifact_name: ${{ steps.vars.outputs.artifact_name }}
+
+    steps:
+      # 仮想環境にクローン
+      - name: Check out my unity project
+        uses: actions/checkout@v5
+        with:
+          lfs: true
+
+      # ビルドターゲットに応じて環境変数を設定
+      - name: Set Build Variables
+        id: vars # ジョブの outputs で参照するため id を設定
+        run: |
+          echo "Setting build variables based on input: ${{ inputs.build_target_name }}"
+
+          # inputs.build_target_name に応じて build_target (プラットフォーム名) を設定
+          if [ "${{ inputs.build_target_name }}" == "Windows" ]; then
+            echo "build_target=StandaloneWindows64" >> $GITHUB_ENV
+
+          elif [ "${{ inputs.build_target_name }}" == "WebGL" ]; then
+            echo "build_target=WebGL" >> $GITHUB_ENV
+          else
+            echo "Error: Invalid build_target_name."
+            exit 1
+          fi
+
+          # ARTIFACT_NAME を設定
+          ARTIFACT_NAME_VALUE="${{ inputs.build_target_name }}-Build-$(git rev-parse --short HEAD)"
+          echo "ARTIFACT_NAME=${ARTIFACT_NAME_VALUE}" >> $GITHUB_ENV
+          echo "artifact_name=${ARTIFACT_NAME_VALUE}" >> $GITHUB_OUTPUT
+
+      # Unityビルドの前にランナーの空き容量を確保する
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          android: false # androidビルドするかもしれないし
+          docker-images: false # 元からdockerはない
+          tool-cache: false # 一番時間かかる(10倍くらい)
+          large-packages: false # 二番目に時間がかかる
+          swap-storage: true
+          dotnet: true
+          haskell: true
+
+      # 次回起動時の高速化ためパッケージをキャッシュ
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          # manifest.jsonかlock.jsonが変わったときだけキャッシュを更新
+          key: Library-${{ hashFiles('Packages/manifest.json', 'Packages/packages-lock.json') }}
+          restore-keys: |
+            Library-
+
+      - name: Cache Packages
+        uses: actions/cache@v4
+        with:
+          path: Packages
+          # manifest.jsonかlock.jsonが変わったときだけキャッシュを更新
+          key: Packages-${{ hashFiles('Packages/manifest.json', 'Packages/packages-lock.json') }}
+          restore-keys: |
+            Packages-
+
+      # Unity ビルド実行
+      # 詳細の設定はUnity側で行えば良い
+      - name: Run the build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: ${{ env.build_target }}
+          allowDirtyBuild: true
+
+      # ビルド成果物をアップロード
+      - name: Upload the Build
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: build/${{ env.build_target }}
