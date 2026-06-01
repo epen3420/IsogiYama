@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class CameraController
@@ -8,7 +8,7 @@ public class CameraController
     private readonly Vector3 initialPosition;
 
     /// <summary>
-    /// ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Å Camera ‚ğó‚¯æ‚èA‰ŠúˆÊ’u‚ğ‹L‰¯‚µ‚Ü‚·B
+    /// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ Camera ã‚’å—ã‘å–ã‚Šã€åˆæœŸä½ç½®ã‚’è¨˜æ†¶ã—ã¾ã™ã€‚
     /// </summary>
     public CameraController(Camera cam)
     {
@@ -18,7 +18,7 @@ public class CameraController
     }
 
     /// <summary>
-    /// w’èŠÔ duration •bA‹­“x magnitude ‚ÅƒJƒƒ‰‚ğU“®‚³‚¹‚Ü‚·B
+    /// æŒ‡å®šæ™‚é–“ duration ç§’ã€å¼·åº¦ magnitude ã§ã‚«ãƒ¡ãƒ©ã‚’æŒ¯å‹•ã•ã›ã¾ã™ã€‚
     /// </summary>
     public async UniTask ShakeAsync(float duration, float magnitude)
     {
@@ -26,16 +26,16 @@ public class CameraController
 
         while (elapsed < duration)
         {
-            // ƒ‰ƒ“ƒ_ƒ€‚ÈƒIƒtƒZƒbƒg‚ğ¶¬
+            // ãƒ©ãƒ³ãƒ€ãƒ ãªã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’ç”Ÿæˆ
             Vector3 offset = Random.insideUnitSphere * magnitude;
             cameraTransform.localPosition = initialPosition + offset;
 
-            // ŸƒtƒŒ[ƒ€‚Ü‚Å‘Ò‹@
+            // æ¬¡ãƒ•ãƒ¬ãƒ¼ãƒ ã¾ã§å¾…æ©Ÿ
             await UniTask.Yield(PlayerLoopTiming.Update);
             elapsed += Time.deltaTime;
         }
 
-        // U“®I—¹Œã‚Í•K‚¸‰ŠúˆÊ’u‚É–ß‚·
+        // æŒ¯å‹•çµ‚äº†å¾Œã¯å¿…ãšåˆæœŸä½ç½®ã«æˆ»ã™
         cameraTransform.localPosition = initialPosition;
     }
 }

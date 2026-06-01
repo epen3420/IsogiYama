@@ -1,4 +1,4 @@
-/// <summary>
+﻿/// <summary>
 /// ゲームのステップタイプ
 /// </summary>
 public enum GameStepType
