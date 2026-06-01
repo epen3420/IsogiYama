@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
-using TMPro; // TextMeshProを使用する場合に必要です
+using TMPro;
 
 public class VersionDisplay : MonoBehaviour
 {
-    // UnityエディタからTextMeshProUGUIコンポーネントをここにドラッグ＆ドロップしてください
     public TextMeshProUGUI versionText;
 
     void Start()
@@ -25,29 +24,27 @@ public class VersionDisplay : MonoBehaviour
         }
         else
         {
-            // 割り当てられていない場合は、デバッグログに表示します
             Debug.LogWarning("Version Text (TextMeshProUGUI) is not assigned. Displaying in Debug.Log: " + displayString);
             Debug.Log(displayString);
         }
     }
 
-    // 各プラットフォームに対応する短い文字列を返します
     string GetPlatformString()
     {
         switch (Application.platform)
         {
             case RuntimePlatform.WindowsPlayer:
             case RuntimePlatform.WindowsEditor:
-                return "win";
+                return "Windows";
             case RuntimePlatform.WebGLPlayer:
-                return "webgl";
+                return "WebGL";
             case RuntimePlatform.OSXPlayer:
             case RuntimePlatform.OSXEditor:
-                return "mac";
+                return "macOS";
             case RuntimePlatform.Android:
-                return "android";
+                return "Android";
             case RuntimePlatform.IPhonePlayer:
-                return "ios";
+                return "iOS";
             case RuntimePlatform.LinuxPlayer:
             case RuntimePlatform.LinuxEditor:
                 return "linux";
