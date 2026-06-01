@@ -172,6 +172,18 @@ public class TextWindows : SceneSingleton<TextWindows>
         // SkipIcon.SetActive(false);
     }
 
+    public void HideBubble()
+    {
+        SpeechBubble.SetActive(false);
+        SkipIcon.SetActive(false);
+    }
+
+    public void ShowBubble()
+    {
+        SpeechBubble.SetActive(true);
+        SkipIcon.SetActive(true);
+    }
+
     /// <summary>
     /// UIの上にポインターがある場合、かつそのUIが「ExclusionUI」タグを持つものがあれば、入力は無効
     /// </summary>
