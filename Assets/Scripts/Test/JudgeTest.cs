@@ -37,15 +37,15 @@ namespace JudgeTest
             TypingJudder judder = new TypingJudder(hiragana);
             judder.OnRomajiTextChanged += (newRomaji) =>
             {
-                Debug.Log($"Romaji Text Changed: {newRomaji} (Current Input Length: {judder.GetCurrentInputLength()})");
+                Debug.Log($"Romaji Text Changed: {newRomaji} (Current Input Length: {judder.TypedRomajiCount})");
             };
 
-            Debug.Log($"Initial Full Romaji: {judder.FullRomajiText} (Initial Input Length: {judder.GetCurrentInputLength()})");
+            Debug.Log($"Initial Full Romaji: {judder.FullRomaji} (Initial Input Length: {judder.TypedRomajiCount})");
 
             foreach (char typedChar in expectedRomajiInput)
             {
                 TypingState state = judder.JudgeChar(typedChar);
-                Debug.Log($"Typed: '{typedChar}', State: {state}, Current Full Romaji: {judder.FullRomajiText}, Current Input Length: {judder.GetCurrentInputLength()}");
+                Debug.Log($"Typed: '{typedChar}', State: {state}, Current Full Romaji: {judder.FullRomaji}, Current Input Length: {judder.TypedRomajiCount}");
 
                 if (state == TypingState.Miss)
                 {
@@ -54,7 +54,7 @@ namespace JudgeTest
                 }
             }
 
-            if (judder.GetCurrentInputLength() == judder.TotalRomajiLength)
+            if (judder.TypedRomajiCount == judder.FullRomaji.Length)
             {
                 Debug.Log($"SUCCESS: \"{hiragana}\" cleared.");
             }
