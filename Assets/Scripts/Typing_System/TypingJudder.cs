@@ -53,11 +53,23 @@ public class TypingJudder
 #if UNITY_EDITOR
         if (CheatModeWindow.IsCheat)
         {
-            _current = null;
-            _pendingTerminal = null;
-            TypedRomajiCount = FullRomaji.Length;
-            TypedHiraganaCount = FullJapanese.Length;
-            return TypingState.Clear;
+            if (TypedRomajiCount >= FullRomaji.Length)
+                return TypingState.Clear;
+
+            // どんな文字でも1文字進める
+            TypedRomajiCount++;
+
+            float progress = (float)TypedRomajiCount / FullRomaji.Length;
+            TypedHiraganaCount = (int)Math.Round(FullJapanese.Length * progress);
+
+            if (TypedRomajiCount >= FullRomaji.Length)
+            {
+                _current = null;
+                _pendingTerminal = null;
+                return TypingState.Clear;
+            }
+
+            return TypingState.Hit;
         }
 #endif
         if (_current == null)
