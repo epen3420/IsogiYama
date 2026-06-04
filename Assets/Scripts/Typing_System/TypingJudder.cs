@@ -2,18 +2,17 @@
 using System.Text;
 
 /// <summary>
-/// ひらがな列に対するタイピング判定クラス。
-/// 状態は CurrentNode ポインタと2つのカウンタのみ。
-/// 出題ごとの new TrieNode / new Dictionary は一切発生しない。
+/// ひらがな列に対するタイピング判定クラス
 /// </summary>
 public class TypingJudder
 {
-    // -------------------------------------------------------------------------
-    // 状態（出題ごとにリセット）
-    // -------------------------------------------------------------------------
-
     private TrieNode _root;
     private TrieNode _current;
+
+    /// <summary>
+    /// 遅延コミット中の中間終端ノード。
+    /// </summary>
+    private TrieNode _pendingTerminal;
 
     /// <summary>入力済みローマ字文字数（UI 表示用）</summary>
     public int TypedRomajiCount { get; private set; }
@@ -21,29 +20,15 @@ public class TypingJudder
     /// <summary>入力済みひらがな文字数（UI 表示用）</summary>
     public int TypedHiraganaCount { get; private set; }
 
-    // -------------------------------------------------------------------------
-    // 表示用テキスト
-    // -------------------------------------------------------------------------
-
-    /// <summary>現在の問題のひらがな全体（UI 表示用）</summary>
     public string FullJapanese { get; private set; }
-
-    /// <summary>
-    /// 現在の問題の表示用ローマ字列（デフォルト表記）。
-    /// ユーザーが別表記（shi ではなく si 等）を打った場合も
-    /// このクラスでは変更しない。変更が必要なら OnRomajiTextChanged を利用。
-    /// </summary>
     public string FullRomaji { get; private set; }
 
     /// <summary>
     /// セグメント完了ごとに発火。引数は現在の FullRomaji。
+    /// ユーザーが別表記（shi ではなく si 等）を打った場合など、
     /// 表示上のローマ字列を更新したいタイミングで使用。
     /// </summary>
     public event Action<string> OnRomajiTextChanged;
-
-    // -------------------------------------------------------------------------
-    // コンストラクタ
-    // -------------------------------------------------------------------------
 
     public TypingJudder(string hiragana)
     {
@@ -55,18 +40,21 @@ public class TypingJudder
 
         TypedRomajiCount = 0;
         TypedHiraganaCount = 0;
+        _pendingTerminal = null;
     }
 
-    // -------------------------------------------------------------------------
-    // 入力判定
-    // -------------------------------------------------------------------------
-
+    /// <summary>
+    /// 入力判定。打鍵に対して Hit / Miss / Clear を返す。
+    /// </summary>
+    /// <param name="typedChar"></param>
+    /// <returns></returns>
     public TypingState JudgeChar(char typedChar)
     {
 #if UNITY_EDITOR
         if (CheatModeWindow.IsCheat)
         {
             _current = null;
+            _pendingTerminal = null;
             TypedRomajiCount = FullRomaji.Length;
             TypedHiraganaCount = FullJapanese.Length;
             return TypingState.Clear;
@@ -78,36 +66,59 @@ public class TypingJudder
         char lower = char.ToLower(typedChar);
 
         if (!_current.Children.TryGetValue(lower, out TrieNode next))
-            return TypingState.Miss;
+        {
+            // 現在ノードにマッチする子がない。
+            // pending（ん shortcut 等）があれば確定して次セグメントの root へ fallback。
+            if (_pendingTerminal != null)
+            {
+                var pending = _pendingTerminal;
+                _pendingTerminal = null;
 
+                TrieNode fallback = pending.NextRoot;
+                if (fallback != null && fallback.Children.TryGetValue(lower, out next))
+                {
+                    // pending を確定
+                    TypedHiraganaCount += pending.HiraganaCount;
+                    TypedRomajiCount += pending.RomajiCount;
+                    OnRomajiTextChanged?.Invoke(FullRomaji);
+
+                    _current = next;
+                    return next.IsTerminal ? CommitOrDefer(next) : TypingState.Hit;
+                }
+            }
+            return TypingState.Miss;
+        }
+
+        _pendingTerminal = null;
         _current = next;
 
         if (!next.IsTerminal)
             return TypingState.Hit;
 
-        // --- 終端到達：カウンタ更新 ---
-        TypedRomajiCount = next.RomajiCount;
-        TypedHiraganaCount = next.HiraganaCount;
-
-        OnRomajiTextChanged?.Invoke(FullRomaji);
-
-        if (TypedHiraganaCount >= FullJapanese.Length)
-        {
-            _current = null;
-            return TypingState.Clear;
-        }
-
-        return TypingState.Hit;
+        return CommitOrDefer(next);
     }
 
-    // -------------------------------------------------------------------------
-    // デフォルト表示用ローマ字列の生成
-    // -------------------------------------------------------------------------
-
     /// <summary>
-    /// ひらがな列から表示用のデフォルトローマ字列を生成する。
-    /// 「っ」は次の子音重ね表記を使用する。
+    /// 終端ノードに到達したとき、即コミットするか遅延するかを判定する。
     /// </summary>
+    private TypingState CommitOrDefer(TrieNode node)
+    {
+        if (node.Children.Count > 0 && node.NextRoot != null)
+        {
+            // 遅延：まだカウントを加算せず、次の打鍵を待つ
+            _pendingTerminal = node;
+            return TypingState.Hit;
+        }
+
+        // 即コミット
+        TypedHiraganaCount += node.HiraganaCount;
+        TypedRomajiCount += node.RomajiCount;
+        OnRomajiTextChanged?.Invoke(FullRomaji);
+
+        _current = node.NextRoot; // null なら全セグメント完了
+        return _current == null ? TypingState.Clear : TypingState.Hit;
+    }
+
     private static string BuildDefaultRomaji(string hiragana)
     {
         var sb = new StringBuilder();
@@ -119,7 +130,6 @@ public class TypingJudder
 
             if (hiragana[i] == 'っ')
             {
-                // 次の先頭子音を先読みして重ね表記
                 char carry = '\0';
                 for (int len = Math.Min(3, hiragana.Length - (i + 1)); len >= 1; len--)
                 {
