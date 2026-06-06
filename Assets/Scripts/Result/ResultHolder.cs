@@ -82,11 +82,15 @@ public class ResultHolder : Singleton<ResultHolder>
         return false;
     }
 
+    public override void Awake()
+    {
+        base.Awake();
+        endingsDict = endingsList.ToDictionary(e => e.Key);
+    }
+
     private void Start()
     {
         _csvFilePath = Path.Combine(Application.persistentDataPath, "typing_results.csv");
-
-        endingsDict = endingsList.ToDictionary(e => e.Key);
         CheckAndCreateCsvFile();
     }
 
