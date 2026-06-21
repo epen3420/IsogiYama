@@ -151,7 +151,7 @@ public class TypingJudder
                     if (!"aiueon".Contains(c) && c != 'y') carry = c;
                     break;
                 }
-                sb.Append(carry != '\0' ? carry : TrieBuilder.RomaMap["っ"][0][0]);
+                sb.Append(carry != '\0' ? carry : TrieBuilder.RomaMap["っ"][0]);
                 i++;
                 found = true;
             }
