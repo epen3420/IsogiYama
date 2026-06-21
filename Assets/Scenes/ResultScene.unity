@@ -596,7 +596,7 @@ MonoBehaviour:
   - {fileID: -9102406494775990262, guid: a5e2601dab259f146ab721c63d09edcd, type: 3}
   badEndSprites:
   - {fileID: -1673019375328249834, guid: 4ce3288c8ed84b746b5a4069400b4329, type: 3}
-  useTestData: 1
+  useTestData: 0
 --- !u!1001 &1822512617
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1029,9 +1029,9 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.125
+    x: 0.11650115
     y: 0
-    width: 0.75
+    width: 0.7669977
     height: 1
   near clip plane: 0.3
   far clip plane: 1000

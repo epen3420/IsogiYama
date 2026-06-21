@@ -162,7 +162,7 @@ public class TypingProgressManager : MonoBehaviour
         }
         currentQuestData = questDatas[questIndex++];
 
-        typingJudder = new TypingJudder(currentQuestData.Input); // Inputはローマ字文字列
+        typingJudder = new TypingJudder(currentQuestData.Input); // Inputはひらがな文字列
 
         // UIの初期表示を新しいUpdateDisplayTextsメソッドで直接行う
         onUpdateAllTexts?.Invoke(
@@ -256,8 +256,10 @@ public class TypingProgressManager : MonoBehaviour
                     typingJudder.FullRomaji,
                     typingJudder.TypedRomajiCount
                 );
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
                 Debug.Log(typingJudder.TypedHiraganaCount);
                 // Debug.Log($"{typedChar}: Hit");
+#endif
                 break;
 
             case TypingState.Miss:

@@ -1,15 +1,18 @@
 ﻿using UnityEngine;
 using Cysharp.Threading.Tasks;
 
-public class HideBoxCommand : CommandBase
+namespace IsogiYama.Commands
 {
-    TextWindows textWindows;
-
-    public override async UniTask ExecuteAsync(LineData<ScenarioFields> lineData)
+    public class HideBoxCommand : CommandBase
     {
-        textWindows = InstanceRegister.Get<TextWindows>();
-        textWindows.HideBubble();
+        TextWindows textWindows;
 
-        await UniTask.Yield();
+        public override async UniTask ExecuteAsync(LineData<ScenarioFields> lineData)
+        {
+            textWindows = InstanceRegister.Get<TextWindows>();
+            textWindows.HideBubble();
+
+            await UniTask.Yield();
+        }
     }
 }
