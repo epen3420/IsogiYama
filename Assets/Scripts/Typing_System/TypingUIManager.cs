@@ -11,9 +11,9 @@ public class TypingUIManager : MonoBehaviour
     [SerializeField]
     private StopwatchTimer timer;
     [SerializeField]
-    private TMP_Text timerText;
+    private TMP_Text timerText, totalTimerText;
     [SerializeField]
-    private TMP_Text typoCountText;
+    private TMP_Text typoCountText, totalTypoCountText;
 
     [SerializeField]
     private GameObject textWindow;
@@ -33,6 +33,24 @@ public class TypingUIManager : MonoBehaviour
         progressManager.onHideTextWindow += HideTextWindow;
 
         typoCountText.text = "0回";
+        totalTypoCountText.text = "0回";
+        timerText.text = "0.0";
+        totalTimerText.text = "0.0";
+
+        ResultHolder resultHolder = ResultHolder.instance;
+        if(resultHolder != null)
+        {
+            TypingResult result = resultHolder.GetResult();
+
+            if (result != null)
+            {
+                var totalTime = result.ClearTime;
+                var totalTypos = result.TotalIncorrectTypes;
+
+                totalTypoCountText.text = $"{totalTypos}回";
+                totalTimerText.text = $"{totalTime:F1}";
+            }
+        }
     }
 
     public void ResetText()

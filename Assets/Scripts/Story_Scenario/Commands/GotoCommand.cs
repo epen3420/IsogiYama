@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 
 namespace IsogiYama.Commands
 {
@@ -13,7 +13,7 @@ namespace IsogiYama.Commands
             int targetIndex = lineData.Get<int>(ScenarioFields.PageCtrl);
 
             progressManager.IncrementIndex();
-            // Header•ª‚ğl—¶‚µ‚È‚¢‚ÆOutOfIndex‚É‚È‚è‚©‚Ë‚È‚¢ + Index‚à0‚©‚çn‚Ü‚Á‚Ä‚é‚©‚ç2ˆø‚©‚È‚¢‚Æ‚¢‚¯‚È‚¢
+            // Headeråˆ†ã‚’è€ƒæ…®ã—ãªã„ã¨OutOfIndexã«ãªã‚Šã‹ã­ãªã„ + Indexã‚‚0ã‹ã‚‰å§‹ã¾ã£ã¦ã‚‹ã‹ã‚‰2å¼•ã‹ãªã„ã¨ã„ã‘ãªã„
             progressManager.IndexSkip(targetIndex - 2);
             await UniTask.Delay(1);
         }

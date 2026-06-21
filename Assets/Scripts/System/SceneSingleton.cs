@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public abstract class SceneSingleton<T> : MonoBehaviour where T : MonoBehaviour
 {

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "EndingGameStep", menuName = "GameFlow/EndingGameStep")]
 public class EndingGameStep : GameStepNeedCSV
