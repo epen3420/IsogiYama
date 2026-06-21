@@ -42,10 +42,11 @@ public class TypingUIManager : MonoBehaviour
         {
             TypingResult result = resultHolder.GetResult();
 
-            var totalTime = result.ClearTime;
-            var totalTypos = result.TotalIncorrectTypes;
             if (result != null)
             {
+                var totalTime = result.ClearTime;
+                var totalTypos = result.TotalIncorrectTypes;
+
                 totalTypoCountText.text = $"{totalTypos}回";
                 totalTimerText.text = $"{totalTime:F1}";
             }
