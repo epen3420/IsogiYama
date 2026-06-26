@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
@@ -11,7 +11,7 @@ public class GlitchVolume : VolumeComponent, IPostProcessComponent
     public ClampedFloatParameter glitchChance = new ClampedFloatParameter(0.02f, 0f, 1f);
     public ClampedFloatParameter colorSeparation = new ClampedFloatParameter(0.05f, 0f, 0.1f);
 
-    // Volume “à‚Å—LŒø‚©‚Ç‚¤‚©
+    // Volume å†…ã§æœ‰åŠ¹ã‹ã©ã†ã‹
     public bool IsActive() => glitchAmount.value > 0f && glitchChance.value > 0f;
     public bool IsTileCompatible() => false;
 }

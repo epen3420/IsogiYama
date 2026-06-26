@@ -63,6 +63,11 @@ public class CommandFactory
                 tmp = new BgCommand();
                 break;
 
+            case "HideBox":
+                // テキストボックスを消す
+                tmp = new HideBoxCommand();
+                break;
+
             /// PostProcess
 
             case "#Bloom":

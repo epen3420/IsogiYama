@@ -162,24 +162,18 @@ public class TypingProgressManager : MonoBehaviour
         }
         currentQuestData = questDatas[questIndex++];
 
-        typingJudder = new TypingJudder(currentQuestData.Input); // Inputはローマ字文字列
-
-        // Debug.Log
-        foreach (var segment in typingJudder.judgeList)
-        {
-            Debug.Log(segment.ToString());
-        }
+        typingJudder = new TypingJudder(currentQuestData.Input); // Inputはひらがな文字列
 
         // UIの初期表示を新しいUpdateDisplayTextsメソッドで直接行う
         onUpdateAllTexts?.Invoke(
             currentQuestData.Japanese,
             0,
-            typingJudder.FullRomajiText,
+            typingJudder.FullRomaji,
             0
         );
 
         // endCurrentQuestイベントは、他のシステムに通知するために保持
-        endCurrentQuest?.Invoke(currentQuestData.Japanese, typingJudder.FullRomajiText);
+        endCurrentQuest?.Invoke(currentQuestData.Japanese, typingJudder.FullRomaji);
     }
 
     private void End(bool isGameOver = false)
@@ -258,12 +252,14 @@ public class TypingProgressManager : MonoBehaviour
 
                 onUpdateAllTexts?.Invoke(
                     currentQuestData.Japanese,
-                    typingJudder.GetCombinedHiraganaLength(),
-                    typingJudder.FullRomajiText,
-                    typingJudder.GetCurrentInputLength()
+                    typingJudder.TypedHiraganaCount,
+                    typingJudder.FullRomaji,
+                    typingJudder.TypedRomajiCount
                 );
-                Debug.Log(typingJudder.GetCombinedHiraganaLength());
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.Log(typingJudder.TypedHiraganaCount);
                 // Debug.Log($"{typedChar}: Hit");
+#endif
                 break;
 
             case TypingState.Miss:
@@ -284,9 +280,9 @@ public class TypingProgressManager : MonoBehaviour
                 soundPlayer.PlaySe("TypeHit");
                 onUpdateAllTexts?.Invoke(
                     currentQuestData.Japanese,
-                    typingJudder.GetCombinedHiraganaLength(), // クリア時は全ての色付けが完了
-                    typingJudder.FullRomajiText,
-                    typingJudder.GetCurrentInputLength() // クリア時は全ての色付けが完了
+                    typingJudder.TypedHiraganaCount, // クリア時は全ての色付けが完了
+                    typingJudder.FullRomaji,
+                    typingJudder.TypedRomajiCount // クリア時は全ての色付けが完了
                 );
 
                 Debug.Log($"{typedChar}: Clear");

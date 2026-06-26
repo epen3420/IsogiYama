@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2838750625035016951}
   - component: {fileID: 2265688122680103939}
   - component: {fileID: 7054454910093978996}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 483775287456182565}
   - component: {fileID: 1533197291762353838}
   - component: {fileID: 8731298992964280629}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: BGMVolumeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,7 +222,7 @@ GameObject:
   - component: {fileID: 8388677734076543717}
   - component: {fileID: 5780759935762027146}
   - component: {fileID: 441936137610597352}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -295,7 +295,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7741494444902049518}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Handle Slide Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -332,7 +332,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5014220673050120537}
   - component: {fileID: 6103200414781693321}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: SEVolumeSlider
   m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
@@ -425,7 +425,7 @@ GameObject:
   - component: {fileID: 5151460864845224139}
   - component: {fileID: 4531657317205160417}
   - component: {fileID: 5896702357466364476}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Handle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -500,7 +500,7 @@ GameObject:
   - component: {fileID: 3871214456298915359}
   - component: {fileID: 5585520227602208072}
   - component: {fileID: 4950346763467043216}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: minVolume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -576,13 +576,13 @@ GameObject:
   - component: {fileID: 36984750891342938}
   - component: {fileID: 6814626265124619480}
   - component: {fileID: 792461545410637914}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Setting_Btn
   m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3032576120076045525
 RectTransform:
   m_ObjectHideFlags: 0
@@ -599,7 +599,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -100, y: -75}
+  m_AnchoredPosition: {x: -130, y: -100}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &36984750891342938
@@ -705,7 +705,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5354157326636792906}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -743,7 +743,7 @@ GameObject:
   - component: {fileID: 7592045113779276847}
   - component: {fileID: 3021590598721698491}
   - component: {fileID: 9135256040818455988}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Handle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -816,7 +816,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3014107175565252610}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Handle Slide Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -854,7 +854,7 @@ GameObject:
   - component: {fileID: 2003851404377352749}
   - component: {fileID: 6271985948477952185}
   - component: {fileID: 4325929070373767487}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: maxVolume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -930,7 +930,7 @@ GameObject:
   - component: {fileID: 7000910397740842328}
   - component: {fileID: 7754358264594829612}
   - component: {fileID: 9085343079903488322}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Return_Btn
   m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
@@ -1061,7 +1061,7 @@ GameObject:
   - component: {fileID: 505742971531140689}
   - component: {fileID: 5503069413623858880}
   - component: {fileID: 319659143169810310}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: SEVolumeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1198,8 +1198,7 @@ GameObject:
   - component: {fileID: 4241415107034686788}
   - component: {fileID: 4714226242440309279}
   - component: {fileID: 413268906006270231}
-  - component: {fileID: 7912637651782646693}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: MenuCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1236,7 +1235,7 @@ Canvas:
   m_GameObject: {fileID: 6587475952804566218}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -1266,7 +1265,7 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 2048, y: 1536}
-  m_ScreenMatchMode: 0
+  m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -1290,19 +1289,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &7912637651782646693
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6587475952804566218}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c16ab14a9478cf04799366396801059d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetAspect: 1.3333334
 --- !u!1 &7057742041741896802
 GameObject:
   m_ObjectHideFlags: 0
@@ -1314,7 +1300,7 @@ GameObject:
   - component: {fileID: 8537047636268421873}
   - component: {fileID: 9136435949201959185}
   - component: {fileID: 8859948051276728314}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1389,7 +1375,7 @@ GameObject:
   - component: {fileID: 8212539314210550986}
   - component: {fileID: 3503238078702372858}
   - component: {fileID: 794308836302672739}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1527,7 +1513,7 @@ GameObject:
   - component: {fileID: 5534476021582354908}
   - component: {fileID: 7549104382463046813}
   - component: {fileID: 6789434523121472280}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Reset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1671,7 +1657,7 @@ GameObject:
   - component: {fileID: 7160585149223466218}
   - component: {fileID: 8463752237687249151}
   - component: {fileID: 2708590255838833024}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1746,7 +1732,7 @@ GameObject:
   - component: {fileID: 7104125575995439329}
   - component: {fileID: 8139967567355875111}
   - component: {fileID: 5968678152112866604}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: maxVolume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1820,7 +1806,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6409436733383974834}
   - component: {fileID: 7259301765978244059}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: BGMVolumeSlider
   m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
@@ -1913,7 +1899,7 @@ GameObject:
   - component: {fileID: 8077421600511339587}
   - component: {fileID: 5113262337099837437}
   - component: {fileID: 2898033272771361049}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: minVolume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1986,7 +1972,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9214448072111942246}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2025,7 +2011,7 @@ GameObject:
   - component: {fileID: 6148794265614074958}
   - component: {fileID: 3814168557624552416}
   - component: {fileID: 3797693837886647296}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: MenuPanel
   m_TagString: ExclusionUI
   m_Icon: {fileID: 0}
