@@ -196,7 +196,6 @@ public class ResultDisplay : MonoBehaviour
         // 全てのエンディングがアンロック済みの場合
         else if (allEndingsUnlocked)
         {
-            stringBuilder.AppendLine("");
         }
         // 通常のアドバイス
         else
