@@ -152,31 +152,38 @@ public class TypingJudder
 
         if (_current == null)
         {
-            FullRomaji = _committedRomaji.ToString();
-            OnRomajiTextChanged?.Invoke(FullRomaji);
+            SetFullRomaji(_committedRomaji.ToString());
             return;
         }
 
         if (_currentRomaji.Length == 0)
         {
-            FullRomaji = _committedRomaji + BuildDefaultRomaji(FullJapanese.Substring(TypedHiraganaCount));
-            OnRomajiTextChanged?.Invoke(FullRomaji);
+            SetFullRomaji(_committedRomaji + BuildDefaultRomaji(FullJapanese.Substring(TypedHiraganaCount)));
             return;
         }
 
+        string newFullRomaji;
         if (TryGetDefaultCompletion(_current, out string completion, out TrieNode terminal))
         {
             int nextHiraganaIndex = TypedHiraganaCount + terminal.HiraganaCount;
-            FullRomaji = _committedRomaji
-                         + _currentRomaji.ToString()
-                         + completion
-                         + BuildDefaultRomaji(FullJapanese.Substring(nextHiraganaIndex));
+            newFullRomaji = _committedRomaji
+                            + _currentRomaji.ToString()
+                            + completion
+                            + BuildDefaultRomaji(FullJapanese.Substring(nextHiraganaIndex));
         }
         else
         {
-            FullRomaji = _committedRomaji + _currentRomaji.ToString();
+            newFullRomaji = _committedRomaji + _currentRomaji.ToString();
         }
 
+        SetFullRomaji(newFullRomaji);
+    }
+
+    private void SetFullRomaji(string newFullRomaji)
+    {
+        if (FullRomaji == newFullRomaji) return;
+
+        FullRomaji = newFullRomaji;
         OnRomajiTextChanged?.Invoke(FullRomaji);
     }
 
