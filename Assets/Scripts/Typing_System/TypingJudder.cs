@@ -86,7 +86,6 @@ public class TypingJudder
             if (_pendingTerminal != null)
             {
                 var pending = _pendingTerminal;
-                _pendingTerminal = null;
 
                 TrieNode fallback = pending.NextRoot;
                 if (fallback != null && fallback.Children.TryGetValue(lower, out next))
