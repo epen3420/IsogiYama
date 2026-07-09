@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 /// <summary>
@@ -10,6 +11,7 @@ public class TypingJudder
     private TrieNode _current;
     private readonly StringBuilder _committedRomaji = new();
     private readonly StringBuilder _currentRomaji = new();
+    private readonly Dictionary<int, string> _defaultRomajiSuffixCache = new();
 
     /// <summary>
     /// 遅延コミット中の中間終端ノード。
@@ -36,6 +38,7 @@ public class TypingJudder
     {
         FullJapanese = hiragana;
         FullRomaji = BuildDefaultRomaji(hiragana);
+        _defaultRomajiSuffixCache[0] = FullRomaji;
 
         _root = TrieBuilder.GetOrBuild(hiragana);
         _current = _root;
@@ -158,7 +161,7 @@ public class TypingJudder
 
         if (_currentRomaji.Length == 0)
         {
-            SetFullRomaji(_committedRomaji + BuildDefaultRomaji(FullJapanese.Substring(TypedHiraganaCount)));
+            SetFullRomaji(_committedRomaji + GetDefaultRomajiFrom(TypedHiraganaCount));
             return;
         }
 
@@ -169,7 +172,7 @@ public class TypingJudder
             newFullRomaji = _committedRomaji
                             + _currentRomaji.ToString()
                             + completion
-                            + BuildDefaultRomaji(FullJapanese.Substring(nextHiraganaIndex));
+                            + GetDefaultRomajiFrom(nextHiraganaIndex);
         }
         else
         {
@@ -185,6 +188,19 @@ public class TypingJudder
 
         FullRomaji = newFullRomaji;
         OnRomajiTextChanged?.Invoke(FullRomaji);
+    }
+
+    private string GetDefaultRomajiFrom(int hiraganaIndex)
+    {
+        if (hiraganaIndex >= FullJapanese.Length) return "";
+
+        if (!_defaultRomajiSuffixCache.TryGetValue(hiraganaIndex, out string romaji))
+        {
+            romaji = BuildDefaultRomaji(FullJapanese, hiraganaIndex);
+            _defaultRomajiSuffixCache[hiraganaIndex] = romaji;
+        }
+
+        return romaji;
     }
 
     private static bool TryGetDefaultCompletion(TrieNode node, out string completion, out TrieNode terminal)
@@ -210,8 +226,13 @@ public class TypingJudder
 
     private static string BuildDefaultRomaji(string hiragana)
     {
+        return BuildDefaultRomaji(hiragana, 0);
+    }
+
+    private static string BuildDefaultRomaji(string hiragana, int startIndex)
+    {
         var sb = new StringBuilder();
-        int i = 0;
+        int i = startIndex;
 
         while (i < hiragana.Length)
         {
