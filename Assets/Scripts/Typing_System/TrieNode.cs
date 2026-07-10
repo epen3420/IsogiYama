@@ -15,6 +15,12 @@ public class TrieNode
 
     /// <summary>このセグメントで消費したローマ字文字数（差分）</summary>
     public int RomajiCount;
+
+    /// <summary>このノードから最初に登録された終端までの残り入力</summary>
+    public string DefaultCompletion;
+
+    /// <summary>DefaultCompletion の到達先終端ノード</summary>
+    public TrieNode DefaultTerminal;
         
     /// <summary>
     /// 終端到達時に遷移する次セグメントの root ノード。

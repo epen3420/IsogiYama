@@ -311,6 +311,7 @@ public static class TrieBuilder
     private static void InsertPath(TrieNode node, string path, int hiraCount, TrieNode nextRoot)
     {
         TrieNode cur = node;
+        var pathNodes = new List<TrieNode>(path.Length);
         foreach (char c in path)
         {
             if (!cur.Children.TryGetValue(c, out TrieNode child))
@@ -319,6 +320,7 @@ public static class TrieBuilder
                 cur.Children[c] = child;
             }
             cur = child;
+            pathNodes.Add(cur);
         }
 
         if (!cur.IsTerminal)
@@ -327,6 +329,15 @@ public static class TrieBuilder
             cur.HiraganaCount = hiraCount;
             cur.RomajiCount = path.Length;
             cur.NextRoot = nextRoot;
+        }
+
+        for (int i = 0; i < pathNodes.Count; i++)
+        {
+            TrieNode pathNode = pathNodes[i];
+            if (pathNode.DefaultTerminal != null) continue;
+
+            pathNode.DefaultCompletion = path.Substring(i + 1);
+            pathNode.DefaultTerminal = cur;
         }
     }
 
@@ -427,7 +438,7 @@ public static class TrieBuilder
             string sub = hiragana.Substring(from, len);
             if (!RomaMap.TryGetValue(sub, out string[] r)) continue;
             char c = r[0][0];
-            return (!"aiueon".Contains(c) && c != 'y') ? c : '\0';
+            return ("aiueon".IndexOf(c) < 0 && c != 'y') ? c : '\0';
         }
         return '\0';
     }
@@ -440,7 +451,7 @@ public static class TrieBuilder
             string sub = hiragana.Substring(from, len);
             if (!RomaMap.TryGetValue(sub, out string[] r)) continue;
             char c = r[0][0];
-            return (!"aiueony".Contains(c)) ? c : '\0';
+            return ("aiueony".IndexOf(c) < 0) ? c : '\0';
         }
         return '\0';
     }
