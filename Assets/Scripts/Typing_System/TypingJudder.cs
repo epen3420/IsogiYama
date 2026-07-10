@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 /// <summary>
@@ -8,6 +9,10 @@ public class TypingJudder
 {
     private TrieNode _root;
     private TrieNode _current;
+    private readonly StringBuilder _committedRomaji = new();
+    private readonly StringBuilder _currentRomaji = new();
+    private readonly StringBuilder _fullRomajiBuilder = new();
+    private readonly Dictionary<int, string> _defaultRomajiSuffixCache = new();
 
     /// <summary>
     /// 遅延コミット中の中間終端ノード。
@@ -24,7 +29,7 @@ public class TypingJudder
     public string FullRomaji { get; private set; }
 
     /// <summary>
-    /// セグメント完了ごとに発火。引数は現在の FullRomaji。
+    /// FullRomaji が変化したときに発火。引数は現在の FullRomaji。
     /// ユーザーが別表記（shi ではなく si 等）を打った場合など、
     /// 表示上のローマ字列を更新したいタイミングで使用。
     /// </summary>
@@ -34,6 +39,7 @@ public class TypingJudder
     {
         FullJapanese = hiragana;
         FullRomaji = BuildDefaultRomaji(hiragana);
+        _defaultRomajiSuffixCache[0] = FullRomaji;
 
         _root = TrieBuilder.GetOrBuild(hiragana);
         _current = _root;
@@ -84,17 +90,16 @@ public class TypingJudder
             if (_pendingTerminal != null)
             {
                 var pending = _pendingTerminal;
-                _pendingTerminal = null;
 
                 TrieNode fallback = pending.NextRoot;
                 if (fallback != null && fallback.Children.TryGetValue(lower, out next))
                 {
                     // pending を確定
-                    TypedHiraganaCount += pending.HiraganaCount;
-                    TypedRomajiCount += pending.RomajiCount;
-                    OnRomajiTextChanged?.Invoke(FullRomaji);
+                    CommitPendingTerminal(pending);
 
+                    _currentRomaji.Append(lower);
                     _current = next;
+                    RefreshRomajiText();
                     return next.IsTerminal ? CommitOrDefer(next) : TypingState.Hit;
                 }
             }
@@ -102,7 +107,9 @@ public class TypingJudder
         }
 
         _pendingTerminal = null;
+        _currentRomaji.Append(lower);
         _current = next;
+        RefreshRomajiText();
 
         if (!next.IsTerminal)
             return TypingState.Hit;
@@ -119,22 +126,140 @@ public class TypingJudder
         {
             // 遅延：まだカウントを加算せず、次の打鍵を待つ
             _pendingTerminal = node;
+            RefreshRomajiText();
             return TypingState.Hit;
         }
 
         // 即コミット
-        TypedHiraganaCount += node.HiraganaCount;
-        TypedRomajiCount += node.RomajiCount;
-        OnRomajiTextChanged?.Invoke(FullRomaji);
-
-        _current = node.NextRoot; // null なら全セグメント完了
+        CommitTerminal(node);
         return _current == null ? TypingState.Clear : TypingState.Hit;
+    }
+
+    private void CommitPendingTerminal(TrieNode node)
+    {
+        TypedHiraganaCount += node.HiraganaCount;
+        _committedRomaji.Append(_currentRomaji);
+        _currentRomaji.Clear();
+        _pendingTerminal = null;
+    }
+
+    private void CommitTerminal(TrieNode node)
+    {
+        CommitPendingTerminal(node);
+        _current = node.NextRoot; // null なら全セグメント完了
+        RefreshRomajiText();
+    }
+
+    private void RefreshRomajiText()
+    {
+        TypedRomajiCount = _committedRomaji.Length + _currentRomaji.Length;
+
+        if (_current == null)
+        {
+            SetFullRomaji(_committedRomaji.ToString());
+            return;
+        }
+
+        if (_currentRomaji.Length == 0)
+        {
+            SetFullRomaji(BuildFullRomaji(GetDefaultRomajiFrom(TypedHiraganaCount)));
+            return;
+        }
+
+        if (TryGetDefaultCompletion(_current, out string completion, out TrieNode terminal))
+        {
+            int nextHiraganaIndex = TypedHiraganaCount + terminal.HiraganaCount;
+            SetFullRomaji(BuildFullRomaji(_currentRomaji, completion, GetDefaultRomajiFrom(nextHiraganaIndex)));
+        }
+        else
+        {
+            SetFullRomaji(BuildFullRomaji(_currentRomaji));
+        }
+    }
+
+    private void SetFullRomaji(string newFullRomaji)
+    {
+        if (FullRomaji == newFullRomaji) return;
+
+        FullRomaji = newFullRomaji;
+        OnRomajiTextChanged?.Invoke(FullRomaji);
+    }
+
+    private string BuildFullRomaji(string suffix)
+    {
+        _fullRomajiBuilder.Clear();
+        AppendStringBuilder(_fullRomajiBuilder, _committedRomaji);
+        _fullRomajiBuilder.Append(suffix);
+        return _fullRomajiBuilder.ToString();
+    }
+
+    private string BuildFullRomaji(StringBuilder currentRomaji)
+    {
+        _fullRomajiBuilder.Clear();
+        AppendStringBuilder(_fullRomajiBuilder, _committedRomaji);
+        AppendStringBuilder(_fullRomajiBuilder, currentRomaji);
+        return _fullRomajiBuilder.ToString();
+    }
+
+    private string BuildFullRomaji(StringBuilder currentRomaji, string completion, string suffix)
+    {
+        _fullRomajiBuilder.Clear();
+        AppendStringBuilder(_fullRomajiBuilder, _committedRomaji);
+        AppendStringBuilder(_fullRomajiBuilder, currentRomaji);
+        _fullRomajiBuilder.Append(completion);
+        _fullRomajiBuilder.Append(suffix);
+        return _fullRomajiBuilder.ToString();
+    }
+
+    private static void AppendStringBuilder(StringBuilder destination, StringBuilder source)
+    {
+        for (int i = 0; i < source.Length; i++)
+            destination.Append(source[i]);
+    }
+
+    private string GetDefaultRomajiFrom(int hiraganaIndex)
+    {
+        if (hiraganaIndex >= FullJapanese.Length) return "";
+
+        if (!_defaultRomajiSuffixCache.TryGetValue(hiraganaIndex, out string romaji))
+        {
+            romaji = BuildDefaultRomaji(FullJapanese, hiraganaIndex);
+            _defaultRomajiSuffixCache[hiraganaIndex] = romaji;
+        }
+
+        return romaji;
+    }
+
+    private static bool TryGetDefaultCompletion(TrieNode node, out string completion, out TrieNode terminal)
+    {
+        if (node.IsTerminal)
+        {
+            completion = "";
+            terminal = node;
+            return true;
+        }
+
+        if (node.DefaultTerminal != null)
+        {
+            completion = node.DefaultCompletion;
+            terminal = node.DefaultTerminal;
+            return true;
+        }
+
+        completion = "";
+        terminal = null;
+        return false;
     }
 
     private static string BuildDefaultRomaji(string hiragana)
     {
+        return BuildDefaultRomaji(hiragana, 0);
+    }
+
+    private static string BuildDefaultRomaji(string hiragana, int startIndex)
+    {
         var sb = new StringBuilder();
-        int i = 0;
+        int i = startIndex;
 
         while (i < hiragana.Length)
         {
@@ -148,7 +273,7 @@ public class TypingJudder
                     string sub = hiragana.Substring(i + 1, len);
                     if (!TrieBuilder.RomaMap.TryGetValue(sub, out string[] r)) continue;
                     char c = r[0][0];
-                    if (!"aiueon".Contains(c) && c != 'y') carry = c;
+                    if ("aiueon".IndexOf(c) < 0 && c != 'y') carry = c;
                     break;
                 }
                 sb.Append(carry != '\0' ? carry : TrieBuilder.RomaMap["っ"][0]);

@@ -463,9 +463,9 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.08333334
+    x: 0.11650115
     y: 0
-    width: 0.8333333
+    width: 0.7669977
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -675,22 +675,22 @@ MonoBehaviour:
   endingsList:
   - Key: 1
     displayName: ED1
-    description: "\u3082\u3063\u3068\u65E9\u304F\u6765\u3066\u3044\u308C\u3070\u3002"
+    description: "\u305D\u3053\u306B\u3042\u3063\u305F\u306E\u306F"
     isUnlocked: 0
     isSpecial: 0
   - Key: 2
     displayName: ED2
-    description: "\u9593\u306B\u5408\u308F\u306A\u304B\u3063\u305F..."
+    description: "\u4E00\u77AC\u3068\u5F8C\u6094"
     isUnlocked: 0
     isSpecial: 0
   - Key: 3
     displayName: ED3
-    description: "\u7121\u4E8B\u306B\u5C71\u3092\u4E0B\u308A\u308B\u3053\u3068\u304C\u3067\u304D\u305F\u3002"
+    description: "\u4E0B\u5C71"
     isUnlocked: 0
     isSpecial: 0
   - Key: 4
     displayName: SP
-    description: "\u771F\u5B9F\u306B\u6C17\u4ED8\u3044\u305F...?"
+    description: "\u6025\u304C\u306A\u304D\u3083"
     isUnlocked: 0
     isSpecial: 1
 --- !u!4 &1114210976
@@ -1607,6 +1607,14 @@ PrefabInstance:
     - target: {fileID: 4798979997302130563, guid: a0121ccddb3201e4d8232f3e633c2ef5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7232894024534043356, guid: a0121ccddb3201e4d8232f3e633c2ef5, type: 3}
+      propertyPath: m_NormalizedViewPortRect.x
+      value: 0.11650115
+      objectReference: {fileID: 0}
+    - target: {fileID: 7232894024534043356, guid: a0121ccddb3201e4d8232f3e633c2ef5, type: 3}
+      propertyPath: m_NormalizedViewPortRect.width
+      value: 0.7669977
       objectReference: {fileID: 0}
     - target: {fileID: 7729602014307415820, guid: a0121ccddb3201e4d8232f3e633c2ef5, type: 3}
       propertyPath: m_Name

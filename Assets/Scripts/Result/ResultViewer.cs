@@ -191,12 +191,12 @@ public class ResultDisplay : MonoBehaviour
         // 隠しエンディングの条件を満たしている場合
         if (isSecretEndingCondition)
         {
-            stringBuilder.AppendLine("「…気づいてしまったようですね」");
+            stringBuilder.AppendLine("急がなきゃ。");
         }
         // 全てのエンディングがアンロック済みの場合
         else if (allEndingsUnlocked)
         {
-            stringBuilder.AppendLine("今、全ての結末があなたに示された。");
+            // 誘導文は表示せず、最後の文言だけを表示する。
         }
         // 通常のアドバイス
         else
@@ -212,13 +212,13 @@ public class ResultDisplay : MonoBehaviour
                 if (!ResultHolder.instance.IsEndingUnlocked(EndingType.ED2))
                 {
                     targetScore = 0.5f;
-                    stringBuilder.AppendLine("…どうやら、まだ見ぬ物語があるようだ。");
+                    stringBuilder.AppendLine("…どうやら、まだ見ぬ結末があるようだ。");
                 }
                 // ED2が開放済みならED1へ誘導
                 else
                 {
                     targetScore = 0.5f;
-                    stringBuilder.AppendLine("もう少し違う道を選んでいれば、別の物語が見えたかもしれない。");
+                    stringBuilder.AppendLine("もう少し違う道を選んでいれば、別の結末になったのかもしれない。");
                 }
             }
             // ED2（スコア0.5以上0.8未満）を達成した場合
@@ -234,7 +234,7 @@ public class ResultDisplay : MonoBehaviour
                 else
                 {
                     targetScore = 0.5f;
-                    stringBuilder.AppendLine("違うやり方を試せば、別の結末が待っているだろう。");
+                    stringBuilder.AppendLine("また、別の結末が待っているだろう。");
                 }
             }
             // ED1（スコア0.5未満）を達成した場合
@@ -244,13 +244,13 @@ public class ResultDisplay : MonoBehaviour
                 if (!ResultHolder.instance.IsEndingUnlocked(EndingType.ED2))
                 {
                     targetScore = 0.5f;
-                    stringBuilder.AppendLine("この結末が、全てではない。");
+                    stringBuilder.AppendLine("この結果が全てではない。");
                 }
                 // ED2が開放済みならED3へ誘導
                 else
                 {
                     targetScore = 0.8f;
-                    stringBuilder.AppendLine("さらに先に進めば、新たな物語が見えるだろう。");
+                    stringBuilder.AppendLine("もっと早く正確に進めば、新たな結末が見えるだろう。");
                 }
             }
 
@@ -290,12 +290,12 @@ public class ResultDisplay : MonoBehaviour
         // 隠しエンディングの条件を満たしている場合
         if (isSecretEndingCondition)
         {
-            stringBuilder.AppendLine("そして、あなたは真実を知る。");
+            stringBuilder.AppendLine("あなたは真実を知った。");
         }
         // 全てのエンディングがアンロック済みの場合
         else if (allEndingsUnlocked)
         {
-            stringBuilder.AppendLine("おめでとう。全ての物語を紡ぎきった。");
+            stringBuilder.AppendLine("全ての結末にたどり着いた。");
         }
         // 通常のアドバイスの場合
         else
@@ -323,11 +323,11 @@ public class ResultDisplay : MonoBehaviour
                 {
                     if (isSpecial)
                     {
-                        stringBuilder.AppendLine($"<color=red>・{endingName} <size=20>{description}</size></color>");
+                        stringBuilder.AppendLine($"<color=red>・{endingName} [{description}]</color>");
                     }
                     else
                     {
-                        stringBuilder.AppendLine($"・{endingName} <size=20>{description}</size>");
+                        stringBuilder.AppendLine($"・{endingName} [{description}]");
                     }
                 }
                 else
