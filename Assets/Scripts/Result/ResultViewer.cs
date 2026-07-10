@@ -196,6 +196,7 @@ public class ResultDisplay : MonoBehaviour
         // 全てのエンディングがアンロック済みの場合
         else if (allEndingsUnlocked)
         {
+            // 誘導文は表示せず、最後の文言だけを表示する。
         }
         // 通常のアドバイス
         else

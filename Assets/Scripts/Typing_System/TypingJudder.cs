@@ -11,6 +11,7 @@ public class TypingJudder
     private TrieNode _current;
     private readonly StringBuilder _committedRomaji = new();
     private readonly StringBuilder _currentRomaji = new();
+    private readonly StringBuilder _fullRomajiBuilder = new();
     private readonly Dictionary<int, string> _defaultRomajiSuffixCache = new();
 
     /// <summary>
@@ -28,7 +29,7 @@ public class TypingJudder
     public string FullRomaji { get; private set; }
 
     /// <summary>
-    /// セグメント完了ごとに発火。引数は現在の FullRomaji。
+    /// FullRomaji が変化したときに発火。引数は現在の FullRomaji。
     /// ユーザーが別表記（shi ではなく si 等）を打った場合など、
     /// 表示上のローマ字列を更新したいタイミングで使用。
     /// </summary>
@@ -161,25 +162,19 @@ public class TypingJudder
 
         if (_currentRomaji.Length == 0)
         {
-            SetFullRomaji(_committedRomaji + GetDefaultRomajiFrom(TypedHiraganaCount));
+            SetFullRomaji(BuildFullRomaji(GetDefaultRomajiFrom(TypedHiraganaCount)));
             return;
         }
 
-        string newFullRomaji;
         if (TryGetDefaultCompletion(_current, out string completion, out TrieNode terminal))
         {
             int nextHiraganaIndex = TypedHiraganaCount + terminal.HiraganaCount;
-            newFullRomaji = _committedRomaji
-                            + _currentRomaji.ToString()
-                            + completion
-                            + GetDefaultRomajiFrom(nextHiraganaIndex);
+            SetFullRomaji(BuildFullRomaji(_currentRomaji, completion, GetDefaultRomajiFrom(nextHiraganaIndex)));
         }
         else
         {
-            newFullRomaji = _committedRomaji + _currentRomaji.ToString();
+            SetFullRomaji(BuildFullRomaji(_currentRomaji));
         }
-
-        SetFullRomaji(newFullRomaji);
     }
 
     private void SetFullRomaji(string newFullRomaji)
@@ -188,6 +183,38 @@ public class TypingJudder
 
         FullRomaji = newFullRomaji;
         OnRomajiTextChanged?.Invoke(FullRomaji);
+    }
+
+    private string BuildFullRomaji(string suffix)
+    {
+        _fullRomajiBuilder.Clear();
+        AppendStringBuilder(_fullRomajiBuilder, _committedRomaji);
+        _fullRomajiBuilder.Append(suffix);
+        return _fullRomajiBuilder.ToString();
+    }
+
+    private string BuildFullRomaji(StringBuilder currentRomaji)
+    {
+        _fullRomajiBuilder.Clear();
+        AppendStringBuilder(_fullRomajiBuilder, _committedRomaji);
+        AppendStringBuilder(_fullRomajiBuilder, currentRomaji);
+        return _fullRomajiBuilder.ToString();
+    }
+
+    private string BuildFullRomaji(StringBuilder currentRomaji, string completion, string suffix)
+    {
+        _fullRomajiBuilder.Clear();
+        AppendStringBuilder(_fullRomajiBuilder, _committedRomaji);
+        AppendStringBuilder(_fullRomajiBuilder, currentRomaji);
+        _fullRomajiBuilder.Append(completion);
+        _fullRomajiBuilder.Append(suffix);
+        return _fullRomajiBuilder.ToString();
+    }
+
+    private static void AppendStringBuilder(StringBuilder destination, StringBuilder source)
+    {
+        for (int i = 0; i < source.Length; i++)
+            destination.Append(source[i]);
     }
 
     private string GetDefaultRomajiFrom(int hiraganaIndex)
