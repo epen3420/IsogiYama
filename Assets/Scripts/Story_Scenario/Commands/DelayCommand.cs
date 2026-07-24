@@ -1,12 +1,13 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using CSV4Unity;
+using Cysharp.Threading.Tasks;
 
 namespace IsogiYama.Commands
 {
     public class DelayCommand : CommandBase
     {
-        public override async UniTask ExecuteAsync(LineData<ScenarioFields> lineData)
+        public override async UniTask ExecuteAsync(CsvRow<ScenarioFields> lineData)
         {
-            int waitMSec = lineData.Get<int>(ScenarioFields.Arg1);
+            int waitMSec = lineData[ScenarioFields.Arg1].Get<int>();
 
             await UniTask.Delay(waitMSec);
         }

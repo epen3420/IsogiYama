@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using CSV4Unity;
+using Cysharp.Threading.Tasks;
 using System.Threading;
 
 public abstract class CommandBase
@@ -24,7 +25,7 @@ public abstract class CommandBase
     /// <summary>
     /// コマンドの実行
     /// </summary>
-    public abstract UniTask ExecuteAsync(LineData<ScenarioFields> lineData);
+    public abstract UniTask ExecuteAsync(CsvRow<ScenarioFields> lineData);
 
     /// <summary>
     /// コマンド実行時に利用するキャンセルトークン
