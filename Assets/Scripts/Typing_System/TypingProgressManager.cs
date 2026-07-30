@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
-using IsogiYama.System;
+using CSV4Unity;
 using SoundSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -125,8 +124,7 @@ public class TypingProgressManager : MonoBehaviour
             return false;
         }
 
-        var csvLoader = new CSVLoader();
-        var csvData = csvLoader.LoadCSV<TypingQuestType>(csvFile);
+        var csvData = CSVLoader.LoadTable<TypingQuestType>(csvFile);
         if (csvData == null)
         {
             Debug.LogError("Failed to load CSV data.");
@@ -136,7 +134,7 @@ public class TypingProgressManager : MonoBehaviour
         StoreCSVDataToList(csvData);
         typingBGScheduler = new TypingBGScheduler
         (
-            csvData.Rows[0],
+            csvData.Row(0),
             timer,
             endTypingScene,
             gameOverImageName,
@@ -215,14 +213,15 @@ public class TypingProgressManager : MonoBehaviour
     /// タイピングのクエストデータをCSVファイルから作成
     /// </summary>
     /// <param name="csvData"></param>
-    private void StoreCSVDataToList(CsvData<TypingQuestType> csvData)
+    private void StoreCSVDataToList(CsvTable<TypingQuestType> csvData)
     {
         questDatas = new List<JapaneseRomaPair>();
         // タイピングのクエストデータをリストに格納
-        foreach (var row in csvData.Rows)
+        for (int i = 0; i < csvData.RowCount; i++)
         {
-            var japanese = row.Get<string>(TypingQuestType.japanese);
-            var input = row.Get<string>(TypingQuestType.input);
+            CsvRow<TypingQuestType> row = csvData.Row(i);
+            var japanese = row[TypingQuestType.japanese].Get<string>();
+            var input = row[TypingQuestType.input].Get<string>();
 
             questDatas.Add(new JapaneseRomaPair(japanese, input));
         }

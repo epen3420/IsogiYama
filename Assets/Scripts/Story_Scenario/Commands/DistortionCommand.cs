@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using CSV4Unity;
+using Cysharp.Threading.Tasks;
 
 namespace IsogiYama.Commands
 {
@@ -11,7 +12,7 @@ namespace IsogiYama.Commands
             vfxController = InstanceRegister.Get<VFXController>();
         }
 
-        public override async UniTask ExecuteAsync(LineData<ScenarioFields> lineData)
+        public override async UniTask ExecuteAsync(CsvRow<ScenarioFields> lineData)
         {
 
         }

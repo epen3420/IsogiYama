@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using CSV4Unity;
+using Cysharp.Threading.Tasks;
 
 namespace IsogiYama.Commands
 {
@@ -11,9 +12,9 @@ namespace IsogiYama.Commands
             vfxController = InstanceRegister.Get<VFXController>();
         }
 
-        public override async UniTask ExecuteAsync(LineData<ScenarioFields> lineData)
+        public override async UniTask ExecuteAsync(CsvRow<ScenarioFields> lineData)
         {
-            string isSet = lineData.Get<string>(ScenarioFields.Arg4);
+            string isSet = lineData[ScenarioFields.Arg4].Get<string>();
 
             if(isSet == "disable")
             {
@@ -21,9 +22,9 @@ namespace IsogiYama.Commands
             }
             else if(isSet == "enable")
             {
-                // float intensity = lineData.Get<float>(ScenarioFields.Arg1);
-                // float threshold = lineData.Get<float>(ScenarioFields.Arg2);
-                // float scatter = lineData.Get<float>(ScenarioFields.Arg3);
+                // float intensity = lineData[ScenarioFields.Arg1].Get<float>();
+                // float threshold = lineData[ScenarioFields.Arg2].Get<float>();
+                // float scatter = lineData[ScenarioFields.Arg3].Get<float>();
 
                 // vfxController.SetBloomParameters(intensity, threshold, scatter);
                 vfxController.SetBloom(true);

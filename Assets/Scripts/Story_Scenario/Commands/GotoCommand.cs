@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using CSV4Unity;
+using Cysharp.Threading.Tasks;
 
 namespace IsogiYama.Commands
 {
@@ -6,11 +7,11 @@ namespace IsogiYama.Commands
     {
         ProgressManager progressManager;
 
-        public override async UniTask ExecuteAsync(LineData<ScenarioFields> lineData)
+        public override async UniTask ExecuteAsync(CsvRow<ScenarioFields> lineData)
         {
             progressManager = InstanceRegister.Get<ProgressManager>();
 
-            int targetIndex = lineData.Get<int>(ScenarioFields.PageCtrl);
+            int targetIndex = lineData[ScenarioFields.PageCtrl].Get<int>();
 
             progressManager.IncrementIndex();
             // Header分を考慮しないとOutOfIndexになりかねない + Indexも0から始まってるから2引かないといけない

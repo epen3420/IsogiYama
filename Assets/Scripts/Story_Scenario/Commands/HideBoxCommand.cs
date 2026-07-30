@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using CSV4Unity;
+using UnityEngine;
 using Cysharp.Threading.Tasks;
 
 namespace IsogiYama.Commands
@@ -7,7 +8,7 @@ namespace IsogiYama.Commands
     {
         TextWindows textWindows;
 
-        public override async UniTask ExecuteAsync(LineData<ScenarioFields> lineData)
+        public override async UniTask ExecuteAsync(CsvRow<ScenarioFields> lineData)
         {
             textWindows = InstanceRegister.Get<TextWindows>();
             textWindows.HideBubble();

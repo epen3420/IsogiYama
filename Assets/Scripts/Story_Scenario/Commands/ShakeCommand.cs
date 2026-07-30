@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using CSV4Unity;
+using Cysharp.Threading.Tasks;
 
 namespace IsogiYama.Commands
 {
@@ -11,12 +12,12 @@ namespace IsogiYama.Commands
             vfxController = InstanceRegister.Get<VFXController>();
         }
 
-        public override async UniTask ExecuteAsync(LineData<ScenarioFields> lineData)
+        public override async UniTask ExecuteAsync(CsvRow<ScenarioFields> lineData)
         {
-            int duration = lineData.Get<int>(ScenarioFields.Arg1);
-            int magnitude = lineData.Get<int>(ScenarioFields.Arg2);
+            int duration = lineData[ScenarioFields.Arg1].Get<int>();
+            int magnitude = lineData[ScenarioFields.Arg2].Get<int>();
 
-            string isInstant = lineData.Get<string>(ScenarioFields.PageCtrl);
+            string isInstant = lineData[ScenarioFields.PageCtrl].Get<string>();
 
             if (isInstant == "instant")
             {
