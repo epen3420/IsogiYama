@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿using CSV4Unity;
+using UnityEngine;
 using Cysharp.Threading.Tasks;
-using IsogiYama.System;
 using System;
 using System.Threading;
 
@@ -19,10 +19,9 @@ public class ProgressManager : SceneSingleton<ProgressManager>
     private VFXController vfxController;
 
     // utility
-    private CSVLoader csvLoader;
     private CommandFactory commandFactory;
 
-    private CsvData<ScenarioFields> currentScenarioData;
+    private CsvTable<ScenarioFields> currentScenarioData;
     private int currentIndex;  //今の読み込み列_index
     private int nextIndex; //次読み込む列
     private int totalLine;
@@ -31,8 +30,6 @@ public class ProgressManager : SceneSingleton<ProgressManager>
     private void Start()
     {
         // 初期化
-        currentScenarioData = new CsvData<ScenarioFields>();
-        csvLoader = new CSVLoader();
         commandFactory = new CommandFactory();
 
         try
@@ -71,8 +68,8 @@ public class ProgressManager : SceneSingleton<ProgressManager>
     {
         while (currentIndex < totalLine)
         {
-            LineData<ScenarioFields> line = currentScenarioData.Rows[currentIndex];
-            currentCommand = line.Get<string>(ScenarioFields.Command);
+            CsvRow<ScenarioFields> line = currentScenarioData.Row(currentIndex);
+            currentCommand = line[ScenarioFields.Command].Get<string>();
 
             // Debug.Log($"Read : {currentCommand} / Line : {currentIndex}");
 
@@ -114,13 +111,13 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         Debug.Log($"current:{currentIndex} / next:{(nextIndex > totalLine ? totalLine : nextIndex)}");
     }
 
-    public LineData<ScenarioFields> GetIndexLine(int address)
+    public CsvRow<ScenarioFields> GetIndexLine(int address)
     {
         if (address > totalLine)
         {
             Debug.LogError("Address Out Of Range");
         }
-        return currentScenarioData.Rows[address];
+        return currentScenarioData.Row(address);
     }
 
     public void LoadScenarioData()
@@ -133,8 +130,8 @@ public class ProgressManager : SceneSingleton<ProgressManager>
 
         currentIndex = 0;
         nextIndex = 1;
-        currentScenarioData = csvLoader.ReadScenarioCSV(file, "テストファイル");
-        totalLine = currentScenarioData.Rows.Count;
+        currentScenarioData = CSVLoader.LoadTable<ScenarioFields>(file, dataName: "テストファイル");
+        totalLine = currentScenarioData.RowCount;
     }
 
     public async UniTask LoadScenarioDataAsync(CancellationToken ct = default)
@@ -148,21 +145,22 @@ public class ProgressManager : SceneSingleton<ProgressManager>
         currentIndex = 0;
         nextIndex = 1;
 
-        var (isCanceled, data) = await csvLoader
-            .LoadCSVAsync<ScenarioFields>(file, ct)
+        string csvText = file.text;
+        string dataName = file.name;
+        var (isCanceled, data) = await UniTask
+            .RunOnThreadPool(
+                () => CSVLoader.LoadTable<ScenarioFields>(csvText, dataName: dataName),
+                cancellationToken: ct)
             .SuppressCancellationThrow();
 
-        if (!isCanceled)
-        {
-            currentScenarioData = data;
-            totalLine = currentScenarioData.Rows.Count;
-        }
-        else
+        if (isCanceled)
         {
             Debug.LogWarning("シナリオ読み込みがキャンセルされました。");
+            return;
         }
 
-        totalLine = currentScenarioData.Rows.Count;
+        currentScenarioData = data;
+        totalLine = currentScenarioData.RowCount;
         Debug.Log($"[Async] Loaded lines: {totalLine}");
     }
 

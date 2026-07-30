@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using IsogiYama.System;
+using CSV4Unity;
 
 // 扱いたいcsvのヘッダーをあらかじめここで定義しておく
 // CSVのヘッダー順はこの宣言順でなくても良い(Attack, HP, ID, Nameみたいな順のヘッダーでも良い)
@@ -19,35 +19,30 @@ public class Sample : MonoBehaviour
 
     void Start()
     {
-        // staticではないのでインスタンス化すること。
-        CSVLoader CsvLoader = new CSVLoader();
+        // 1. ScenarioFields を使って読み込み。dataNameは省略可能。
+        // 複数のCSVを識別して保持したい場合に指定する。
+        var scenarioData = CSVLoader.LoadTable<ScenarioFields>(scenarioCsv, dataName: "MainScenario");
+        Debug.Log($"[Scenario] '{scenarioData.Document.Name}' を読み込み完了。行数: {scenarioData.RowCount}");
 
-        // 1. ScenarioFields を使って読み込み(CsvData<ScenarioFields>型) 第二引数は書かなくても良い、読み込んだCSV名を設定できる、
-        // 複数のCSVをLoadCSVによって保持しておきたいときに使えるだろうが基本書かなくてよい。
-        var scenarioData = CsvLoader.LoadCSV<ScenarioFields>(scenarioCsv, "MainScenario");
-        Debug.Log($"[Scenario] '{scenarioData.DataName}' を読み込み完了。行数: {scenarioData.Rows.Count}");
-
-        if (scenarioData.Rows.Count > 0)
+        if (scenarioData.RowCount > 0)
         {
-            // CsvData<ScenarioFields>型は、Rowsというリストを保持している。RowsはDictionaryの集合体
-            // RowsにはGetメソッドが用意されていて、あらかじめ定義したEnumで列を指定したあと取得したい型に合わせてGet<T>のTを変える。(intとかfloatとか)
-
-            var firstLine = scenarioData.Rows[0];
-            string cmd = firstLine.Get<string>(ScenarioFields.Command);
+            var firstLine = scenarioData.Row(0);
+            string cmd = firstLine[ScenarioFields.Command].Get<string>();
             Debug.Log($"[Scenario] 先頭行の Command: {cmd}");
         }
 
 
         // 2. EnemyFields を使って読み込み
-        var enemyData = CsvLoader.LoadCSV<EnemyFields>(enemyCsv, "EnemyStats");
-        Debug.Log($"[Enemy] '{enemyData.DataName}' を読み込み完了。行数: {enemyData.Rows.Count}");
+        var enemyData = CSVLoader.LoadTable<EnemyFields>(enemyCsv, dataName: "EnemyStats");
+        Debug.Log($"[Enemy] '{enemyData.Document.Name}' を読み込み完了。行数: {enemyData.RowCount}");
 
-        foreach (var line in enemyData.Rows)
+        for (int i = 0; i < enemyData.RowCount; i++)
         {
-            int id = line.Get<int>(EnemyFields.ID);
-            string name = line.Get<string>(EnemyFields.Name);
-            float hp = line.Get<int>(EnemyFields.HP);
-            int attack = line.Get<int>(EnemyFields.Attack);
+            CsvRow<EnemyFields> line = enemyData.Row(i);
+            int id = line[EnemyFields.ID].Get<int>();
+            string name = line[EnemyFields.Name].Get<string>();
+            float hp = line[EnemyFields.HP].Get<float>();
+            int attack = line[EnemyFields.Attack].Get<int>();
 
             Debug.Log($"[Enemy] ID:{id} / Name:{name} / HP:{hp} / Attack:{attack}");
         }

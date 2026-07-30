@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "com.cotore.csv4unity": "https://github.com/cotore-game/CSV4Unity.git?path=/Assets/Plugins/CSVLoader#v0.3.0",
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+    "com.epen3420.unigaslogger": "https://github.com/epen3420/UniGasLogger.git?path=/UniGasLogger",
     "com.unity.collab-proxy": "2.9.3",
     "com.unity.feature.2d": "2.0.1",
     "com.unity.ide.rider": "3.0.38",

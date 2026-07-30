@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CSV4Unity;
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -28,7 +29,7 @@ public class TypingBGScheduler
     private int displayTimeOfGameOverScreen;
 
 
-    public TypingBGScheduler(LineData<TypingQuestType> csvFirstLineData,
+    public TypingBGScheduler(CsvRow<TypingQuestType> csvFirstLineData,
                              StopwatchTimer timer,
                              Action<bool> endTypingScene,
                              string gameOverImageName,
@@ -82,18 +83,18 @@ public class TypingBGScheduler
         UnityEngine.Debug.Log("Complete to change background images.");
     }
 
-    private void StoreCSVData(LineData<TypingQuestType> firstRow)
+    private void StoreCSVData(CsvRow<TypingQuestType> firstRow)
     {
         // タイピング中の背景データをリストに格納
-        var initImagePath = firstRow.Get<string>(TypingQuestType.initBGImage);
+        var initImagePath = firstRow[TypingQuestType.initBGImage].Get<string>();
         bgEvents.Add(new TypingBGEvent(initImagePath, 0.0f));
         for (int i = 1; TypingQuestType.japanese != (TypingQuestType)i; i += 2)
         {
             var currentTypingQuestType = (TypingQuestType)i;
             try
             {
-                var imagePath = firstRow.Get<string>(currentTypingQuestType);
-                var executeTime = firstRow.Get<float>(currentTypingQuestType + 1);
+                var imagePath = firstRow[currentTypingQuestType].Get<string>();
+                var executeTime = firstRow[currentTypingQuestType + 1].Get<float>();
                 bgEvents.Add(new TypingBGEvent(imagePath, executeTime));
             }
             catch

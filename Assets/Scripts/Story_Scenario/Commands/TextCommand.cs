@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using CSV4Unity;
+using Cysharp.Threading.Tasks;
 using System.Threading;
 
 namespace IsogiYama.Commands
@@ -15,12 +16,12 @@ namespace IsogiYama.Commands
             lifetimeToken = textWindows.GetCancellationTokenOnDestroy();
         }
 
-        public override async UniTask ExecuteAsync(LineData<ScenarioFields> lineData)
+        public override async UniTask ExecuteAsync(CsvRow<ScenarioFields> lineData)
         {
-            string names = lineData.Get<string>(ScenarioFields.Arg1);
-            string body = lineData.Get<string>(ScenarioFields.Text);
-            int interval = lineData.Get<int>(ScenarioFields.Arg2);
-            int threshold = lineData.Get<int>(ScenarioFields.Arg3);
+            string names = lineData[ScenarioFields.Arg1].Get<string>();
+            string body = lineData[ScenarioFields.Text].Get<string>();
+            int interval = lineData[ScenarioFields.Arg2].Get<int>();
+            int threshold = lineData[ScenarioFields.Arg3].Get<int>();
 
             await textWindows.DisplayTextAsync(
                     names,

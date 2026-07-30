@@ -12,7 +12,7 @@ public class FixedAspectRatio : MonoBehaviour
     private float currentScreenWidth = 0;
     private float currentScreenHeight = 0;
 
-    void Awake()
+    private void OnEnable()
     {
         targetCamera = GetComponent<Camera>();
         if (targetCamera == null)
@@ -21,11 +21,10 @@ public class FixedAspectRatio : MonoBehaviour
             return;
         }
 
-        // 初期設定をAwakeで一度だけ実行
         UpdateCameraAspect();
     }
 
-    void Update()
+    private void Update()
     {
         // 画面サイズが変更された時のみアスペクト比を再計算
         if (currentScreenWidth != Screen.width || currentScreenHeight != Screen.height)
@@ -36,8 +35,19 @@ public class FixedAspectRatio : MonoBehaviour
 
     private void UpdateCameraAspect()
     {
-        currentScreenWidth = Screen.width;
-        currentScreenHeight = Screen.height;
+        int screenWidth = Screen.width;
+        int screenHeight = Screen.height;
+
+        // Editor起動直後など、Game Viewがまだ初期化されていない間は
+        // 0除算でCamera.rectへNaNが入るため、次のUpdateまで待つ。
+        if (screenWidth <= 0 || screenHeight <= 0 ||
+            targetAspectVector.x <= 0f || targetAspectVector.y <= 0f)
+        {
+            return;
+        }
+
+        currentScreenWidth = screenWidth;
+        currentScreenHeight = screenHeight;
 
         // 現在の画面と目的のアスペクト比を計算
         float screenAspect = currentScreenWidth / currentScreenHeight;
