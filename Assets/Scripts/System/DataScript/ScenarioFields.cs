@@ -35,7 +35,6 @@ public enum ScenarioFields
     [TypeConstraint(typeof(int), ConditionGroup = 1)]
     [Condition(2, ScenarioFields.Command, Compare.Equal, "Bg")]
     [NotNull(ConditionGroup = 2)]
-    [TypeConstraint(typeof(float), ConditionGroup = 2)]
     [Condition(3, ScenarioFields.Command, Compare.Equal, "#Fade")]
     [NotNull(ConditionGroup = 3)]
     [TypeConstraint(typeof(float), ConditionGroup = 3)]
