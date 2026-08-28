@@ -40,7 +40,7 @@ public enum ScenarioFields
     [TypeConstraint(typeof(float), ConditionGroup = 3)]
     [Condition(4, ScenarioFields.Command, Compare.Equal, "#Shake")]
     [NotNull(ConditionGroup = 4)]
-    [TypeConstraint(typeof(int), ConditionGroup = 4)]
+    [TypeConstraint(typeof(float), ConditionGroup = 4)]
     Arg1,
 
     [Condition(1, ScenarioFields.Command, Compare.Equal, "Text")]
@@ -51,7 +51,7 @@ public enum ScenarioFields
     [TypeConstraint(typeof(float), ConditionGroup = 2)]
     [Condition(3, ScenarioFields.Command, Compare.Equal, "#Shake")]
     [NotNull(ConditionGroup = 3)]
-    [TypeConstraint(typeof(int), ConditionGroup = 3)]
+    [TypeConstraint(typeof(float), ConditionGroup = 3)]
     Arg2,
 
     [Condition(ScenarioFields.Command, Compare.Equal, "Text")]
