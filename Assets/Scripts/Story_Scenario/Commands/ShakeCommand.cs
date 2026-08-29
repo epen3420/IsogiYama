@@ -14,8 +14,8 @@ namespace IsogiYama.Commands
 
         public override async UniTask ExecuteAsync(CsvRow<ScenarioFields> lineData)
         {
-            int duration = lineData[ScenarioFields.Arg1].Get<int>();
-            int magnitude = lineData[ScenarioFields.Arg2].Get<int>();
+            float duration = lineData[ScenarioFields.Arg1].Get<float>();
+            float magnitude = lineData[ScenarioFields.Arg2].Get<float>();
 
             string isInstant = lineData[ScenarioFields.PageCtrl].Get<string>();
 
